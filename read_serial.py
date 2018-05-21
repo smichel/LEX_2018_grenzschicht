@@ -3,7 +3,7 @@
 """
 Created on Mon May 21 21:31:45 2018
 
-@author: Simon Michel, Laura Dietrich, Jakob Doerr, Theresa Lang, Joscha Fregin
+@author: Simon Michel, Henning Dorff, Laura Dietrich, Jakob Doerr, Theresa Lang, Joscha Fregin
 """
 import serial
 import time 
