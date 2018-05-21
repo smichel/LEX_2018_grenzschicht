@@ -13,9 +13,9 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 
-#define RFM95_CS 4
-#define RFM95_RST 2
-#define RFM95_INT 3
+#define RFM95_CS 10
+#define RFM95_RST 9
+#define RFM95_INT 2
 
 #define SEALEVELPRESSURE_HPA (1013.25)
 Adafruit_BME280 bme; // I2C
@@ -76,11 +76,17 @@ void loop()
   printValues();
   Serial.println("Sending to rf95_server");
   // Send a message to rf95_server
+  int temp = int(bme.readTemperature()*100);
+  int hum = int(bme.readHumidity()*100);
+  long p = long(bme.readPressure()*100);
+  // char radiopacket[20] = "Hello World #      ";
+  char radiopacket[20];
   
-  char radiopacket[20] = "Hello World #      ";
-  itoa(packetnum++, radiopacket+13, 10);
+  itoa(temp, radiopacket, 10);
+  itoa(hum, radiopacket+4, 10);
+  ltoa(p, radiopacket+8, 10);
   Serial.print("Sending "); Serial.println(radiopacket);
-  radiopacket[19] = 0;
+  //radiopacket[19] = 0;
   
   Serial.println("Sending..."); delay(10);
   rf95.send((uint8_t *)radiopacket, 20);
@@ -120,7 +126,6 @@ void printValues() {
     Serial.println(" *C");
 
     Serial.print("Pressure = ");
-
     Serial.print(bme.readPressure() / 100.0F);
     Serial.println(" hPa");
 
