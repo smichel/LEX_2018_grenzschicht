@@ -62,37 +62,41 @@ void setup()
 }
 
 int16_t packetnum = 0;  // packet counter, we increment per xmission
-
+const char call[3] = "42";
+//char call[3] = 
 void loop()
 {
   //Serial.println("Sending to rf95_server");
-  char call[3] = "01"; // replace struct to loop through in future
   // Send a message to rf95_server
   //Serial.println("Sending..."); delay(10);
+  //char call[3] = calls[i];
   rf95.send((uint8_t *)call, sizeof(call));
-
+  //Serial.println(call);
   //Serial.println("Waiting for packet to complete..."); delay(10);
   rf95.waitPacketSent();
   // Now wait for a reply
   uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
   uint8_t len = sizeof(buf);
-
-  //Serial.println("Waiting for reply..."); delay(10);
-  if (rf95.waitAvailableTimeout(1))
-  { 
-    // Should be a reply message for us now   
-    if (rf95.recv(buf, &len))
-   {
-      Serial.println((char*)buf);
+  for (int i = 0; i < 2; i++)
+  {
+    //Serial.println("Waiting for reply..."); delay(10);
+    if (rf95.waitAvailableTimeout(50))
+    { 
+      // Should be a reply message for us now   
+      if (rf95.recv(buf, &len))
+      {
+        Serial.println((char*)buf);
+      }
+      else
+      {
+       Serial.println("Receive failed");
+      }
     }
     else
     {
-      Serial.println("Receive failed");
+      Serial.println("No reply, is there a listener around?");
     }
-  }
-  else
-  {
-    Serial.println("No reply, is there a listener around?");
+    delay(100);
   }
   delay(1000);
 }
