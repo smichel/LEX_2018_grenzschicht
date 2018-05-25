@@ -101,7 +101,7 @@ void loop()
       long p = long(bme.readPressure()*100);
   
      // char radiopacket[20] = "Hello World #      ";
-      char radiopacket[20];
+      char radiopacket[22];
   
       itoa(temp, radiopacket, 10);
       itoa(hum, radiopacket+4, 10);
@@ -110,10 +110,10 @@ void loop()
       Serial.print("Sending "); Serial.println(radiopacket);
       //radiopacket[19] = 0;
   
-      Serial.println("Sending..."); delay(10);
-      rf95.send((uint8_t *)radiopacket, 20);
+      Serial.println("Sending..."); 
+      rf95.send((uint8_t *)radiopacket, 22);
 
-      //Serial.println("Sent a reply");
+      Serial.println("Sent a reply");
       digitalWrite(LED, LOW);
       }
     }
