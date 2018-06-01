@@ -15,9 +15,9 @@
 
 Adafruit_BME280 bme; // I2C
 
-#define RFM95_CS 4
-#define RFM95_RST 2
-#define RFM95_INT 3
+#define RFM95_CS 10
+#define RFM95_RST 9
+#define RFM95_INT 2
 
 // Change to 434.0 or other frequency, must match RX's freq!
 #define RF95_FREQ 868.0
@@ -26,7 +26,8 @@ Adafruit_BME280 bme; // I2C
 RH_RF95 rf95(RFM95_CS, RFM95_INT);
 // Blinky on receipt
 #define LED 13
-static char identifier[3] = "01";
+static char identifier[3] = "42";
+static int identity = 2;
 void setup() 
 {
   pinMode(LED, OUTPUT);     
@@ -84,10 +85,12 @@ void loop()
     
     if (rf95.recv(buf, &len))
     {
+      delay(200);
       digitalWrite(LED, HIGH);
       //RH_RF95::printBuffer("Received: ", buf, len);
       //Serial.print("Got: ");
       Serial.print((char*)buf);
+      Serial.println('x');
       //Serial.print("RSSI: ");
       //Serial.println(rf95.lastRssi(), DEC);
       
@@ -101,17 +104,18 @@ void loop()
       long p = long(bme.readPressure()*100);
   
      // char radiopacket[20] = "Hello World #      ";
-      char radiopacket[22];
+      char radiopacket[23];
   
       itoa(temp, radiopacket, 10);
       itoa(hum, radiopacket+4, 10);
       ltoa(p, radiopacket+8, 10);
-      itoa(packetnum++,radiopacket+16, 10);
+      itoa(identity, radiopacket+16,10);
+      itoa(packetnum++,radiopacket+17, 10);
       Serial.print("Sending "); Serial.println(radiopacket);
       //radiopacket[19] = 0;
   
       Serial.println("Sending..."); 
-      rf95.send((uint8_t *)radiopacket, 22);
+      rf95.send((uint8_t *)radiopacket, 23);
 
       Serial.println("Sent a reply");
       digitalWrite(LED, LOW);
