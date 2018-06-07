@@ -1,0 +1,117 @@
+\documentclass[a4paper,11pt,DIV=calc,tablecaptionabove,headinclude,twoside]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{ngerman}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{fancyhdr}                   %% Seite, Kopf- und Fußzeile anpassen (siehe \usepackage{geometry})
+\usepackage{flafter}                    %% verhindert dass Abbildungen vor Überschrift kommen
+\usepackage{float}
+\usepackage[pdfpagelabels=true]{hyperref}
+\usepackage{geometry}                   %% Seitenmaße verändern (siehe \usepackage{fancyhdr}) !!! Das Paket IMMER nach hyperref einbinden!!!
+\usepackage{graphicx}                   %% Einbinden von Bildern mit \includegraphics[]{×}
+\usepackage{tabularx}
+\geometry{a4paper, top=27mm, left=30mm, right=20mm, bottom=30mm, headsep=10mm, footskip=10mm}
+\usepackage[decimalsymbol=comma, binary-units=true, loctolang={DE:ngerman}]{siunitx}
+% --------------------------- BibTeX ---------------------------------------
+\usepackage[square]{natbib}                 
+%%%\bibliographystyle{natdin}           %% Referenzierung: Autor und Jahreszahl
+%\bibliographystyle{lex2018}
+
+% Title Page
+\title{Experimentplanung LEX 2018}%:\\Messseeelefantenantennenbenennungsverfahren}
+\author{Autoren}
+
+\begin{document}
+\maketitle
+
+
+
+\section{Einleitung}
+\subsection{Motivation}
+Warum ist das Thema interessant bzw. relevant? Warum lohnt es sich, sich mit dem Thema zu beschäftigen? (0.5--1 Seiten)
+
+- Grenzschicht ist die untere Schicht der Atmosphäre, die direkt vom Boden beeinflusst
+wird
+- Reibung --> beeinflusst Luftströmung
+- Strahlungsprozesse
+- Energieaustausch zwischen Boden und Atmosphäre
+
+Warum ist die Grenzschicht wichtig? Warum wollen wir sie modellieren?
+- Lebensraum des Menschen
+- viele für uns wichtige Wetterparameter hängen vom Zustand der Grenzschicht ab
+(Temperatur, Feuchte, Nebel, Wind, Land-Seewind Zirkulation, Stabilität)
+- ausgeprägte tageszeitliche Schwankungen dieser Parameter
+- wichtig für gute Wettervorhersage
+- Windkraftanlagen
+
+Schwierigkeiten bei der Modellierung/
+Was fehlt uns zum Verständnis der Grenzschicht?
+- Turbulenz
+- zeitliche Entwicklung der Grenzschicht
+- Mischprofile Land/See (wichtig für Modelle, Gitterpunkte mit Land und See)
+
+Kontinuierliche zeitlich und vertikal hochaufgelöste in-situ Messungen der
+atmosphärischen Grenzschicht bis 1000m Höhe existieren bislang nur sporadisch.
+
+\subsection{Wissenschaftliche Ziele/Fragen}
+Jedes Ziel mit Bullet-Punkten kurz und prägnant definieren; ein bis zwei -- auch stichwortartige -- Sätze genügen; nach Möglichkeit Hypothesen/Fragen formulieren, die im Experiment überprüft/beantwortet werden sollen. (wenige, 1 bis 5 Ziele)\\
+
+
+\begin{itemize}
+%\item Entwicklung der 'Hardware', um Profilmessungen der Grenzschicht mithilfe eines Fesselballons oder eines Drachens von Temperatur und Feuchte (mit möglichst hoher vertikaler Auflösung) durchführen zu können.
+%\item Welche Sensoren eignen sich? Interne Variabilität, absolute Genauigkeit
+%\item Grenzen der Messmethoden prüfen: Wie geeignet ist der Fesselballon/Drachen/Drohne für welche Zwecke: ZIEL: Wie kann man die Messungen beider (aller drei) Messmethoden ideal kombinieren, um möglichst viele Informationen zu erhalten. Vertikalauflösung und zeitliche Auflösung der Arduinos, was sind die Möglichkeiten der Messung durch die Drohne, was sind die Grenzen?
+%\item Wie sehr beeinflusst der Downwash der Drohne die Messungen?
+%\item Drohne: Messungen über dem Meer: \textbf{Unterschied Grenzschicht Land Meer}, Entwicklung der Grenzschicht über Land, wie weit reicht der Einfluss des Meeres/Landes
+%\item Zeitskalen: Wie schnell entwickeln sich die neue Grenzschicht? Z.B., wenn sich die Anströmrichtung von Land auf Meer wechselt
+
+
+\item Entwicklung und Test einer eigenen Messhardware zur Profilmessung von
+    Temperatur, Feuchte und Druck
+\item Untersuchungen zur Entwicklung der Grenzschicht (Tagesgang)
+\item Wie beeinflusst die Anströmrichtung die Profile über der Insel? Ist ein
+    Landseewind erkennbar?
+\end{itemize}
+\section{Stand der Forschung}
+Was ist zum Thema bekannt? Welche Vorarbeiten (Paper, alte LEX-Berichte usw.) gibt es, an die angeknüpft werden kann?
+
+Morning transition case between the land and the sea breeze regimes Jimenez et
+al
+DOI: 10.1016/j.atmosres.2015.12.019
+
+\section{Messstrategie}
+Wie sieht die allgemeine Messstrategie aus? Welche Größen sollen z.~B. mit welcher zeitlichen Auflösung gemessen werden, um die wissenschaftliche Fragestellung beantworten zu können? 
+\subsection{Experimenteller Aufbau}
+Welche Instrumente sollen wie (Messhöhe, Standortwahl, horizontale Abstände, ... ) aufgebaut werden? (nach Möglichkeit Skizzen und Pläne hinzufügen)
+
+\subsection{Bedingungen/Erfordernisse}
+Welche externen Bedingungen sind notwendig (Wetter)? Welche internen Erfordernisse sind notwendig (Betriebsmittel, Personal, externe Daten zur Durchführung usw.)? Sind Messdaten der anderen Gruppen erforderlich (Messstrategie absprechen)?
+
+externe Bedingungen:
+- kein Niederschlag
+- für Land-Seewind: möglichst wenig Wind
+
+interne Erfordernisse:
+- Helikite
+- Drohne
+- Flugerlaubnis
+
+\subsection{Durchführung}
+Beschreibung des regulären Messablaufs. Sind Intensivmessphasen geplant? Auf welche besonderen Ereignisse soll wie reagiert werden? 
+Wann werden zusätzliche Messungen (z.\,B. Radiosondenaufstiege) durchgeführt?
+Wie sollen die Messdaten aufgezeichnet werden? 
+
+\subsection{Auswertung}
+Wie sollen die Daten ausgewertet werden? Sind zusätzliche Daten (Satellitendaten, Modelldaten usw.) notwendig? Welche Grafiken oder Auswertungen sollen im Idealfall am Ende die wissenschaftlichen Fragen beantworten?
+
+\subsection{Risiken}
+Woran könnten Teile des Experiments scheitern? Welche Alternativen gibt es in diesen Situationen? (für jedes Risiko einen Absatz)
+
+\section{Kosten}
+Kosten für zusätzliches Material, Geräte, Betriebsmittel ...
+
+\section*{Literatur}
+
+\end{document}      
