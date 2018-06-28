@@ -5,6 +5,7 @@ Created on Tue May 22 15:40:42 2018
 
 @author: jf
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 #from matplotlib.widgets import CheckButtons
