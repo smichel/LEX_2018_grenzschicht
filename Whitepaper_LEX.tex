@@ -77,9 +77,12 @@ Jedes Ziel mit Bullet-Punkten kurz und prägnant definieren; ein bis zwei -- auc
 
 \section{Stand der Forschung}
 Was ist zum Thema bekannt? Welche Vorarbeiten (Paper, alte LEX-Berichte usw.) gibt es, an die angeknüpft werden kann?\\
-- Übergang Tag-/Nachtgrenzschicht (Theresa)\\
-- Übergang Land-/Seegrenzschicht (Henning)\\
-%- Drohnenmessungen (Jakob)
+- Übergang Tag-/Nachtgrenzschicht (Theresa)\\ % nur allgemeine Beschreibung, was erwarten wir?
+- Übergang Land-/Seegrenzschicht (Henning)\\ % nur allgemeine Beschreibung
+- In ... wurden bereits Beobachtungen in einer ähnlichen Umgebung (küstennah, auf einer Insel) mit ähnlichen Messmethoden (Ballon, Drohne) erfolgreich durchgeführt.  
+
+- Gibt es Grenzschichtmessungen mit einem ähnlich hohen Ballon? (Simi)
+
 Aufgrund ihrer Flexibilität und dem relativ niedrigen Anschaffungspreis werden
 in den letzten Jahren immer häufiger Drohnen für Messungen in der atmosphärischen
 Grenzschicht verwendet.
@@ -93,64 +96,132 @@ der Drohne befestigt.\\
 Zum Einfluss des Downwash-Effektes einer Drohne auf die Messungen gibt es bisher
 wenig Erkenntnisse. \citet{zhou2017small} befand nach Testmessungen den Einfluss für
 minimal.\\
-- Allgemeine Grenzschichtmessmethoden (Laura)\\
-- Gibt es Grenzschichtmessungen mit einem ähnlich hohen Ballon? (Simi)
+
+- Sensoren:
+
+
+
 
 
 \section{Messstrategie}
 Wie sieht die allgemeine Messstrategie aus? Welche Größen sollen z.~B. mit welcher zeitlichen Auflösung gemessen werden, um die wissenschaftliche Fragestellung beantworten zu können?
+
+Im Rahmen des Experimentes soll untersucht werden, wie sich die Größen Temperatur, Feuchte und Druck in der Grenzschicht im Verlauf eines Tages entwickeln, wobei besonderer Fokus auf den Übergang zwischen nächtlicher und konvektiver Grenzschicht gelegt werden soll. Zusätzlich sollen Erkenntnisse darüber gewonnen werden, ob und wie die küstennahe Grenzschicht durch die unmittelbare Nähe zum Meer beeinflusst wird und wie sich unterschiedliche Anströmrichtungen auswirken. 
+
+Die Kombination von zwei Messstrategien soll dies ermöglichen: Zur Beobachtung der zeitlichen Entwicklung werden mithilfe eines Helikites ab täglich ab Sonnenaufgang bis zum Nachmittag die Größen Temperatur, Feuchte und Druck in 10 Messhöhen zwischen dem Boden und 1000\,m mit einer zeitlichen Auflösung von 1\,s gemessen.
+Zusätzlich ist geplant ein Lidar in der Nähe des Helikites zu installieren, mit dem Vertikalprofile von Windgeschwindigkeit und -richtung in hoher zeitlicher Auflösung gemessen wird. % Welche Auflösung usw.?
+Um den Einfluss des Meeres auf die küstennahe Grenzschicht zu verstehen, soll zusätzlich eine Drohne verwendet werden, mit der zwei mal täglich instantane Horizontalprofile der Messgrößen über Land und Meer in mindestens zwei Messhöhen zwischen dem Boden und 100\,m Höhe gewonnen werden. 
+
 \subsection{Experimenteller Aufbau}
-Welche Instrumente sollen wie (Messhöhe, Standortwahl, horizontale Abstände, ... ) aufgebaut werden? (nach Möglichkeit Skizzen und Pläne hinzufügen)
-- 1km Messhöhe
-- im Idealfall (Ballonschnur vertikal): 2, 20, 50, 100, 280, 460, 640, 820,1000 %TODO: nochmal nachdenken, Skizze machen
-- Standort: Welcher Ort ist genehmigt? -> Hubschrauberlandeplatz (ca. 70m vond er Küste entfernt, keine Bäume)
+\label{Aufbau}
+%Welche Instrumente sollen wie (Messhöhe, Standortwahl, horizontale Abstände, ... ) aufgebaut werden? (nach Möglichkeit Skizzen und Pläne hinzufügen)
+%- 1km Messhöhe
+%- im Idealfall (Ballonschnur vertikal): 2, 20, 50, 100, 280, 460, 640, 820,1000 %TODO: nochmal nachdenken, Skizze machen
+%- Standort: Welcher Ort ist genehmigt? -> Hubschrauberlandeplatz (ca. 70m vond er Küste entfernt, keine Bäume)
+%
+%- Welche Instrumente?: Temperatur, Feuchte, Druck an Arduino
+%
+%- Drohne: Sensor unterhalb der Drohne (ca. 20cm) befestigt. Es sollen 2D profile als Ergänzung zum Ballon geflogen werden %TODO: Wie genau soll mit der Drohne geflogen werden?
+%
+%- Arduinos senden Daten live: Aufbau: Slaves/Master
 
-- Welche Instrumente?: Temperatur, Feuchte, Druck an Arduino
+Um die beschriebene Messstrategie umsetzen zu können, werden Messinstrumente an einem Helikite und an einer Drohne befestigt. 
+Der Helikite hat ein Volumen von 14\,$\text{m}^{3}$, eine Nutzlast von 4\,kg und kann auf eine Höhe von bis zu 1000\,m steigen. Er wird auf dem Hubschrauberlandeplatz des Bundeswehrgeländes in Marienleuchte in ca. 80\,m Entfernung zur Küste (Abbildung) fest am Boden verankert. Nur für diesen Standort wurde eine entsprechende Aufstiegsgenehmigung beantragt. An der Leine des Helikites werden insgesamt 10 Messinstrumente in unterschiedlichen Abständen befestigt (Abbildung). Geplante Messhöhen sind 2\,m, 20\,m, 50\,m, 100\,m, 180\,m, 300\,m, 450\,m, 620\,m, 820\,m und 1000\,m, sodass die Abstände im unteren Bereich der Grenzschicht enger liegen als im oberen. Diese Abstände werden womöglich nicht exakt einzuhalten sein, da an der Leine des Helikites in bestimmten Abständen zusätzliche Markierungen befestigt werden müssen, die der Sichtbarkeit dienen. Die tatsächlichen Messhöhen lassen sich dann anhand des gemessenen Drucks bestimmen. \\
 
-- Drohne: Sensor unterhalb der Drohne (ca. 20cm) befestigt. Es sollen 2D profile als Ergänzung zum Ballon geflogen werden %TODO: Wie genau soll mit der Drohne geflogen werden?
+Sollte ein Aufsteigen des Helikites aufgrund der Wetterbedingungen nicht möglich sein (siehe Abschnitte \ref{Bedingungen} und \ref{Risiken}), wird anstelle dessen bei niedrigen Windgeschwindigkeiten ein Fesselballon installiert, bei hohen Windgeschwindigkeiten ein Drachen. Die Messinstrumente werden in diesem Fall in äquidistanten Abständen bis zur maximal möglichen Messhöhe angebracht. \\
+  
+Alle Instrumente bestehen aus einem Arduino Board, einem BME280 Sensor zur Messung von Druck, Temperatur und relativer Feuchte und einem Long Range Wide Area (LoRa) Modul, das zur sofortigen Übermittlung der Daten zum sogenannten 'Master' am Boden dient (Foto). Eine Übersicht über die technischen Daten des BME280 befindet sich in Abbildung \ref{BME_280}. Die Stromversorgung der Instrumente erfolgt mit Powerbanks mit einer Kapazität von 2000 mAh. Dies reicht auch bei maximalem Stromverbrauch der Messinstrumente für einen Tag. Das oberste Instrument, das unmittelbar unterhalb des Ballons befestigt wird, verfügt zusätzlich über ein GPS Modul, sodass sich die Neigung der Leine aufgrund des Winds feststellen lässt. Die Instrumente werden in einem Rohr aus Acrylglas verpackt. Die einzelnen Bauteile werden dort so befestigt, dass sich nicht durch Stöße beschädigt werden können. Der Messsensor befindet sich außerhalb des Rohrs. So wird erreicht, dass der Sensor gut belüftet ist und verhindert, dass die Messungen durch ein strahlungsbedingtes Aufheizen oder Abwärme der anderen Komponenten innerhalb des Rohrs beeinflusst werden.  
+Jedes der Messgeräte inklusive Verpackung und Befestigungsvorrichtung wiegt ca. 200\,g, sodass das Gesamtgewicht deutlich unter der Nutzlast des Helikites liegt.\\
+   
+Ein weiteres Messgerät gleicher Bauart (mit GPS Modul) wird direkt an der Unterseite einer Drohne des Typs DJI Phantom 2 befestigt. Diese kann eine Nutzlast von maximal 500\,g transportieren und hat eine Flugdauer von ca. 10 Minuten. Sie kann eine Maximalgeschwindigkeit von 15\,m/s erreichen, was somit gleichzeitig der maximalen Einsatzwindgeschwindigkeit entspricht. Das geplante Flugmuster der Drohne wird in Abschnitt \ref{sec:Durchfuehrung} beschrieben. \\
 
-- Arduinos senden Daten live: Aufbau: Slaves/Master
+Ein Lidar der Firma METEK wird ebenfalls auf dem Gelände der Bundeswehr installiert. Genaue Angaben zu vertikaler und zeitlicher Auflösung können zum jetzigen Zeitpunkt noch nicht gemacht werden, da wir noch keine Informationen zum Lidar erhalten haben.  
+
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{BME_280_technische_Daten.png}
+\caption{Technische Daten des BME280 Sensors}
+\label{BME_280}
+\end{figure}
+
 \subsection{Bedingungen/Erfordernisse}
-Welche externen Bedingungen sind notwendig (Wetter)? Welche internen Erfordernisse sind notwendig (Betriebsmittel, Personal, externe Daten zur Durchführung usw.)? Sind Messdaten der anderen Gruppen erforderlich (Messstrategie absprechen)?
+\label{Bedingungen}
+%Welche externen Bedingungen sind notwendig (Wetter)? Welche internen Erfordernisse sind notwendig (Betriebsmittel, Personal, externe Daten zur Durchführung usw.)? Sind Messdaten der anderen Gruppen erforderlich (Messstrategie absprechen)?
 
+Folgende externe und interne Erfordernisse sind notwendig, um die geplanten Messungen erfolgreich durchführen zu können.
 
-\begin{itemize}
-\item externe Bedingungen:
-	\item kein Niederschlag, auch keine Niederschlagwahrscheinlichkeit!
-	\item max. Wind für Ballon %TODO Felix fragen
-	\item max. Wind für Drohne: theoretisch 15m/s, wir schaffen es nur bis geringe Windgeschwindigkeit (max. 5m/s)
-	\item für Land-Seewind: möglichst wenig Wind\\
-	
-\item interne Erfordernisse:
-	\item Kine anderen Messungen erforderlich
-	\item Helikite
-	\item Drohne
-	\item Flugerlaubnis
-\end{itemize}
+\subsubsection{Externe Bedingungen}
+
+Die wichtigste externe Voraussetzung ist die Wetterlage, da die Messungen nicht bei Niederschlag durchgeführt werden können. Wie in Abschnitt \ref{Aufbau} beschrieben, ist der Sensor nicht wie der übrige Teil der Messgeräte durch eine Verpackung geschützt. Er sollte jedoch auf keinen Fall mit Wasser in Berührung kommen, um eine Beschädigung der Elektronik zu verhindern. Gleiches gilt auch für die Drohne. Auch bei hohem Niederschlagsrisiko kann das Experiment nicht durchgeführt werden. \\
+
+Für die Messungen mit der Drohne spielt die Windgeschwindigkeit eine wichtige Rolle. Das verwendete Modell kann laut Hersteller bis zu einer maximalen Windgeschwindigkeit von 15\,m/s geflogen werden. Wir rechnen jedoch damit, dass es nur bis zu deutlich geringeren Windgeschwindigkeiten (ca. 5\,m/s) möglich ist, die Drohne mit ausreichender Sicherheit und Genauigkeit zu steuern. \\
+
+Auch für den Helikite müssen bestimmte Windbedingungen vorherrschen. Genaue Angaben zu maximalen oder minimalen Windgeschwindigkeiten können noch nicht gemacht werden, wir gehen jedoch davon aus, dass der Helikite auch für hohe Windgeschwindigkeiten ausgelegt ist. \\
+
+\subsubsection{Interne Bedingungen}
+
+Um den Helikite wie geplant einsetzen zu dürfen, ist eine behördliche Genehmigung nötig. Eine solche Genehmigung wurde für einen Aufstiegszeitaum zwischen Sonnenaufgang und Sonnenuntergang und für eine maximal Aufstiegshöhe von 1000\,m bereits beantragt. Bisher haben wir jedoch noch keine Rückmeldung erhalten.\\
+
+Sowohl die Drohne als auch die Messinstrumente werden über Akkus mit Strom versorgt, die zwischen den Messphasen geladen werden müssen. In der Nähe des Messstandortes müssen deshalb ausreichend USB-Ladekabel und Steckdosen vorhanden sein.\\
+
+Es muss damit gerechnet werden, dass es bei den Messinstrumenten zu Ausfällen kommt. Es müssen deshalb ausreichend Ersatzteile und Werkzeuge bereit liegen, um kaputte Bauteile möglichst schnell ersetzen zu können. Die Software der Messgeräte kann in Form sogenannter Sketches nur über einen PC auf den Arduino aufgespielt werden, sodass auch PCs mit der benötigten Software vorhanden sein müssen.\\
+
+Für den Helikite bzw. den Ballon wird ausreichend Helium benötigt. Zudem muss für die Winde des Helikites am Messstandort (Helikopterlandeplatz) eine Stromversorgung vorhanden sein. \\
+ 
+
+%\begin{itemize}
+%\item externe Bedingungen:
+%	\item kein Niederschlag, auch keine Niederschlagwahrscheinlichkeit!
+%	\item max. Wind für Ballon %TODO Felix fragen
+%	\item max. Wind für Drohne: theoretisch 15m/s, wir schaffen es nur bis geringe Windgeschwindigkeit (max. 5m/s)
+%	\item für Land-Seewind: möglichst wenig Wind\\
+%	
+%\item interne Erfordernisse:
+%	\item Kine anderen Messungen erforderlich
+%	\item Helikite
+%	\item Drohne
+%	\item Flugerlaubnis
+%\end{itemize}
 
 \subsection{Durchführung}
-Beschreibung des regulären Messablaufs. Sind Intensivmessphasen geplant? Auf welche besonderen Ereignisse soll wie reagiert werden? 
-Wann werden zusätzliche Messungen (z.\,B. Radiosondenaufstiege) durchgeführt?
-Wie sollen die Messdaten aufgezeichnet werden? 
+%Beschreibung des regulären Messablaufs. Sind Intensivmessphasen geplant? Auf welche besonderen Ereignisse soll wie reagiert werden? 
+%Wann werden zusätzliche Messungen (z.\,B. Radiosondenaufstiege) durchgeführt?
+%Wie sollen die Messdaten aufgezeichnet werden? \\
 
-\textbf{Reguläre Durchführung:}\\
-\begin{itemize}
-\item Ab Sonnenaufgang (06:15, 28.08; 06:35, 08.09) muss gemessen werden. Ballon schon vorher aufgebaut werden: Tag 1: 2h für Aufbau planen, alle. Anschließend anpassen (kürzere Vorbereitungszeit, evtl. weniger Leute, je nachdem, wie schnell wir sind.
-\item Messzeitraum: Sonnenaufgang bis 15Uhr. Dann soll der Ballon unten sein.
-\item durchgehende Messungen von T, Rh, p. In Auflösung: sekündlich.
-\item Daten werden in Echtzeit an Master gesendet, können während des Messzeitraums ausgewertet werden.
-\end{itemize}
+%\textbf{Reguläre Durchführung:}\\
+%\begin{itemize}
+%\item Ab Sonnenaufgang (06:15, 28.08; 06:35, 08.09) muss gemessen werden. Ballon schon vorher aufgebaut werden: Tag 1: 2h für Aufbau planen, alle. Anschließend anpassen (kürzere Vorbereitungszeit, evtl. weniger Leute, je nachdem, wie schnell wir sind.
+%\item Messzeitraum: Sonnenaufgang bis 15Uhr. Dann soll der Ballon unten sein.
+%\item durchgehende Messungen von T, Rh, p. In Auflösung: sekündlich.
+%\item Daten werden in Echtzeit an Master gesendet, können während des Messzeitraums ausgewertet werden.
+%\end{itemize}
+%
+%\textbf{Zusätzliche Drohnen-Messungen :}\\
+%Es sind Intensivmessphasen mit der Drohne geplant.
+%\begin{itemize}
+%\item Zwei Drohnenmessungen täglich, wenn die Grenzschicht schon aufgebaut ist.
+%\item Winkel zum Wind: parallel zum Wind)
+%\item Welche Form soll die Drohne fliegen?: Einmal 250m raus aufs Meer, einmal zurück in anderer Höhe und auf dieser Höhe weiter übers Land (insg. 500m), in neuer Höhe zurück (250m). Falls Akku leer, hier Messstop. Sonst nochmal über Meer in dieser Höhe (insg. weitere 500m). (Also Stufenprofil)
+%\item Evtl. Zusatzmessungen bei besonderen Ereignissen.
+%\end{itemize}
 
-\textbf{Zusätzliche Drohnen-Messungen :}\\
-Es sind Intensivmessphasen mit der Drohne geplant.
-\begin{itemize}
-\item Zwei Drohnenmessungen täglich, wenn die Grenzschicht schon aufgebaut ist.
-\item Winkel zum Wind: parallel zum Wind)
-\item Welche Form soll die Drohne fliegen?: Einmal 250m raus aufs Meer, einmal zurück in anderer Höhe und auf dieser Höhe weiter übers Land (insg. 500m), in neuer Höhe zurück (250m). Falls Akku leer, hier Messstop. Sonst nochmal über Meer in dieser Höhe (insg. weitere 500m). (Also Stufenprofil)
-\item Evtl. Zusatzmessungen bei besonderen Ereignissen.
-\end{itemize}
+Der reguläre Messtag startet ca. 1 bis 2 Stunden vor Sonnenaufgang, der im zwölftägigen Zeitraum der Messkampagne zwischen 6:15 Uhr (28.08.2018) und 6:35 Uhr (08.09.2018) stattfindet. Der Helikite muss bis zum Sonnenaufgang vollständig aufgebaut sein. Am ersten Tag planen wir für den Aufbau des Helikites 2 Stunden ein und das gesamte Team ist anwesend. Je nachdem, wie lange der Aufbau dauert können Zeit und Personenanzahl an den Folgetagen angepasst werden. Nach einer Überprüfung der Wetterlage entscheidet das Team, ob ein Aufstieg möglich ist. Während des Aufbaus müssen die Messinstrumente an ihre Powerbanks angeschlossen werden und auf Funktionalität geprüft werden. Anschließend werden sie in den in Abschnitt \ref{Aufbau} genannten Abständen an der Leine des Helikites befestigt, während wir diesen aufsteigen lassen. \\
+
+Sobald die Messinstrumente mit Strom versorgt sind werden ihre Messdaten in sekündlichen Abständen an den Master am Boden gesendet. Neben den Messwerten wird auch eine individuelle Kennung verschickt, die es ermöglicht, die empfangenen Daten dem jeweiligen Messinstrument zuzuordnen. Der Master ist an einen PC angeschlossen, mit dem die empfangenen Daten direkt ausgelesen und abgespeichert werden können. Außerdem werden die Profile von Temperatur, Feuchte und Druck live geplottet. So kann auf interessante oder unerwartete Entwicklungen reagiert werden und eventuell zusätzliche Messungen mit der Drohne gewonnen werden.\\
+
+Planmäßig sollen Messungen bis ca. 15 Uhr stattfinden, danach wird der Helikite abgebaut. Das Wetter wird jedoch während des gesamten Messzeitraums beobachtet und es wird sofort mit dem Abbau begonnen, sobald sich Niederschlag oder eingeschränkte Sichtverhältnisse ankündigen. Während die Leine eingeholt wird, werden die einzelnen Instrumente abgenommen, gesammelt und ihre Powerbanks anschließend aufgeladen. \\
+
+Zweimal täglich finden Messungen von Horizontalprofilen mit der Drohne statt. Die erste Messung findet unmittelbar nach Sonnenaufgang statt, die zweite am frühen Nachmittag. Dadurch erhoffen wir uns, die Grenzschicht in möglichst verschiedenen Zuständen zu beobachten.  
+Der Bereich, der mit der Drohne abgeflogen werden kann ist dadurch limitiert, dass laut Vorschrift maximal bis zu einer Höhe von 100\,m und nur auf Sicht geflogen werden darf. Zusätzlich hat die Drohne nur eine begrenzte Akkulaufzeit von ca. 10 Minuten. Abbildung ... zeigt das geplante Flugmuster. Da die Messungen Erkenntnisse darüber liefern sollen, ob und wie die Nähe zum Meer die küstennahe Grenzschicht beeinflusst, sollen die Horizontalprofile sowohl über Land als auch über Wasser aufgenommen werden.
+Die Drohne wird in ausreichendem Abstand zum Helikite gestartet und auf eine Höhe von ca. 20\,m gebracht. Anschließend soll sie senkrecht zur Küstenlinie über die Küste hinaus und über das Meer fliegen. Die Flugrichtung wird beibehalten, bis die Drohne sich ca. 250\,m vor der Küste befindet, wenn das Sichtfeld diese Entfernung erlaubt. Bevor die Drohne zurück fliegt erfolgt ein Aufstieg auf ca. 50\,m. Sobald die Drohne ca. 250\,m landeinwärts zurück gelegt hat, erfolgt ein erneuter Aufstieg und die Drohne fliegt zurück zum Ausgangspunkt. Ist der Akkuladung zu diesem Zeitpunkt noch ausreichend hoch, kann ein weiteres Profil über dem Meer geflogen werden (s. Abbildung), ansonsten wird die Drohne gelandet.   
+- Wie wird kalibriert (1. Tag)
+- Wann, wie und ob werden Drache/Ballon eingesetzt
+- Gibt es weitere einmalige Messungen?
+
 \subsection{Auswertung}
 Wie sollen die Daten ausgewertet werden? Sind zusätzliche Daten (Satellitendaten, Modelldaten usw.) notwendig? Welche Grafiken oder Auswertungen sollen im Idealfall am Ende die wissenschaftlichen Fragen beantworten?\\
+
 Zum Test der Messhardware (Helikite und Drohne) werden eines oder mehrere gemessene Profile 
 mit gleichzeitigen Messungen einer Radiosonde verglichen. Zur Auswertung werden beide Profile
 in einem Plot dargestellt und vergleichend analysiert.\\
@@ -163,21 +234,23 @@ Unterschiede der Grenschicht über Land und Meer werden durch eintragen der von 
 in einen gemeinsamen Plot identifiziert.\\
 
 \subsection{Risiken}
-Woran könnten Teile des Experiments scheitern? Welche Alternativen gibt es in diesen Situationen? (für jedes Risiko einen Absatz)
+\label{Risiken}
+Woran könnten Teile des Experiments scheitern? Welche Alternativen gibt es in diesen Situationen? (für jedes Risiko einen Absatz)\\
+
 Die Benutzung des Helikites bis in 1000 m Höhe ist, wie oben beschrieben, an eine
 Wetterlage mit guter Sicht bis in 1000 m ohne Sturm/stürmischen Wind gebunden. Falls diese Bedingungen nicht erfüllt werden, muss
-auf das Helikite verzichtet werden. FIn diesem Fall wird auf Messungen mit einem Ballon und/oder Drachen 
+auf das Helikite verzichtet werden. In diesem Fall wird auf Messungen mit einem Ballon und/oder Drachen 
 zurückgegriffen. Diese fliegen nur bis etwa 100-200 m. Dementsprechend würde sich die Analyse der Grenzschicht 
 nur auf diese Höhen beziehen. Die Sensoren könnten demensprechend in kürzerem Abstand aufgehangen werden.\\
 Die entwickelten Sensoren sind nicht wasserfest und somit bei Niederschlag nicht einsetzbar. Bei 14 Tage Regen am Stück
 würde das Experiment scheitern. In diesem Falle wäre eine Alternative, die Grenzschicht mit möglichst vielen Radiosondenaufstiegen
 zu untersuchen. \\
+Auch die Messung der Windprofile mit dem Lidar hängt von der Wetterlage ab, da nur bis zur Wolkenunterkante gemessen werden kann. \\
 Es besteht das Risiko, dass ein oder mehrere Sensoren ausfallen. Ein Ausfall des Masters am Boden wäre am
 schlimmsten, da dann keine Kommunikation mehr mit den anderen Sensoren möglich ist. Für den Fall von 
 Sensorausfällen sind für beide Arduino-Typen mindestens ein Ersatz eingeplant. Auch für die LoRa Chips und für
 die BME280-Sensoren ist Ersatz vorhanden, der bei Ausfall zum Einsatz kommt.\\
 
--Was tun bei Regen? LIDAR??
 \section{Kosten}
 Kosten für zusätzliches Material, Geräte, Betriebsmittel ...
 
