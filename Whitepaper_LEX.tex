@@ -16,7 +16,7 @@
 \usepackage[decimalsymbol=comma, binary-units=true, loctolang={DE:ngerman}]{siunitx}
 % --------------------------- BibTeX ---------------------------------------
 \usepackage[square]{natbib}                 
-%%%\bibliographystyle{natdin}           %% Referenzierung: Autor und Jahreszahl
+\bibliographystyle{natdin}           %% Referenzierung: Autor und Jahreszahl
 %\bibliographystyle{lex2018}
 
 % Title Page
@@ -76,41 +76,38 @@ Jedes Ziel mit Bullet-Punkten kurz und prägnant definieren; ein bis zwei -- auc
 \end{itemize}
 
 \section{Stand der Forschung}
-Was ist zum Thema bekannt? Welche Vorarbeiten (Paper, alte LEX-Berichte usw.) gibt es, an die angeknüpft werden kann?
-- Übergang Tag-/Nachtgrenzschicht (Theresa)
-- Übergang Land-/Seegrenzschicht (Henning)
+Was ist zum Thema bekannt? Welche Vorarbeiten (Paper, alte LEX-Berichte usw.) gibt es, an die angeknüpft werden kann?\\
+- Übergang Tag-/Nachtgrenzschicht (Theresa)\\
+- Übergang Land-/Seegrenzschicht (Henning)\\
 %- Drohnenmessungen (Jakob)
 Aufgrund ihrer Flexibilität und dem relativ niedrigen Anschaffungspreis werden
 in den letzten Jahren immer häufiger Drohnen für Messungen in der atmosphärischen
 Grenzschicht verwendet.
-Kunz et al. (2018) haben zum Beispiel COCAP entwickelt, ein Gerät zur Messung von
+\citet{kunz2018cocap} haben zum Beispiel COCAP entwickelt, ein Gerät zur Messung von
 CO2, das spezialisiert ist, um mit Drohnen zu fliegen. Die Temperatur und Feuchtesensoren
 von COCAP werden dabei unter den Rotoren der Drohne befestigt, sodass sie durch die 
-Zugluft der Rotoren belüftet werden. Jimenez et al. (2016) führten Messungen der morgentlichen Grenzschicht
+Zugluft der Rotoren belüftet werden. \citet{jimenez2016morning} führten Messungen der morgentlichen Grenzschicht
 auf Mallorca durch und fanden ebenfalls gute Übereinstimmung mit Wetterstationen, 
 Ballonmessungen und mesoskaligen Modellen. Hierbei waren die Sensoren über den Rotoren
 der Drohne befestigt.\\
 Zum Einfluss des Downwash-Effektes einer Drohne auf die Messungen gibt es bisher
-wenig Erkenntnisse. Zhou et al. (2017) befand nach Testmessungen den Einfluss für
+wenig Erkenntnisse. \citet{zhou2017small} befand nach Testmessungen den Einfluss für
 minimal.\\
-- Allgemeine Grenzschichtmessmethoden (Laura)
+- Allgemeine Grenzschichtmessmethoden (Laura)\\
 - Gibt es Grenzschichtmessungen mit einem ähnlich hohen Ballon? (Simi)
 
-Morning transition case between the land and the sea breeze regimes Jimenez et
-al
-DOI: 10.1016/j.atmosres.2015.12.019
 
 \section{Messstrategie}
 Wie sieht die allgemeine Messstrategie aus? Welche Größen sollen z.~B. mit welcher zeitlichen Auflösung gemessen werden, um die wissenschaftliche Fragestellung beantworten zu können?
 \subsection{Experimenteller Aufbau}
 Welche Instrumente sollen wie (Messhöhe, Standortwahl, horizontale Abstände, ... ) aufgebaut werden? (nach Möglichkeit Skizzen und Pläne hinzufügen)
 - 1km Messhöhe
-- im Idealfall (Ballonschnur vertikal): 2, 20, 50, 100, 280, 460, 640, 820,1000 #TODO: nochmal nachdenken, Skizze machen
+- im Idealfall (Ballonschnur vertikal): 2, 20, 50, 100, 280, 460, 640, 820,1000 %TODO: nochmal nachdenken, Skizze machen
 - Standort: Welcher Ort ist genehmigt? -> Hubschrauberlandeplatz (ca. 70m vond er Küste entfernt, keine Bäume)
 
 - Welche Instrumente?: Temperatur, Feuchte, Druck an Arduino
 
-- Drohne: Sensor unterhalb der Drohne (ca. 20cm) befestigt. Es sollen 2D profile als Ergänzung zum Ballon geflogen werden #TODO: Wie genau soll mit der Drohne geflogen werden?
+- Drohne: Sensor unterhalb der Drohne (ca. 20cm) befestigt. Es sollen 2D profile als Ergänzung zum Ballon geflogen werden %TODO: Wie genau soll mit der Drohne geflogen werden?
 
 - Arduinos senden Daten live: Aufbau: Slaves/Master
 \subsection{Bedingungen/Erfordernisse}
@@ -120,7 +117,7 @@ Welche externen Bedingungen sind notwendig (Wetter)? Welche internen Erfordernis
 \begin{itemize}
 \item externe Bedingungen:
 	\item kein Niederschlag, auch keine Niederschlagwahrscheinlichkeit!
-	\item max. Wind für Ballon #TODO Felix fragen
+	\item max. Wind für Ballon %TODO Felix fragen
 	\item max. Wind für Drohne: theoretisch 15m/s, wir schaffen es nur bis geringe Windgeschwindigkeit (max. 5m/s)
 	\item für Land-Seewind: möglichst wenig Wind\\
 	
@@ -137,17 +134,21 @@ Wann werden zusätzliche Messungen (z.\,B. Radiosondenaufstiege) durchgeführt?
 Wie sollen die Messdaten aufgezeichnet werden? 
 
 \textbf{Reguläre Durchführung:}\\
+\begin{itemize}
 \item Ab Sonnenaufgang (06:15, 28.08; 06:35, 08.09) muss gemessen werden. Ballon schon vorher aufgebaut werden: Tag 1: 2h für Aufbau planen, alle. Anschließend anpassen (kürzere Vorbereitungszeit, evtl. weniger Leute, je nachdem, wie schnell wir sind.
 \item Messzeitraum: Sonnenaufgang bis 15Uhr. Dann soll der Ballon unten sein.
 \item durchgehende Messungen von T, Rh, p. In Auflösung: sekündlich.
 \item Daten werden in Echtzeit an Master gesendet, können während des Messzeitraums ausgewertet werden.
+\end{itemize}
 
 \textbf{Zusätzliche Drohnen-Messungen :}\\
 Es sind Intensivmessphasen mit der Drohne geplant.
+\begin{itemize}
 \item Zwei Drohnenmessungen täglich, wenn die Grenzschicht schon aufgebaut ist.
 \item Winkel zum Wind: parallel zum Wind)
 \item Welche Form soll die Drohne fliegen?: Einmal 250m raus aufs Meer, einmal zurück in anderer Höhe und auf dieser Höhe weiter übers Land (insg. 500m), in neuer Höhe zurück (250m). Falls Akku leer, hier Messstop. Sonst nochmal über Meer in dieser Höhe (insg. weitere 500m). (Also Stufenprofil)
 \item Evtl. Zusatzmessungen bei besonderen Ereignissen.
+\end{itemize}
 \subsection{Auswertung}
 Wie sollen die Daten ausgewertet werden? Sind zusätzliche Daten (Satellitendaten, Modelldaten usw.) notwendig? Welche Grafiken oder Auswertungen sollen im Idealfall am Ende die wissenschaftlichen Fragen beantworten?
 
@@ -158,5 +159,5 @@ Woran könnten Teile des Experiments scheitern? Welche Alternativen gibt es in d
 Kosten für zusätzliches Material, Geräte, Betriebsmittel ...
 
 \section*{Literatur}
-
+\bibliography{Whitepaper}
 \end{document}
