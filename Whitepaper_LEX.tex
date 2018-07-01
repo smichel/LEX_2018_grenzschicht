@@ -62,15 +62,15 @@ Im Rahmen der LEX bietet sich uns eine einzigartige Möglichkeit, den Aufbau der
 Jedes Ziel mit Bullet-Punkten kurz und prägnant definieren; ein bis zwei -- auch stichwortartige -- Sätze genügen; nach Möglichkeit Hypothesen/Fragen formulieren, die im Experiment überprüft/beantwortet werden sollen. (wenige, 1 bis 5 Ziele)
 
 \begin{itemize}
-\item Entwicklung der 'Hardware', um Profilmessungen der Grenzschicht mithilfe eines Fesselballons oder eines Drachens von Temperatur und Feuchte (mit möglichst hoher vertikaler Auflösung) durchführen zu können.
-\item Welche Sensoren eignen sich? Interne Variabilität, absolute Genauigkeit
-\item Grenzen der Messmethoden prüfen: Wie geeignet ist der Fesselballon/Drachen/Drohne für welche Zwecke: ZIEL: Wie kann man die Messungen beider (aller drei) Messmethoden ideal kombinieren, um möglichst viele Informationen zu erhalten. Vertikalauflösung und zeitliche Auflösung der Arduinos, was sind die Möglichkeiten der Messung durch die Drohne, was sind die Grenzen?
-\item Wie sehr beeinflusst der Downwash der Drohne die Messungen?
-\item Drohne: Messungen über dem Meer: \textbf{Unterschied Grenzschicht Land Meer}, Entwicklung der Grenzschicht über Land, wie weit reicht der Einfluss des Meeres/Landes
-\item Zeitskalen: Wie schnell entwickeln sich die neue Grenzschicht? Z.B., wenn sich die Anströmrichtung von Land auf Meer wechselt
+%\item Entwicklung der 'Hardware', um Profilmessungen der Grenzschicht mithilfe eines Fesselballons oder eines Drachens von Temperatur und Feuchte (mit möglichst hoher vertikaler Auflösung) durchführen zu können.
+%\item Welche Sensoren eignen sich? Interne Variabilität, absolute Genauigkeit
+%\item Grenzen der Messmethoden prüfen: Wie geeignet ist der Fesselballon/Drachen/Drohne für welche Zwecke: ZIEL: Wie kann man die Messungen beider (aller drei) Messmethoden ideal kombinieren, um möglichst viele Informationen zu erhalten. Vertikalauflösung und zeitliche Auflösung der Arduinos, was sind die Möglichkeiten der Messung durch die Drohne, was sind die Grenzen?
+%\item Wie sehr beeinflusst der Downwash der Drohne die Messungen?
+%\item Drohne: Messungen über dem Meer: \textbf{Unterschied Grenzschicht Land Meer}, Entwicklung der Grenzschicht über Land, wie weit reicht der Einfluss des Meeres/Landes
+%\item Zeitskalen: Wie schnell entwickeln sich die neue Grenzschicht? Z.B., wenn sich die Anströmrichtung von Land auf Meer wechselt
 \item Entwicklung und Test einer eigenen Messhardware zur Profilmessung von
     Temperatur, Feuchte und Druck
-\item Untersuchungen zur Entwicklung der Grenzschicht (Tagesgang)
+\item Wie entwickelt sich die morgentliche Grenzschicht? Auf welchen Zeitskalen spielt sich diese Entwicklung ab?
 \item Wie beeinflusst die Anströmrichtung die Profile über der Insel? Ist ein
     Landseewind erkennbar?
 \end{itemize}
@@ -150,7 +150,17 @@ Es sind Intensivmessphasen mit der Drohne geplant.
 \item Evtl. Zusatzmessungen bei besonderen Ereignissen.
 \end{itemize}
 \subsection{Auswertung}
-Wie sollen die Daten ausgewertet werden? Sind zusätzliche Daten (Satellitendaten, Modelldaten usw.) notwendig? Welche Grafiken oder Auswertungen sollen im Idealfall am Ende die wissenschaftlichen Fragen beantworten?
+Wie sollen die Daten ausgewertet werden? Sind zusätzliche Daten (Satellitendaten, Modelldaten usw.) notwendig? Welche Grafiken oder Auswertungen sollen im Idealfall am Ende die wissenschaftlichen Fragen beantworten?\\
+Zum Test der Messhardware (Helikite und Drohne) werden eines oder mehrere gemessene Profile 
+mit gleichzeitigen Messungen einer Radiosonde verglichen. Zur Auswertung werden beide Profile
+in einem Plot dargestellt und vergleichend analysiert.\\
+Zur Untersuchung der Entwicklung der Grenzschicht werden entweder gemessene Profile zu verschiedenen 
+Zeiten in einen Plot Höhe gegen Temperatur/Feuchte/(Wind) aufgetragen oder eine komplette Messreihe in einen 
+2-D Konturplot Zeit-Höhe-Temperatur/Feuchte/Wind aufgetragen. So lassen sich Veränderungen der Grenzschicht sowie
+deren Zeitskalen analysieren, eventuelle Land-See-Wind-Regimes identifizieren und Veränderungen aufgrund eines 
+Wechsels der Anströmrichtung erkennen.\\
+Unterschiede der Grenschicht über Land und Meer werden durch eintragen der von der Drohne gemessenen Profile 
+in einen gemeinsamen Plot identifiziert.\\
 
 \subsection{Risiken}
 Woran könnten Teile des Experiments scheitern? Welche Alternativen gibt es in diesen Situationen? (für jedes Risiko einen Absatz)
