@@ -12,6 +12,7 @@
 \usepackage{geometry}                   %% Seitenmaße verändern (siehe \usepackage{fancyhdr}) !!! Das Paket IMMER nach hyperref einbinden!!!
 \usepackage{graphicx}                   %% Einbinden von Bildern mit \includegraphics[]{×}
 \usepackage{tabularx}
+\usepackage{eurosym}
 \geometry{a4paper, top=27mm, left=30mm, right=20mm, bottom=30mm, headsep=10mm, footskip=10mm}
 \usepackage[decimalsymbol=comma, binary-units=true, loctolang={DE:ngerman}]{siunitx}
 % --------------------------- BibTeX ---------------------------------------
@@ -252,7 +253,26 @@ Sensorausfällen sind für beide Arduino-Typen mindestens ein Ersatz eingeplant.
 die BME280-Sensoren ist Ersatz vorhanden, der bei Ausfall zum Einsatz kommt.\\
 
 \section{Kosten}
-Kosten für zusätzliches Material, Geräte, Betriebsmittel ...
+Kosten für zusätzliches Material, Geräte, Betriebsmittel ...\\
+Die Materialkosten sind in Tabelle \ref{Tab:Kosten} aufgelistet.
+\begin{table}[h]
+\caption{Auflistung der Materialkosten}
+\begin{tabular}{|c|c|c|c|}
+\hline
+Gegenstand (?) & Preis (\euro) & Anzahl & Gesamtpreis (\euro) \\\hline \hline
+RFM95W Lora Module 868MHz  & ?? & 12 & ?? \\\hline
+Dragino Lora Shield 868MHz & 22 & 1 & 22 \\\hline
+Arduino Nano & ?? & 10 & ?? \\\hline
+Arduino Uno & ?? & 2 & ?? \\\hline
+Dragino Lora/GPS Shield 868MHz & 35 & 1 & 35 \\\hline
+Jumper Kabel male female & 0,2? & 100 & 20? \\\hline
+Powerbank & 3,99 & 13 & 51,87 \\\hline
+USB Kabel & 0,95 & 13 & 12,35 \\\hline
+Bluedot BME280 Sensor & 17 ? & 17 & 289? \\\hline
+Lochrasterplatinen Hartpapier 500x100mm H25PR500 & 6,45 & 3 & 19,35 \\\hline
+\end{tabular}
+\label{Tab:Kosten}
+\end{table}
 
 \section*{Literatur}
 \bibliography{Whitepaper}
