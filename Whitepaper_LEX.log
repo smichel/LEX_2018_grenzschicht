@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/W32TeX) (preloaded format=pdflatex 2015.12.26)  5 JUL 2018 17:09
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/W32TeX) (preloaded format=pdflatex 2015.12.26)  5 JUL 2018 17:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -2432,16 +2432,16 @@ File: Helikite.png Graphic file (type png)
 <use Helikite.png>
 Package pdftex.def Info: Helikite.png used on input line 96.
 (pdftex.def)             Requested size: 318.66948pt x 222.98155pt.
- <Master.jpg, id=108, 4063.18pt x 3047.385pt>
-File: Master.jpg Graphic file (type jpg)
-
-<use Master.jpg>
-Package pdftex.def Info: Master.jpg used on input line 107.
-(pdftex.def)             Requested size: 318.66948pt x 238.95985pt.
- <Slave.jpg, id=109, 4063.18pt x 3047.385pt>
+ <Slave.jpg, id=108, 4063.18pt x 3047.385pt>
 File: Slave.jpg Graphic file (type jpg)
  <use Slave.jpg>
-Package pdftex.def Info: Slave.jpg used on input line 114.
+Package pdftex.def Info: Slave.jpg used on input line 107.
+(pdftex.def)             Requested size: 318.66948pt x 238.95985pt.
+
+<Master.jpg, id=109, 4063.18pt x 3047.385pt>
+File: Master.jpg Graphic file (type jpg)
+ <use Master.jpg>
+Package pdftex.def Info: Master.jpg used on input line 114.
 (pdftex.def)             Requested size: 318.66948pt x 238.95985pt.
 
 <BME_280_technische_Daten.png, id=111, 570.63188pt x 156.585pt>
@@ -2536,7 +2536,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 153--160
 [6 <./Helikite.png>]
 Underfull \vbox (badness 7685) has occurred while \output is active []
 
- [7 <./Master.jpg>] <Flugroute.png, id=147, 603.75563pt x 356.33125pt>
+ [7 <./Slave.jpg>] <Flugroute.png, id=147, 603.75563pt x 356.33125pt>
 File: Flugroute.png Graphic file (type png)
  <use Flugroute.png>
 Package pdftex.def Info: Flugroute.png used on input line 163.
@@ -2559,7 +2559,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 172--176
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [8 <./Slave.jpg> <./BME_280_technische_Daten.png>]
+ [8 <./Master.jpg> <./BME_280_technische_Daten.png>]
 Underfull \hbox (badness 10000) in paragraph at lines 181--185
 
  []
@@ -2613,7 +2613,7 @@ s/cm/cmr8.pfb><c:/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10
 .pfb><c:/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb><c:/
 texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb><c:/texlive/2
 015/texmf-dist/fonts/type1/public/eurosym/feymr10.pfb>
-Output written on Whitepaper_LEX.pdf (11 pages, 8718089 bytes).
+Output written on Whitepaper_LEX.pdf (11 pages, 8718080 bytes).
 PDF statistics:
  223 PDF objects out of 1000 (max. 8388607)
  190 compressed objects within 2 object streams
