@@ -9,6 +9,7 @@
 \usepackage{fancyhdr}                   %% Seite, Kopf- und Fußzeile anpassen (siehe \usepackage{geometry})
 \usepackage{flafter}                    %% verhindert dass Abbildungen vor Überschrift kommen
 \usepackage{float}
+\usepackage{etoolbox}
 \usepackage[pdfpagelabels=true]{hyperref}
 \usepackage{geometry}                   %% Seitenmaße verändern (siehe \usepackage{fancyhdr}) !!! Das Paket IMMER nach hyperref einbinden!!!
 \usepackage{graphicx}                   %% Einbinden von Bildern mit \includegraphics[]{×}
@@ -20,6 +21,7 @@
 \usepackage[square]{natbib}                 
 \bibliographystyle{natdin}           %% Referenzierung: Autor und Jahreszahl
 %\bibliographystyle{lex2018}
+
 
 % Title Page
 \title{Experimentplanung LEX 2018}%:\\Messseeelefantenantennenbenennungsverfahren}
@@ -56,11 +58,12 @@ Während des Experiments wird versucht, den Übergang zwischen nächtlichem und 
 Dieser Tagesgang stellt sich unter idealisierten Verhältnissen ein und wird beispielsweise in Küstenregionen durch die Land-See-Zirkulation überlagert. Wegen der unterschiedlichen Wärmekapazitäten und der differentiellen Erwärmung von Land und Meeresoberfläche entsteht ein horizontaler Druckgradient zwischen beiden Oberflächen. Die tagsüber über dem erwärmten Land aufsteigenden Luftmassen erzeugen einen bodennah erniedrigten Luftdruck gegenüber der bodennahen Luft über dem Meer.  
 Aus diesem Luftdruckgefälle stellt sich eine landeinwärts gerichtete Ausgleichströmung ein. Somit wird kühlere und feuchtere Seeluft advehiert. In der Folge dreht sich diese Zirkulation zum Nachmittag wegen der erniedrigten solaren Einstrahlung um. Somit wird auch die Küstengrenzschicht über Land während des Seewindes durch die Grenzschicht des Meeres beeinflusst. Der Tagesgang bzw. das Anwachsen der neutralen Grenzschicht über Land wird dabei durch das bodennahe Einströmen der bodennahen kalten Luftmassen abgeschwächt. Wie eine bodennahe Kaltfront sorgt die Zirkulation dann für eine Stabilisierung der Grenzschicht. Die Messbarkeit dieses Phänomens gestaltet sich bei synoptischen Einflüssen aber schwierig, da die großskalige Advektion unter anderem bei Frontendurchzug den Prozess überlagert. Dementsprechend sind ruhige Wetterlagen für eine Nachweisbarkeit erforderlich \citep{Lange2004}.\\\\
 \citet{jimenez2016morning} untersuchten den morgendlichen Übergang zwischen verschiedenen Grenzschichtregimes auf der Insel Mallorca mithilfe von Ballons und Drohnen. Der Übergang konnte nicht nur erfolgreich gemessen werden, sondern stimmte auch mit Modellsimulationen überein.\\\\ 
+\citet{Li2015TetheredBB} nutzten einen am Boden befestigten Ballon um die Aerosolkonzentraion von Rußpartikeln in der atmosphärischen Grenzschicht bis zu einer Höhe von 1000\,m über Shanghai zu messen. Bei den Messungen wurde ein Ballon mit einer Größe von 1600\,m$^{3}$ verwendet da schwerere Instrumente genutzt wurden. Zusätzlich wurde ein Lidar zur Windmessung verwendet. \\\\
 Aufgrund ihrer Flexibilität und dem relativ niedrigen Anschaffungspreis werden
 in den letzten Jahren immer häufiger Drohnen für Messungen in der atmosphärischen Grenzschicht verwendet. \citet{kunz2018cocap} haben zum Beispiel COCAP entwickelt, ein Gerät zur Messung von CO2, das spezialisiert ist, um mit Drohnen zu fliegen. Die Temperatur und Feuchtesensoren von COCAP werden dabei unter den Rotoren der Drohne befestigt, sodass sie durch die 
 Zugluft der Rotoren belüftet werden. Bei den Drohnenmessungen  der morgentlichen Grenzschicht auf Mallorca von \citet{jimenez2016morning} ergab sich eine gute Übereinstimmung mit Wetterstationen, Ballonmessungen und mesoskaligen Modellen. Hierbei waren die Sensoren über den Rotoren
 der Drohne befestigt. Zum Einfluss des Downwash-Effektes einer Drohne auf die Messungen gibt es bisher wenig Erkenntnisse. \citet{zhou2017small} befand nach Testmessungen den Einfluss für minimal.\\\\
-Zur Messung von Temperatur, Feuchte und Druck soll in unserem Experiment ein BME280 Sensor verwendet werden. In \citet{otte2018cost} wurde dieser Sensor in einer Klimakammer getestet und kalibriert. Nach der Kalibrierung wichen die Messungen des BME280 von den Referenztemperaturen um weniger als 0.1\,K ab. Bei guter Belüftung wurde für den Sensor eine Zeitkonstante von ca. 1\,s gemessen. Auf Basis dieser Ergebnisse gehen wir davon aus, dass der Sensor für unser Experiment geeignet ist.  
+Zur Messung von Temperatur, Feuchte und Druck soll ein BME280 Sensor verwendet werden. In \citet{otte2018cost} wurde dieser Sensor in einer Klimakammer getestet und kalibriert. Nach der Kalibrierung wichen die Messungen des BME280 von den Referenztemperaturen um weniger als 0.1\,K ab. Bei guter Belüftung wurde für den Sensor eine Zeitkonstante von ca. 1\,s gemessen. Auf Basis dieser Ergebnisse gehen wir davon aus, dass der Sensor für unser Experiment geeignet ist.  
 
 \section{Messstrategie}
 %Wie sieht die allgemeine Messstrategie aus? Welche Größen sollen z.~B. mit welcher zeitlichen Auflösung gemessen werden, um die wissenschaftliche Fragestellung beantworten zu können?
@@ -72,8 +75,8 @@ Um den Einfluss des Meeres auf die küstennahe Grenzschicht zu verstehen, soll z
 \label{Aufbau}
 %Welche Instrumente sollen wie (Messhöhe, Standortwahl, horizontale Abstände, ... ) aufgebaut werden? (nach Möglichkeit Skizzen und Pläne hinzufügen)
 
-Um die beschriebene Messstrategie umsetzen zu können, werden Messinstrumente an einem Helikite und an einer Drohne befestigt. Der Helikite hat ein Volumen von 14\,$\text{m}^{3}$, eine Nutzlast von 4\,kg %TODO: nicht eher 11kg?
-und kann auf eine Höhe von bis zu 1000\,m steigen. Er wird auf dem Hubschrauberlandeplatz des Bundeswehrgeländes in Marienleuchte in ca. 80\,m Entfernung zur Küste (Abbildungen \ref{messwiese} und \ref{flugroute_oben}) fest am Boden verankert. Nur für diesen Standort wurde eine entsprechende Aufstiegsgenehmigung beantragt. An der Leine des Helikites werden insgesamt 10 Messinstrumente in unterschiedlichen Abständen befestigt (Abbildung \ref{helikite}). Geplante Messhöhen sind 50\,m, 100\,m, 150\,m, 200\,m, 260\,m, 330\,m, 400\,m, 600\,m, 800\,m und 1000\,m, sodass die Abstände im unteren Bereich der Grenzschicht enger liegen als im oberen. Diese Abstände werden womöglich nicht exakt einzuhalten sein, da an der Leine des Helikites in bestimmten Abständen zusätzliche Markierungen befestigt werden müssen, die der Sichtbarkeit dienen. Die tatsächlichen Messhöhen lassen sich dann anhand des gemessenen Drucks bestimmen.
+Um die beschriebene Messstrategie umsetzen zu können, werden Messinstrumente an einem Helikite und an einer Drohne befestigt. Der Helikite hat ein Volumen von 14\,$\text{m}^{3}$, eine Tragfähigkeit von 7\,kg bei Windstille  
+und kann auf eine Höhe von bis zu 1000\,m steigen \citep{helikite}. Er wird auf dem Hubschrauberlandeplatz des Bundeswehrgeländes in Marienleuchte in ca. 80\,m Entfernung zur Küste (Abbildungen \ref{messwiese} und \ref{flugroute_oben}) fest am Boden verankert. Nur für diesen Standort wurde eine entsprechende Aufstiegsgenehmigung beantragt. An der Leine des Helikites werden insgesamt 10 Messinstrumente in unterschiedlichen Abständen befestigt (Abbildung \ref{helikite}). Geplante Messhöhen sind 50\,m, 100\,m, 150\,m, 200\,m, 260\,m, 330\,m, 400\,m, 600\,m, 800\,m und 1000\,m, sodass die Abstände im unteren Bereich der Grenzschicht enger liegen als im oberen. Diese Abstände werden womöglich nicht exakt einzuhalten sein, da an der Leine des Helikites in bestimmten Abständen zusätzliche Markierungen befestigt werden müssen, die der Sichtbarkeit dienen. Die tatsächlichen Messhöhen lassen sich dann anhand des gemessenen Drucks bestimmen.
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.8\textwidth]{Messwiese.png}
@@ -97,7 +100,22 @@ und kann auf eine Höhe von bis zu 1000\,m steigen. Er wird auf dem Hubschrauber
 \end{figure}
 \\\\
 Sollte ein Aufsteigen des Helikites aufgrund der Wetterbedingungen nicht möglich sein (siehe Abschnitte \ref{Bedingungen} und \ref{Risiken}), wird anstelle dessen bei niedrigen Windgeschwindigkeiten ein Fesselballon installiert, bei hohen Windgeschwindigkeiten ein Drachen. Die Messinstrumente werden in diesem Fall in äquidistanten Abständen bis zur maximal möglichen Messhöhe angebracht. \\\\
-Alle Instrumente bestehen aus einem Arduino Board, einem BME280 Sensor zur Messung von Druck, Temperatur und relativer Feuchte und einem Long Range Wide Area (LoRa) Modul, das zur sofortigen Übermittlung der Daten zum sogenannten 'Master' am Boden dient (Foto). Eine Übersicht über die technischen Daten des BME280 befindet sich in Abbildung \ref{BME_280}. Die Stromversorgung der Instrumente erfolgt mit Powerbanks mit einer Kapazität von 2000 mAh. Dies reicht auch bei maximalem Stromverbrauch der Messinstrumente für einen Tag. Das oberste Instrument, das unmittelbar unterhalb des Ballons befestigt wird, verfügt zusätzlich über ein GPS Modul, sodass sich die Neigung der Leine aufgrund des Winds feststellen lässt. Die Instrumente werden in PVC-Rohren verpackt. Die einzelnen Bauteile werden dort so befestigt, dass sie nicht durch Stöße beschädigt werden können. Der Messsensor befindet sich außerhalb des Rohrs. So wird erreicht, dass der Sensor gut belüftet ist und verhindert, dass die Messungen durch ein strahlungsbedingtes Aufheizen oder Abwärme der anderen Komponenten innerhalb des Rohrs beeinflusst werden.  
+Alle Instrumente bestehen aus einem Arduino Board, einem BME280 Sensor zur Messung von Druck, Temperatur und relativer Feuchte und einem Long Range Wide Area (LoRa) Modul, das zur sofortigen Übermittlung der Daten zum sogenannten 'Master' am Boden dient (Foto). Eine Übersicht über die technischen Daten des BME280 befindet sich in Abbildung \ref{BME_280}. Die Stromversorgung der Instrumente erfolgt mit Powerbanks mit einer Kapazität von 2000 mAh. Dies reicht auch bei maximalem Stromverbrauch der Messinstrumente weitaus mehr als einen Tag. Das oberste Instrument, das unmittelbar unterhalb des Ballons befestigt wird, verfügt zusätzlich über ein GPS Modul, sodass sich die Neigung der Leine aufgrund des Winds feststellen lässt. Die Instrumente werden in PVC-Rohren verpackt. Die einzelnen Bauteile werden dort so befestigt, dass sie nicht durch Stöße beschädigt werden können. Der Messsensor befindet sich außerhalb des Rohrs. So wird erreicht, dass der Sensor gut belüftet ist und verhindert, dass die Messungen durch ein strahlungsbedingtes Aufheizen oder Abwärme der anderen Komponenten innerhalb des Rohrs beeinflusst werden.  
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=0.7\textwidth]{Master.jpg}
+	\captionsetup{width=11cm}
+	\caption{Emfpangsstation 'Master' am Boden.}
+	\label{Master}
+\end{figure}
+
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=0.7\textwidth]{Slave.jpg}
+	\captionsetup{width=11cm}
+	\caption{Aufbau eines Messinstruments ohne Verpackung. Links die Powerbank, in der Mitte die Leiterplatte mit Arduino Board und LoRa Modul auf der Rückseite und rechts der BME280 Sensor. Unten in Rot ein Teil der Vorrichtung zur Befestigung am Seil.}
+	\label{Slave}
+\end{figure}
 Jedes der Messgeräte inklusive Verpackung und Befestigungsvorrichtung wiegt ca. 200\,g, sodass das Gesamtgewicht deutlich unter der Nutzlast des Helikites liegt.\\\\
 Ein weiteres Messgerät gleicher Bauart (mit GPS Modul) wird direkt an der Unterseite einer Drohne des Typs DJI Phantom 2 befestigt. Diese hat eine Nutzlast von maximal 500\,g und eine Flugdauer von ca. 10 Minuten. Sie kann eine Maximalgeschwindigkeit von 15\,m/s erreichen, was somit gleichzeitig der maximalen Einsatzwindgeschwindigkeit entspricht. Das geplante Flugmuster der Drohne wird in Abschnitt \ref{sec:Durchfuehrung} beschrieben. \\\\
 Ein Lidar der Firma METEK wird ebenfalls auf dem Gelände der Bundeswehr installiert. Genaue Angaben zu vertikaler und zeitlicher Auflösung können zum jetzigen Zeitpunkt noch nicht gemacht werden, da wir noch keine Informationen zum Lidar erhalten haben.  

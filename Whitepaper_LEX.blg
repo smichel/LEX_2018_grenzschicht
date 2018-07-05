@@ -1,0 +1,55 @@
+This is BibTeX, Version 0.99d (TeX Live 2015/W32TeX)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: Whitepaper_LEX.aux
+The style file: natdin.bst
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Database file #1: Whitepaper.bib
+Warning--entry type for "HeliKite" isn't style-file defined
+--line 5 of file Whitepaper.bib
+Warning--empty booktitle in Li2015TetheredBB
+You've used 8 entries,
+            4728 wiz_defined-function locations,
+            935 strings with 8307 characters,
+and the built_in function-call counts, 8935 in all, are:
+= -- 870
+> -- 380
+< -- 376
++ -- 468
+- -- 138
+* -- 714
+:= -- 1633
+add.period$ -- 9
+call.type$ -- 8
+change.case$ -- 68
+chr.to.int$ -- 8
+cite$ -- 9
+duplicate$ -- 186
+empty$ -- 417
+format.name$ -- 230
+if$ -- 1556
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 39
+newline$ -- 58
+num.names$ -- 32
+pop$ -- 94
+preamble$ -- 1
+purify$ -- 84
+quote$ -- 0
+skip$ -- 496
+stack$ -- 0
+substring$ -- 645
+swap$ -- 61
+text.length$ -- 49
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 106
+warning$ -- 1
+while$ -- 76
+width$ -- 0
+write$ -- 121
+(There were 2 warnings)
