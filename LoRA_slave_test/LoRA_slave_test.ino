@@ -26,8 +26,8 @@ Adafruit_BME280 bme; // I2C
 RH_RF95 rf95(RFM95_CS, RFM95_INT);
 // Blinky on receipt
 #define LED 13
-static char identifier[3] = "42";
-static int identity = 2;
+const char identifier[2] = "0";
+static int identity = 1;
 void setup() 
 {
   pinMode(LED, OUTPUT);     
@@ -80,42 +80,50 @@ void loop()
   if (rf95.available())
   {
     // Receive master's call for measurements.   
-    uint8_t buf[3];
+    uint8_t buf[8];
+    
     uint8_t len = sizeof(buf);
     
     if (rf95.recv(buf, &len))
     {
-      delay(200);
+      //delay(200);
       digitalWrite(LED, HIGH);
       //RH_RF95::printBuffer("Received: ", buf, len);
       //Serial.print("Got: ");
-      Serial.print((char*)buf);
+      Serial.println((char*)buf);
       Serial.println('x');
+      
       //Serial.print("RSSI: ");
       //Serial.println(rf95.lastRssi(), DEC);
       
       // Check if the call is for me, if yes, send my data
-      if (strcmp((char*)buf,identifier) == 0)
+      if (buf[0] == 48)
       {
       Serial.println("Sending to rf95_server");
       // Send a message to rf95_server
       int temp = int(bme.readTemperature()*100);
       int hum = int(bme.readHumidity()*100);
       long p = long(bme.readPressure()*100);
-  
+      
+      delay(identity*100);
+
      // char radiopacket[20] = "Hello World #      ";
-      char radiopacket[23];
+      char radiopacket[24];
   
       itoa(temp, radiopacket, 10);
       itoa(hum, radiopacket+4, 10);
       ltoa(p, radiopacket+8, 10);
       itoa(identity, radiopacket+16,10);
-      itoa(packetnum++,radiopacket+17, 10);
+      for (int i = 0; i < len; i++)
+      {
+        radiopacket[i+17] = buf[i];
+      }
+      //radiopacket[17] = (char*)buf;
       Serial.print("Sending "); Serial.println(radiopacket);
       //radiopacket[19] = 0;
   
       Serial.println("Sending..."); 
-      rf95.send((uint8_t *)radiopacket, 23);
+      rf95.send((uint8_t *)radiopacket, 24);
 
       Serial.println("Sent a reply");
       digitalWrite(LED, LOW);
