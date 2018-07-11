@@ -27,7 +27,8 @@ RH_RF95 rf95(RFM95_CS, RFM95_INT);
 // Blinky on receipt
 #define LED 13
 const char identifier[2] = "0";
-static int identity = 1;
+int identity = 2                 +10;
+
 void setup() 
 {
   pinMode(LED, OUTPUT);     
@@ -97,7 +98,7 @@ void loop()
       //Serial.println(rf95.lastRssi(), DEC);
       
       // Check if the call is for me, if yes, send my data
-      if (buf[0] == 48)
+      if (buf[0] == 35) //  Check if first character is a '#'
       {
       Serial.println("Sending to rf95_server");
       // Send a message to rf95_server
@@ -108,7 +109,7 @@ void loop()
       delay(identity*100);
 
      // char radiopacket[20] = "Hello World #      ";
-      char radiopacket[24];
+      char radiopacket[25];
   
       itoa(temp, radiopacket, 10);
       itoa(hum, radiopacket+4, 10);
@@ -116,7 +117,7 @@ void loop()
       itoa(identity, radiopacket+16,10);
       for (int i = 0; i < len; i++)
       {
-        radiopacket[i+17] = buf[i];
+        radiopacket[i+18] = buf[i];
       }
       //radiopacket[17] = (char*)buf;
       Serial.print("Sending "); Serial.println(radiopacket);

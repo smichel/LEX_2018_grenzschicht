@@ -62,7 +62,7 @@ void setup()
 }
 
 int32_t packetnum = 0;  // packet counter, we increment per xmission
-char call[8] = "0000000";
+char call[8] = "#000000";
 //char call[3] = 
 void loop()
 {
