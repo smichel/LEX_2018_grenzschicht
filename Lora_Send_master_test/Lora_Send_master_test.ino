@@ -63,6 +63,7 @@ void setup()
 
 int32_t packetnum = 0;  // packet counter, we increment per xmission
 char call[8] = "#000000";
+int nmember = 4;
 //char call[3] = 
 void loop()
 {
@@ -77,10 +78,10 @@ void loop()
   // Now wait for a reply
   uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
   uint8_t len = sizeof(buf);
-  for (int i = 0; i < 3; i++)
+  for (int i = 0; i < nmember; i++)
   {
     //Serial.println("Waiting for reply..."); delay(10);
-    if (rf95.waitAvailableTimeout(100))
+    if (rf95.waitAvailableTimeout(200))
     { 
       // Should be a reply message for us now   
       if (rf95.recv(buf, &len))
@@ -96,9 +97,8 @@ void loop()
     {
       Serial.println("No reply, is there a listener around?");
     }
-    //delay(10);
   }
-  delay(1000);
+  delay(nmember*100);
   itoa(packetnum++,call+1,10);
 }
 

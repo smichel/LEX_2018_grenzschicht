@@ -27,7 +27,7 @@ RH_RF95 rf95(RFM95_CS, RFM95_INT);
 // Blinky on receipt
 #define LED 13
 const char identifier[2] = "0";
-int identity = 2                 +10;
+int identity = 4                 +10;
 
 void setup() 
 {
@@ -106,7 +106,7 @@ void loop()
       int hum = int(bme.readHumidity()*100);
       long p = long(bme.readPressure()*100);
       
-      delay(identity*100);
+      delay((identity-10)*100);
 
      // char radiopacket[20] = "Hello World #      ";
       char radiopacket[25];
