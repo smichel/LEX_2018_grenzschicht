@@ -102,29 +102,29 @@ void loop()
       {
       Serial.println("Sending to rf95_server");
       // Send a message to rf95_server
-      int temp = int(bme.readTemperature()*100);
-      int hum = int(bme.readHumidity()*100);
-      long p = long(bme.readPressure()*100);
+      int temp = int(bme.readTemperature()*100+27315);
+      int hum = int(bme.readHumidity()*100+10000);
+      long p = long(bme.readPressure()*100+10000000);
       
       delay((identity-10)*100);
 
      // char radiopacket[20] = "Hello World #      ";
-      char radiopacket[25];
+      char radiopacket[27];
   
       itoa(temp, radiopacket, 10);
-      itoa(hum, radiopacket+4, 10);
-      ltoa(p, radiopacket+8, 10);
-      itoa(identity, radiopacket+16,10);
+      itoa(hum, radiopacket+5, 10);
+      ltoa(p, radiopacket+10, 10);
+      itoa(identity, radiopacket+18,10);
       for (int i = 0; i < len; i++)
       {
-        radiopacket[i+18] = buf[i];
+        radiopacket[i+20] = buf[i];
       }
       //radiopacket[17] = (char*)buf;
       Serial.print("Sending "); Serial.println(radiopacket);
       //radiopacket[19] = 0;
   
       Serial.println("Sending..."); 
-      rf95.send((uint8_t *)radiopacket, 24);
+      rf95.send((uint8_t *)radiopacket, 27);
 
       Serial.println("Sent a reply");
       digitalWrite(LED, LOW);

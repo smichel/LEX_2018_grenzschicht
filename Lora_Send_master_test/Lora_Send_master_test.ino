@@ -63,7 +63,7 @@ void setup()
 
 int32_t packetnum = 0;  // packet counter, we increment per xmission
 char call[8] = "#000000";
-int nmember = 4;
+int nmember = 5;
 //char call[3] = 
 void loop()
 {
