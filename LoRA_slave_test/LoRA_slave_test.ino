@@ -27,7 +27,7 @@ RH_RF95 rf95(RFM95_CS, RFM95_INT);
 // Blinky on receipt
 #define LED 13
 const char identifier[2] = "0";
-int identity = 4                 +10;
+int identity = 9                 +10;
 
 void setup() 
 {
