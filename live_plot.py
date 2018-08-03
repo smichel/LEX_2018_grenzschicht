@@ -14,13 +14,13 @@ from  matplotlib.dates import date2num
 from matplotlib import dates
 from datetime import datetime
 import pickle
-import scipy
+#import scipy
 i = 0
 t = 0
 file_name = './live_data.txt'
 baud_rate = 9600
-usb_port = '/dev/cu.wchusbserial1410'
-nslave = 9
+usb_port = 'COM4'
+nslave = 10
 plothistory = 600  # How much of the data should be plotted (in seconds)
 
 data = {}
@@ -84,14 +84,14 @@ while(True):
             h = float(s[5:10])/100 - 100
             P = round(float(s[10:18])/10000,2) - 1000
             name = round(float(s[18:20])) - 10 
-            count = int(s[21:])
+            count = int(s[20:])
             s = 'Arduino ' + str(name) + ': ' + str(T) + ' '+ str(h)+ ' '+ str(P) + ' ' + str(count)
             print(s)
     
             data[name] = np.vstack((data[name],np.array([T,h,P,count])))
             f.write(str(datetime.now())+';'+str(name)+';'+str(T)+';'+str(h)+';'+str(P)+';'+str(count)+'\n') #maybe on other systems "" needs to be ''
             save_array[name] = np.vstack((save_array[name],np.array([date2num(datetime.now()),T,h,P,count])))
-        except ValueError:
+        except:
             print('NOPE...')
         if np.mod(i,40) == 0 and i > 50:
             time1 = time.time()
