@@ -17,15 +17,15 @@ import pickle
 #import scipy
 i = 0
 t = 0
-file_name = './live_data.txt'
+data_filename = datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
 baud_rate = 9600
-usb_port = 'COM4'
+usb_port = '/dev/cu.wchusbserialfa130'
 nslave = 10
 plothistory = 600  # How much of the data should be plotted (in seconds)
 
 data = {}
 save_array = {}
-f = open(file_name,'w')
+f = open(data_filename+'.txt','w')
 
 # Initialize figures and axes and lines
 fig,[axtemp,axhum,axpres] = plt.subplots(3,1,figsize=(15,13))
@@ -66,6 +66,8 @@ axpres.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
 
 timetxt = axtemp.text([], [],  [])
 
+calib = [-0.478,1.112,-0.415,-0.861,-0.43,-0.367,-0.712,-0.257,0.346,-0.77]
+
 while(True):
     
     if (t == 0):
@@ -84,6 +86,7 @@ while(True):
             h = float(s[5:10])/100 - 100
             P = round(float(s[10:18])/10000,2) - 1000
             name = round(float(s[18:20])) - 10 
+            P = P + calib[int(name)-1]
             count = int(s[20:])
             s = 'Arduino ' + str(name) + ': ' + str(T) + ' '+ str(h)+ ' '+ str(P) + ' ' + str(count)
             print(s)
@@ -97,8 +100,8 @@ while(True):
             time1 = time.time()
             print('SAVING...')
             f.close()
-            f = open(file_name,'a')
-            with open('data.npy','wb') as myFile:
+            f = open(data_filename+'.txt','a')
+            with open(data_filename+'.npy','wb') as myFile:
                 pickle.dump(save_array,myFile)
                 myFile.close()
 
