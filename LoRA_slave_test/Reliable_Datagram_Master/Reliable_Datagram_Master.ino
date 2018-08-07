@@ -1,25 +1,19 @@
-// rf95_reliable_datagram_client.pde
+// rf95_reliable_datagram_server.pde
 // -*- mode: C++ -*-
-// Example sketch showing how to create a simple addressed, reliable messaging client
+// Example sketch showing how to create a simple addressed, reliable messaging server
 // with the RHReliableDatagram class, using the RH_RF95 driver to control a RF95 radio.
-// It is designed to work with the other example rf95_reliable_datagram_server
+// It is designed to work with the other example rf95_reliable_datagram_client
 // Tested with Anarduino MiniWirelessLoRa, Rocket Scream Mini Ultra Pro with the RFM95W 
 #include <RHReliableDatagram.h>
 #include <RH_RF95.h>
 #include <SPI.h>
-#include <Adafruit_Sensor.h>
-#include <Adafruit_BME280.h>
-
-Adafruit_BME280 bme; // I2C
-
-#define LED 13
-#define CLIENT_ADDRESS 12
+//#define CLIENT_ADDRESS 6
 #define SERVER_ADDRESS 0
 // Singleton instance of the radio driver
 RH_RF95 driver;
 //RH_RF95 driver(5, 2); // Rocket Scream Mini Ultra Pro with the RFM95W
 // Class to manage message delivery and receipt, using the driver declared above
-RHReliableDatagram manager(driver, CLIENT_ADDRESS);
+RHReliableDatagram manager(driver, SERVER_ADDRESS);
 // Need this on Arduino Zero with SerialUSB port (eg RocketScream Mini Ultra Pro)
 //#define Serial SerialUSB
 void setup() 
@@ -28,7 +22,6 @@ void setup()
   // Ensure serial flash is not interfering with radio communication on SPI bus
 //  pinMode(4, OUTPUT);
 //  digitalWrite(4, HIGH);
-  pinMode(LED, OUTPUT);     
   Serial.begin(9600);
   while (!Serial) ; // Wait for serial port to be available
   if (!manager.init())
@@ -47,48 +40,38 @@ void setup()
   // Detection shows no activity on the channel before transmitting by setting
   // the CAD timeout to non-zero:
 //  driver.setCADTimeout(10000);
-  bool status;
-  status = bme.begin();  
-  if (!status) {
-      Serial.println("Could not find a valid BME280 sensor, check wiring!");
-      while (1);
-  }
 }
-//uint8_t data[] = "Hello World!";
+int nnodes = 10;
+unsigned long packetnum = 0;  // packet counter, we increment per xmission
+uint8_t slaves[11] = {11, 12, 13, 14, 15, 16, 17, 18, 19, 20}; // Array of all client adresses of the arduinos
+uint8_t broadcast[] = "Measurement Request";
+uint8_t datarequest[] = "Data Request";
 // Dont put this on the stack:
 uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
 void loop()
 {
-  uint8_t len = sizeof(buf);
-  uint8_t from; // Server adress   
-  char datapacket[20];
-  //Serial.println("Sending to rf95_reliable_datagram_server");
-  if (manager.available())
-  {
-    if (manager.recvfromAckTimeout(buf, &len, 2000, &from))
-    { 
-      //delay(500);
-      //Serial.println((char*)buf);
-      //Serial.print("Got measurement request from ");
-      //Serial.println(from, DEC);
-      //Serial.println("Measuring now and preparing packet");
-      itoa(int(bme.readTemperature()*100+27315), datapacket, 10);
-      itoa(int(bme.readHumidity()*100+10000), datapacket+5, 10);
-      ltoa(long(bme.readPressure()*100+10000000), datapacket+10, 10);
-      //Serial.println(bme.readTemperature()*100);
-      //Serial.println(bme.readHumidity()*100);
-      //Serial.println(bme.readPressure()*100);
-      //delay(500);
-      if (manager.sendtoWait((uint8_t *)datapacket, sizeof(datapacket), from))
+    uint8_t len = sizeof(buf);
+    uint8_t from;
+    manager.sendto(broadcast, sizeof(broadcast), 255); //Broadcast to all nodes with a measurement request
+    delay(300);
+    for (int i = 0; i < nnodes; i++)
+    {
+      from = slaves[i];      
+      manager.sendtoWait(datarequest, sizeof(datarequest), from);
+      //if (manager.sendtoWait(datarequest, sizeof(datarequest), from))
+        //{
+          //Serial.println((char*)datarequest);
+        //}
+      if (manager.recvfromAckTimeout(buf, &len, 500, &from))
       {
-      digitalWrite(LED, HIGH);
-      //Serial.print("Send ");
-      //Serial.println((char*)datapacket);
-      //Serial.print("to ");
-      //Serial.println(from, HEX);
-      digitalWrite(LED, LOW);
+        //Serial.print("got reply from : slave");
+        //Serial.print(": ");
+        Serial.print((char*)buf);
+        Serial.print(from, DEC);
+        Serial.println(packetnum);
       }
-    } 
-
-  }
+      delay(200);
+    }
+    packetnum++;
 }
+
