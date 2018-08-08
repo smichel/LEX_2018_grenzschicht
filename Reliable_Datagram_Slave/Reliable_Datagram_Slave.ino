@@ -11,9 +11,9 @@
 #include <Adafruit_BME280.h>
 
 Adafruit_BME280 bme; // I2C
-
+#define RF95_FREQ 868.0
 #define LED 13
-#define CLIENT_ADDRESS 12
+#define CLIENT_ADDRESS 11
 #define SERVER_ADDRESS 0
 // Singleton instance of the radio driver
 RH_RF95 driver;
@@ -37,7 +37,8 @@ void setup()
   // The default transmitter power is 13dBm, using PA_BOOST.
   // If you are using RFM95/96/97/98 modules which uses the PA_BOOST transmitter pin, then 
   // you can set transmitter powers from 5 to 23 dBm:
-//  driver.setTxPower(23, false);
+    driver.setTxPower(23, false);
+    driver.setFrequency(RF95_FREQ);
   // If you are using Modtronix inAir4 or inAir9,or any other module which uses the
   // transmitter RFO pins and not the PA_BOOST pins
   // then you can configure the power transmitter power for -1 to 14 dBm and with useRFO true. 

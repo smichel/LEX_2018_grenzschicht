@@ -48,7 +48,8 @@ void setup()
   // The default transmitter power is 13dBm, using PA_BOOST.
   // If you are using RFM95/96/97/98 modules which uses the PA_BOOST transmitter pin, then 
   // you can set transmitter powers from 5 to 23 dBm:
-  //rf95.setTxPower(23, false);
+  driver.setTxPower(23, false);
+  driver.setFrequency(RF95_FREQ);
    if (! bme.begin()) 
    {
         Serial.println("Could not find a valid BME280 sensor, check wiring!");
@@ -70,21 +71,21 @@ void loop()
   
 
   // For one second we parse GPS data and report some key values
-
+  for (unsigned long start = millis(); millis() - start < 500;)
+  {
+    while (ss.available())
+    {
+      char c = ss.read();
+      // Serial.write(c); // uncomment this line if you want to see the GPS data flowing
+      if (gps.encode(c)) // Did a new valid sentence come in?
+        newData = true;
+    }
+  }
+  
   if (manager.available())
   {
-    if (manager.recvfromAckTimeout(buf, &len, 2000, &from))
+    if (manager.recvfromAckTimeout(buf, &len, 1000, &from))
     { 
-      for (unsigned long start = millis(); millis() - start < 1000;)
-      {
-        while (ss.available())
-        {
-        char c = ss.read();
-        // Serial.write(c); // uncomment this line if you want to see the GPS data flowing
-        if (gps.encode(c)) // Did a new valid sentence come in?
-          newData = true;
-        }
-      }   
       if (newData)
       {
         unsigned long age;
@@ -118,9 +119,10 @@ void loop()
       itoa(int(bme.readTemperature()*100+27315), datapacket, 10);
       itoa(int(bme.readHumidity()*100+10000), datapacket+5, 10);
       ltoa(long(bme.readPressure()*100+10000000), datapacket+10, 10);
-      ltoa(long(flat*1000000), datapacket+18,10);
-      ltoa(long(flon*1000000), datapacket+26,10);
-      itoa(int(newgpsdata),datapacket+33,10);
+      itoa(int(newgpsdata),datapacket+18,10);
+      ltoa(long(flat*1000000), datapacket+19,10);
+      ltoa(long(flon*1000000), datapacket+27,10);
+      
       //Serial.println(flat);
       //Serial.println(flon);
       //Serial.println(bme.readTemperature()*100);
