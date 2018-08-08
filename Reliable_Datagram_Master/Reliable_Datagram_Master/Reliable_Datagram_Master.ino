@@ -24,7 +24,7 @@ void setup()
   // Ensure serial flash is not interfering with radio communication on SPI bus
 //  pinMode(4, OUTPUT);
 //  digitalWrite(4, HIGH);
-  Serial.begin(9600);
+  Serial.begin(115200);
   while (!Serial) ; // Wait for serial port to be available
   if (!manager.init())
     Serial.println("init failed");
@@ -47,7 +47,7 @@ void setup()
 int nnodes = 1;
 unsigned long packetnum = 0;  // packet counter, we increment per xmission
 //uint8_t slaves[12] = {11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}; // Array of all client adresses of the arduinos
-uint8_t slaves[11] = {21};//{12, 13, 14, 15, 16, 17, 18, 19, 20}; // Array of all client adresses of the arduinos
+uint8_t slaves[11] = {11};//{12, 13, 14, 15, 16, 17, 18, 19, 20}; // Array of all client adresses of the arduinos
 uint8_t broadcast[] = "Measurement Request";
 uint8_t datarequest[] = "Data Request";
 // Dont put this on the stack:

@@ -19,9 +19,9 @@ import pickle
 i = 0
 t = 0
 data_filename = datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
-baud_rate = 9600
-usb_port = 'COM3'
-nslave = 10
+baud_rate = 115200
+usb_port = 'COM8'
+nslave = 1
 plothistory = 600  # How much of the data should be plotted (in seconds)
 
 data = {}
@@ -44,7 +44,9 @@ for i in range(nslave):
     linestemp[i+1], = axtemp.plot_date([],[],linewidth=2,linestyle='-',marker=None,color=jet(i))
     lineshum[i+1], = axhum.plot_date([],[],linewidth=2,linestyle='-',marker=None,color=jet(i))
     linespres[i+1], = axpres.plot_date([],[],linewidth=2,linestyle='-',marker=None,color=jet(i))
-    
+
+gott = np.zeros(4)+fehlwert
+
 xmin = date2num(datetime.now())
 axtemp.set_ylabel('Temperature (Celsius)')
 axtemp.set_title('Temperature')
@@ -80,21 +82,33 @@ while(True):
         ser = serial.Serial(usb_port,baud_rate,timeout=0,parity=serial.PARITY_NONE, rtscts=1)
     
         time.sleep(1)  
-        
+
     s = ser.read(100)
 
     #print(s)
-    if ((len(s) < 28) and (len(s) > 15)):
+    if ((len(s) < 48) and (len(s) > 15)):
         i += 1
         try:
+            try:
+                if round(float[s[41:43]])-10==11:
+                    lat = float[s[19:27]]/1000000
+                    lon = float[s[27:35]]/1000000
+                    ele = float[s[36:41]]/100
+                    name = 11
+                    count = int(s[43:])
+                    gott = np.vstack((gott,np.array([date2num(datetime.now()),lat,lon,ele])))
+
+            except:
+                name = round(float(s[18:20])) - 10
+                count = int(s[20:])
+
             T = float(s[0:5])/100 - 273.15 #+ Tcalib[int(name)-1]
             h = float(s[5:10])/100 - 100
             P = round(float(s[10:18])/10000,2) - 1000
-            name = round(float(s[18:20])) - 10 
+
             P = P + Pcalib[int(name)-1]
             T = T + Tcalib[int(name)-1]
             #h = h + Hcalib[int(name)-1]
-            count = int(s[20:])
             if (T > 40) | (T < 0) | (h > 100) | (h < 0) | (P >1100) |(P < 700):
                 T = np.nan
                 h = np.nan

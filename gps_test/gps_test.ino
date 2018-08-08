@@ -58,13 +58,14 @@ void setup()
 }
 
 uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
-float flat, flon;
+float flat=22.22222, flon=22.22222;
+float ele = 9999.99;
 int newgpsdata = 0;
 void loop()
 {
   uint8_t len = sizeof(buf);
   uint8_t from; // Server adress   
-  char datapacket[40];   
+  char datapacket[45];   
   bool newData = false;
   unsigned long chars;
   unsigned short sentences, failed;
@@ -90,24 +91,25 @@ void loop()
       {
         unsigned long age;
         gps.f_get_position(&flat, &flon, &age);
+        ele = gps.f_altitude();
         newgpsdata = 1;
-        //Serial.print("LAT=");
-        //Serial.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
-        //Serial.print(" LON=");
-        //Serial.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
-        //Serial.print(" SAT=");
-        //Serial.print(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
-        // Serial.print(" PREC=");
-        //Serial.print(gps.hdop() == TinyGPS::GPS_INVALID_HDOP ? 0 : gps.hdop());
+        Serial.print("LAT=");
+        Serial.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
+        Serial.print(" LON=");
+        Serial.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
+        Serial.print(" SAT=");
+        Serial.print(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
+        Serial.print(" PREC=");
+        Serial.print(gps.hdop() == TinyGPS::GPS_INVALID_HDOP ? 0 : gps.hdop());
       }
   
         gps.stats(&chars, &sentences, &failed);
-        //Serial.print(" CHARS=");
-        //Serial.print(chars);
-        //Serial.print(" SENTENCES=");
-        //Serial.print(sentences);
-        //Serial.print(" CSUM ERR=");
-        //Serial.println(failed);
+        Serial.print(" CHARS=");
+        Serial.print(chars);
+        Serial.print(" SENTENCES=");
+        Serial.print(sentences);
+        Serial.print(" CSUM ERR=");
+        Serial.println(failed);
       if (chars == 0)
         Serial.println("** No characters received from GPS: check wiring **");
       //delay(500);
@@ -120,8 +122,9 @@ void loop()
       itoa(int(bme.readHumidity()*100+10000), datapacket+5, 10);
       ltoa(long(bme.readPressure()*100+10000000), datapacket+10, 10);
       itoa(int(newgpsdata),datapacket+18,10);
-      ltoa(long(flat*1000000), datapacket+19,10);
-      ltoa(long(flon*1000000), datapacket+27,10);
+      ltoa(long(flat*100000), datapacket+19,10);
+      ltoa(long((flon+50)*100000), datapacket+26,10);
+      ltoa(long((ele+1000)*100), datapacket+33,10);
       
       //Serial.println(flat);
       //Serial.println(flon);
@@ -133,10 +136,10 @@ void loop()
       if (manager.sendtoWait((uint8_t *)datapacket, sizeof(datapacket), from))
       {
       digitalWrite(LED, HIGH);
-      //Serial.print("Send ");
-      //Serial.println((char*)datapacket);
-      //Serial.print("to ");
-      //Serial.println(from, HEX);
+      Serial.print("Send ");
+      Serial.println((char*)datapacket);
+      Serial.print("to ");
+      Serial.println(from, HEX);
       digitalWrite(LED, LOW);
       }
     } 
