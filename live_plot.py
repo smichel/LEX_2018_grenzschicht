@@ -14,36 +14,43 @@ from matplotlib.dates import date2num
 from matplotlib import dates
 from datetime import datetime
 import pickle
-#import scipy
 #22,73
-i = 0
-t = 0
+
 data_filename = datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
 baud_rate = 115200
-usb_port = 'COM8'
-nslave = 1
+usb_port = '/dev/cu.wchusbserial1420'
+slaves = np.array([1,2,3,4,5,6,7,9,10]) -1
+
 plothistory = 600  # How much of the data should be plotted (in seconds)
 
 data = {}
 save_array = {}
 f = open(data_filename+'.txt','w')
 
+nslave = len(slaves)
+halfslave = int(nslave/2)+1
 # Initialize figures and axes and lines
-fig,[axtemp,axhum,axpres] = plt.subplots(3,1,figsize=(15,13))
-jet = plt.get_cmap('gist_rainbow',nslave)
+fig,[axtemp,axhum,axpres] = plt.subplots(3,1,figsize=(10,13))
+jet = plt.get_cmap('gist_rainbow',int(halfslave))
 
 linestemp = {}
 lineshum = {}
 linespres = {}
 
 fehlwert = -9999
-for i in range(nslave):
+for i in slaves:
     data[i+1] = np.zeros(4) + fehlwert
     save_array[i+1] = np.zeros(5)    + fehlwert 
     
-    linestemp[i+1], = axtemp.plot_date([],[],linewidth=2,linestyle='-',marker=None,color=jet(i))
-    lineshum[i+1], = axhum.plot_date([],[],linewidth=2,linestyle='-',marker=None,color=jet(i))
-    linespres[i+1], = axpres.plot_date([],[],linewidth=2,linestyle='-',marker=None,color=jet(i))
+    cindex = np.mod(i,halfslave)
+    if i+1 > halfslave:
+        stylus = '--'
+    else:
+        stylus = '-'
+        
+    linestemp[i+1], = axtemp.plot_date([],[],linewidth=2,linestyle=stylus,marker=None,color=jet(cindex))
+    lineshum[i+1], = axhum.plot_date([],[],linewidth=2,linestyle=stylus,marker=None,color=jet(cindex))
+    linespres[i+1], = axpres.plot_date([],[],linewidth=2,linestyle=stylus,marker=None,color=jet(cindex))
 
 gott = np.zeros(4)+fehlwert
 
@@ -69,12 +76,17 @@ axpres.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
 
 timetxt = axtemp.text([], [],  [])
 
+
 Pcalib = [-0.478,1.112,-0.415,-0.861,-0.43,-0.367,-0.712,-0.257,0.346,-0.77]
 #Hcalib = [2.6967455282278791, 2.019810301232212, 0.7988041850625507, 0.33789509780086746, 1.4866460360382234, -1.4921282077773412, -2.214225778675157, 0.7299801435411979, -3.2266263048570636, -0.31907172948442053]
 #Tcalib = [-0.20298338235838642, -0.03457388306773623, -0.14143909679448186, -0.21896698336938059, -0.31915655917819663, 0.27426237148132415, 0.17265320130558948, 0.1972397629378655, 0.14218800363267192, 0.13077656541075555]
 # Calibration auf Lüftung:
-Tcalib = [-0.38750000000001705, -0.2830645161290377, -0.5447580645161523, -0.6460000000000186, -0.4228346456693082, -0.36373983739838067, -0.320960000000035, -0.3742148760330828, -0.5042975206611935, -0.35826771653544043]
+Tcalib = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+#Tcalib = [-0.38750000000001705, -0.2830645161290377, -0.5447580645161523, -0.6460000000000186, -0.4228346456693082, -0.36373983739838067, -0.320960000000035, -0.3742148760330828, -0.5042975206611935, -0.35826771653544043]
 #Hcalib = [0.03306371769425098, 0.13749920156523032, -0.12419434682188424, -0.22543628230575052, -0.002270927975040138, 0.05682388029588736, 0.09960371769423304, 0.04634884166118525, -0.08373380296692545, 0.06229600115882761]
+
+i = 0
+t = 0
 while(True):
     
     if (t == 0):
@@ -102,9 +114,9 @@ while(True):
                 name = round(float(s[18:20])) - 10
                 count = int(s[20:])
 
-            T = float(s[0:5])/100 - 273.15 #+ Tcalib[int(name)-1]
-            h = float(s[5:10])/100 - 100
-            P = round(float(s[10:18])/10000,2) - 1000
+            T = round(float(s[0:5])/100 - 273.15,2) #+ Tcalib[int(name)-1]
+            h = round(float(s[5:10])/100 - 100,2)
+            P = round(float(s[10:18])/10000 - 1000,2)
 
             P = P + Pcalib[int(name)-1]
             T = T + Tcalib[int(name)-1]
@@ -114,7 +126,7 @@ while(True):
                 h = np.nan
                 P = np.nan
 
-            s = 'Arduino ' + str(name) + ': ' + str(T) + ' '+ str(h)+ ' '+ str(P) + ' ' + str(count)
+            s = 'Arduino ' + str(name) + ': ' + str(T) + '°C,  '+ str(h)+ ' %, '+ str(P) + ' hPa, ' + str(count)
             print(s)
 
             data[name] = np.vstack((data[name],np.array([T,h,P,count])))
@@ -122,7 +134,7 @@ while(True):
             save_array[name] = np.vstack((save_array[name],np.array([date2num(datetime.now()),T,h,P,count])))
         except:
             print('NOPE...')
-        if np.mod(i,40) == 0 and i > 40:
+        if np.mod(i,40) == 0 and i > 30:
             time1 = time.time()
             print('SAVING...')
             f.close()
@@ -146,7 +158,7 @@ while(True):
             presmin = 9999
             presmax = -9999
             # PLOT
-            for j in range(nslave):
+            for j in slaves:
                 index = min(plothistory,len(save_array[j+1][:,0])-1)
 
                 linestemp[j+1].set_data(save_array[j+1][1::,0],save_array[j+1][1::,1])
@@ -174,11 +186,6 @@ while(True):
                     timemax = max(save_array[j+1][-index::,0]) + 2e-5
 
                 fig.canvas.flush_events()
-             
-            # Reset color cycle so that every arduino has the same color in the plot
-            axtemp.set_prop_cycle(None)
-            axhum.set_prop_cycle(None)
-            axpres.set_prop_cycle(None)
             
             axtemp.set_ylim(tempmin,tempmax)
             axhum.set_ylim(hummin,hummax)
@@ -191,7 +198,7 @@ while(True):
             timetxt.set_position((timemin,tempmax+0.1))
             timetxt.set_text('Elapsed time: '+str(round(time.time()-time1,3))+' seconds!')
 
-            axhum.legend((np.arange(nslave)+1).astype(str),loc='center left', bbox_to_anchor=(1, 0.5))
+            axhum.legend((slaves+1).astype(str),loc='center left', bbox_to_anchor=(1, 0.5))
             plt.pause(0.01)
 
         
