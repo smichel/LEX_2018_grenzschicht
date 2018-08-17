@@ -44,10 +44,10 @@ void setup()
   // the CAD timeout to non-zero:
 //  driver.setCADTimeout(10000);
 }
-int nnodes = 1;
+int nnodes = 11;
 unsigned long packetnum = 0;  // packet counter, we increment per xmission
 //uint8_t slaves[12] = {11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}; // Array of all client adresses of the arduinos
-uint8_t slaves[11] = {11};//{12, 13, 14, 15, 16, 17, 18, 19, 20}; // Array of all client adresses of the arduinos
+uint8_t slaves[13] = { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}; // Array of all client adresses of the arduinos
 uint8_t broadcast[] = "Measurement Request";
 uint8_t datarequest[] = "Data Request";
 // Dont put this on the stack:
@@ -56,7 +56,7 @@ void loop()
 {
     uint8_t len = sizeof(buf);
     uint8_t from;
-    delay(300);
+    delay(100);
     for (int i = 0; i < nnodes; i++)
     {
       from = slaves[i];      
@@ -73,8 +73,8 @@ void loop()
         Serial.print(from, DEC);
         Serial.println(packetnum);
       }
-      delay(100);
+      delay(50);
     }
     packetnum++;
-}
+}q
 
