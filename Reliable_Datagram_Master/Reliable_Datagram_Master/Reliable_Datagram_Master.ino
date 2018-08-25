@@ -44,17 +44,22 @@ void setup()
   // the CAD timeout to non-zero:
 //  driver.setCADTimeout(10000);
 }
-int nnodes = 11;
+int nnodes = 3;
 unsigned long packetnum = 0;  // packet counter, we increment per xmission
 //uint8_t slaves[12] = {11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}; // Array of all client adresses of the arduinos
-uint8_t slaves[13] = { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}; // Array of all client adresses of the arduinos
+uint8_t slaves[13] = {16,18,21};//{ 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}; // Array of all client adresses of the arduinos
 uint8_t broadcast[] = "Measurement Request";
 uint8_t datarequest[] = "Data Request";
 // Dont put this on the stack:
 uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
+uint8_t gottbuftemp[RH_RF95_MAX_MESSAGE_LEN];
+uint8_t gottbufgps[RH_RF95_MAX_MESSAGE_LEN];
 void loop()
 {
     uint8_t len = sizeof(buf);
+    uint8_t gottlentemp = sizeof(gottbuftemp);
+    uint8_t gottlengps = sizeof(gottbufgps);
+
     uint8_t from;
     delay(100);
     for (int i = 0; i < nnodes; i++)
@@ -65,16 +70,39 @@ void loop()
         //{
       Serial.println((char*)datarequest);
         //}
-      if (manager.recvfromAckTimeout(buf, &len, 1000, &from))
+      if (from == 21) // IF GOTT IS SPEAKING
       {
-        //Serial.print("got reply from : slave");
-        //Serial.print(": ");
-        Serial.print((char*)buf);
-        Serial.print(from, DEC);
-        Serial.println(packetnum);
+        if (manager.recvfromAckTimeout(gottbuftemp, &gottlentemp, 1000, &from))
+        {
+          //Serial.print("got reply from : slave");^
+          //Serial.print(": ");
+          Serial.print((char*)gottbuftemp);
+          Serial.print(from, DEC);
+          Serial.println(packetnum);
+        }
+        manager.sendtoWait(datarequest, sizeof(datarequest), from);
+        if (manager.recvfromAckTimeout(gottbufgps, &gottlengps, 1000, &from))
+        {
+          //Serial.print("got reply from : slave");^
+          //Serial.print(": ");
+          Serial.print((char*)gottbufgps);
+          Serial.print(from, DEC);
+          Serial.println(packetnum);
+        }
+      }
+      else 
+      {
+        if (manager.recvfromAckTimeout(buf, &len, 1000, &from))
+        {
+          //Serial.print("got reply from : slave");^
+          //Serial.print(": ");
+          Serial.print((char*)buf);
+          Serial.print(from, DEC);
+          Serial.println(packetnum);
+        }
       }
       delay(50);
     }
     packetnum++;
-}q
+}
 

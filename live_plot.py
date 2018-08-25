@@ -19,16 +19,16 @@ import pickle
 data_filename = datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
 baud_rate = 115200
 usb_port = '/dev/cu.wchusbserial1420'
-slaves = np.array([1,2,3,4,5,6,7,9,10]) -1
-
-plothistory = 600  # How much of the data should be plotted (in seconds)
+slaves = np.array([6,8,11]) -1
+first = slaves[0] + 1
+plothistory = 10000  # How much of the data should be plotted (in seconds)
 
 data = {}
 save_array = {}
 f = open(data_filename+'.txt','w')
 
 nslave = len(slaves)
-halfslave = int(nslave/2)+1
+halfslave = int(11/2)+1
 # Initialize figures and axes and lines
 fig,[axtemp,axhum,axpres] = plt.subplots(3,1,figsize=(10,13))
 jet = plt.get_cmap('gist_rainbow',int(halfslave))
@@ -77,7 +77,7 @@ axpres.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
 timetxt = axtemp.text([], [],  [])
 
 
-Pcalib = [-0.478,1.112,-0.415,-0.861,-0.43,-0.367,-0.712,-0.257,0.346,-0.77]
+Pcalib = [-0.478,1.112,-0.415,-0.861,-0.43,-0.367,-0.712,-0.257,0.346,-0.77,-0.8]
 #Hcalib = [2.6967455282278791, 2.019810301232212, 0.7988041850625507, 0.33789509780086746, 1.4866460360382234, -1.4921282077773412, -2.214225778675157, 0.7299801435411979, -3.2266263048570636, -0.31907172948442053]
 #Tcalib = [-0.20298338235838642, -0.03457388306773623, -0.14143909679448186, -0.21896698336938059, -0.31915655917819663, 0.27426237148132415, 0.17265320130558948, 0.1972397629378655, 0.14218800363267192, 0.13077656541075555]
 # Calibration auf Lüftung:
@@ -88,7 +88,6 @@ Tcalib = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 i = 0
 t = 0
 while(True):
-    
     if (t == 0):
         # Parity needs to be PARITY_NONE
         ser = serial.Serial(usb_port,baud_rate,timeout=0,parity=serial.PARITY_NONE, rtscts=1)
@@ -97,41 +96,39 @@ while(True):
 
     s = ser.read(100)
 
-    #print(s)
-    if ((len(s) < 48) and (len(s) > 15)):
+    if ((len(s) < 48) and (len(s) > 15) and len(s) != 32):
         i += 1
         try:
-            try:
-                if round(float[s[41:43]])-10==11:
-                    lat = float[s[19:27]]/1000000
-                    lon = float[s[27:35]]/1000000
-                    ele = float[s[36:41]]/100
-                    name = 11
-                    count = int(s[43:])
-                    gott = np.vstack((gott,np.array([date2num(datetime.now()),lat,lon,ele])))
+            if len(s) >= 26:
+                lat = float(s[1:8])/100000
+                lon = float(s[8:15])/100000
+                ele = round(float(s[15:21])/100 - 1000,2)
+                name = round(float(s[21:23]))-10
+                count = int(s[23:])
+                gott = np.vstack((gott,np.array([date2num(datetime.now()),lat,lon,ele])))
+                print('GOTT: ' + str(lat) + ' °N, ' + str(lon) + ' °E, Elevation: ' + str(ele) + ' m')
 
-            except:
+            else:
                 name = round(float(s[18:20])) - 10
                 count = int(s[20:])
-
-            T = round(float(s[0:5])/100 - 273.15,2) #+ Tcalib[int(name)-1]
-            h = round(float(s[5:10])/100 - 100,2)
-            P = round(float(s[10:18])/10000 - 1000,2)
-
-            P = P + Pcalib[int(name)-1]
-            T = T + Tcalib[int(name)-1]
-            #h = h + Hcalib[int(name)-1]
-            if (T > 40) | (T < 0) | (h > 100) | (h < 0) | (P >1100) |(P < 700):
-                T = np.nan
-                h = np.nan
-                P = np.nan
-
-            s = 'Arduino ' + str(name) + ': ' + str(T) + '°C,  '+ str(h)+ ' %, '+ str(P) + ' hPa, ' + str(count)
-            print(s)
-
-            data[name] = np.vstack((data[name],np.array([T,h,P,count])))
-            f.write(str(datetime.now())+';'+str(name)+';'+str(T)+';'+str(h)+';'+str(P)+';'+str(count)+'\n') #maybe on other systems "" needs to be ''
-            save_array[name] = np.vstack((save_array[name],np.array([date2num(datetime.now()),T,h,P,count])))
+                T = round(float(s[0:5])/100 - 273.15,2) #+ Tcalib[int(name)-1]
+                h = round(float(s[5:10])/100 - 100,2)
+                P = float(s[10:18])/10000 - 1000
+    
+                P = round(P + Pcalib[int(name)-1],2)
+                T = T + Tcalib[int(name)-1]
+                #h = h + Hcalib[int(name)-1]
+                if (T > 40) | (T < 0) | (h > 100) | (h < 0) | (P >1100) |(P < 700):
+                    T = np.nan
+                    h = np.nan
+                    P = np.nan
+    
+                s = 'Arduino ' + str(name) + ': ' + str(T) + '°C,  '+ str(h)+ ' %, '+ str(P) + ' hPa, ' + str(count)
+                print(s)
+    
+                data[name] = np.vstack((data[name],np.array([T,h,P,count])))
+                f.write(str(datetime.now())+';'+str(name)+';'+str(T)+';'+str(h)+';'+str(P)+';'+str(count)+'\n') #maybe on other systems "" needs to be ''
+                save_array[name] = np.vstack((save_array[name],np.array([date2num(datetime.now()),T,h,P,count])))
         except:
             print('NOPE...')
         if np.mod(i,40) == 0 and i > 30:
@@ -144,10 +141,10 @@ while(True):
                 myFile.close()
 
             # Set preliminary axes limits.
-            timemin = max(xmin,save_array[1][-1,0]-plothistory/1e5) - 2e-5 # When plothistory is smaller than Inf, 
+            timemin = max(xmin,save_array[first][-1,0]-plothistory/1e5) - 2e-5 # When plothistory is smaller than Inf, 
                                                                     # not everything is plotted, but only
                                                                     # the last plothistory seconds.
-            timemax = save_array[1][-1,0] + 2e-5
+            timemax = save_array[first][-1,0] + 2e-5
 
             tempmin = 999
             tempmax = -999
@@ -159,7 +156,7 @@ while(True):
             presmax = -9999
             # PLOT
             for j in slaves:
-                index = min(plothistory,len(save_array[j+1][:,0])-1)
+                index = min(int(plothistory*4/nslave),len(save_array[j+1][:,0])-1)
 
                 linestemp[j+1].set_data(save_array[j+1][1::,0],save_array[j+1][1::,1])
                 lineshum[j+1].set_data(save_array[j+1][1::,0],save_array[j+1][1::,2])

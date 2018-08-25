@@ -19,6 +19,7 @@ SoftwareSerial ss(4, 3);
 #define RF95_FREQ 868.0
 #define CLIENT_ADDRESS 21
 #define SERVER_ADDRESS 0
+bool l=true;
 
 Adafruit_BME280 bme; // I2C
 unsigned long delayTime;
@@ -59,7 +60,7 @@ void setup()
 
 uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
 float flat=22.22222, flon=22.22222;
-float ele = 9999.99;
+float ele = 0.99;
 int newgpsdata = 0;
 void loop()
 {
@@ -89,43 +90,53 @@ void loop()
     { 
       if (newData)
       {
-        unsigned long age;
-        gps.f_get_position(&flat, &flon, &age);
-        ele = gps.f_altitude();
-        newgpsdata = 1;
-        Serial.print("LAT=");
-        Serial.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
-        Serial.print(" LON=");
-        Serial.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
-        Serial.print(" SAT=");
-        Serial.print(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
-        Serial.print(" PREC=");
-        Serial.print(gps.hdop() == TinyGPS::GPS_INVALID_HDOP ? 0 : gps.hdop());
+        
+        //Serial.println("LAT=");
+        //Serial.println(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
+        //Serial.println(" LON=");
+        //Serial.println(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
+        //Serial.print(" SAT=");
+        //Serial.print(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
+        //Serial.print(" PREC=");
+        //Serial.print(gps.hdop() == TinyGPS::GPS_INVALID_HDOP ? 0 : gps.hdop());
       }
   
-        gps.stats(&chars, &sentences, &failed);
-        Serial.print(" CHARS=");
-        Serial.print(chars);
-        Serial.print(" SENTENCES=");
-        Serial.print(sentences);
-        Serial.print(" CSUM ERR=");
-        Serial.println(failed);
-      if (chars == 0)
-        Serial.println("** No characters received from GPS: check wiring **");
+        //gps.stats(&chars, &sentences, &failed);
+        //Serial.print(" CHARS=");
+        //Serial.print(chars);
+        //Serial.print(" SENTENCES=");
+        //Serial.print(sentences);
+        //Serial.print(" CSUM ERR=");
+        //Serial.println(failed);
+      //if (chars == 0)
+        //Serial.println("** No characters received from GPS: check wiring **");
       //delay(500);
       //Serial.println((char*)buf);
       //Serial.print("Got measurement request from ");
       //Serial.println(from, DEC);
       //Serial.println("Measuring now and preparing packet");
-      
-      itoa(int(bme.readTemperature()*100+27315), datapacket, 10);
-      itoa(int(bme.readHumidity()*100+10000), datapacket+5, 10);
-      ltoa(long(bme.readPressure()*100+10000000), datapacket+10, 10);
-      itoa(int(newgpsdata),datapacket+18,10);
-      ltoa(long(flat*100000), datapacket+19,10);
-      ltoa(long((flon+50)*100000), datapacket+26,10);
-      ltoa(long((ele+1000)*100), datapacket+33,10);
-      
+
+      if (l){
+        itoa(int(bme.readTemperature()*100+27315), datapacket, 10);
+        itoa(int(bme.readHumidity()*100+10000), datapacket+5, 10);
+        ltoa(long(bme.readPressure()*100+10000000), datapacket+10, 10);
+        l=false;}
+        
+      else{
+        unsigned long age;
+        ele = gps.f_altitude();
+        gps.f_get_position(&flat, &flon, &age);
+        //Serial.println(flat);
+        //Serial.println(flon);
+        //Serial.println(ele);
+        newgpsdata = 1;
+        
+        itoa(int(newgpsdata),datapacket,10);
+        ltoa(long(flat*100000), datapacket+1,10);
+        ltoa(long((flon)*100000), datapacket+8,10);
+        ltoa(long((ele+1000)*100), datapacket+15,10);
+        l=true;}
+        
       //Serial.println(flat);
       //Serial.println(flon);
       //Serial.println(bme.readTemperature()*100);
@@ -136,10 +147,10 @@ void loop()
       if (manager.sendtoWait((uint8_t *)datapacket, sizeof(datapacket), from))
       {
       digitalWrite(LED, HIGH);
-      Serial.print("Send ");
-      Serial.println((char*)datapacket);
-      Serial.print("to ");
-      Serial.println(from, HEX);
+      //Serial.print("Send ");
+      //Serial.println((char*)datapacket);
+      //Serial.print("to ");
+      //Serial.println(from, HEX);
       digitalWrite(LED, LOW);
       }
     } 
