@@ -87,6 +87,7 @@ Tcalib = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
 i = 0
 t = 0
+any_gott = False
 while(True):
     if (t == 0):
         # Parity needs to be PARITY_NONE
@@ -107,6 +108,7 @@ while(True):
                 count = int(s[23:])
                 gott = np.vstack((gott,np.array([date2num(datetime.now()),lat,lon,ele])))
                 print('GOTT: ' + str(lat) + ' °N, ' + str(lon) + ' °E, Elevation: ' + str(ele) + ' m')
+                any_gott = True
 
             else:
                 name = round(float(s[18:20])) - 10
@@ -139,7 +141,10 @@ while(True):
             with open(data_filename+'.npy','wb') as myFile:
                 pickle.dump(save_array,myFile)
                 myFile.close()
-
+            if any_gott:
+                with open(data_filename+'_gps.npy','wb') as myFile:
+                    pickle.dump(save_array,myFile)
+                    myFile.close()
             # Set preliminary axes limits.
             timemin = max(xmin,save_array[first][-1,0]-plothistory/1e5) - 2e-5 # When plothistory is smaller than Inf, 
                                                                     # not everything is plotted, but only
