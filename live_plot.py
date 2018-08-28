@@ -17,9 +17,10 @@ import pickle
 #22,73
 
 data_filename = datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
+data_filename = '280818_12345678_strahlungsfehler_helikite'
 baud_rate = 115200
 usb_port = '/dev/cu.wchusbserial1420'
-slaves = np.array([6,8,11]) -1
+slaves = np.array([1,2,3,4,5,6,7,8,11]) -1
 first = slaves[0] + 1
 plothistory = 10000  # How much of the data should be plotted (in seconds)
 
@@ -100,7 +101,7 @@ while(True):
     if ((len(s) < 48) and (len(s) > 15) and len(s) != 32):
         i += 1
         try:
-            if len(s) >= 26:
+            if int(s[0:1]) == 0 or int(s[0:1]) == 1:
                 lat = float(s[1:8])/100000
                 lon = float(s[8:15])/100000
                 ele = round(float(s[15:21])/100 - 1000,2)
@@ -202,7 +203,8 @@ while(True):
 
             axhum.legend((slaves+1).astype(str),loc='center left', bbox_to_anchor=(1, 0.5))
             plt.pause(0.01)
-
+            if (np.mod(i,400)==0):
+                fig.savefig('live.pdf')
         
 
             
