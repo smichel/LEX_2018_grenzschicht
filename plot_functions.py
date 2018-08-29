@@ -35,7 +35,7 @@ def profile_plot_series(filename,ref,p_intv_no):
     
     #Figure name and Plot Title#
     data_path="//192.168.206.173/lex2018/profil/Daten/"
-    fig_name=filename[:-4]+"profile.png"
+    fig_name=filename[:-4]+"profile_complete.png"
     fig_title="Date "+filename[6:8]+"."+filename[4:6]+"."+filename[0:4]+" ,Start Time: "+filename[8:10]+":"+filename[10:12]+":"+filename[12:14] 
     
     ###########################################################################
@@ -76,7 +76,7 @@ def profile_plot_series(filename,ref,p_intv_no):
     ##Plot data
     ###########################################################################
     print("Plotting...")
-    fig= plt.figure(figsize=(15,18))
+    fig= plt.figure(figsize=(30,15))
     matplotlib.rcParams.update({'font.size': 14})
     
     #######################################
@@ -86,8 +86,10 @@ def profile_plot_series(filename,ref,p_intv_no):
     C= ax1.contourf(X,Y,Temp_pint,cmap=plt.get_cmap("hot_r"))
     cb=plt.colorbar(C)
     cb.set_label('Temperatur in $^\circ$C',fontsize=16)
+    #
     ax1.set_xticks(ax1.get_xticks()[::])
     ax1.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
+    ax1.set_xlim([unit_time[0],unit_time[-1000]])
     #ax1.set_xlabel('Local Time')
     ax1.set_ylabel('Pressure in hPa')
     ax1.grid()
@@ -108,8 +110,10 @@ def profile_plot_series(filename,ref,p_intv_no):
     C2= ax2.contourf(X,Y,Theta-273.15,cmap=plt.get_cmap("hot_r"))
     cb=plt.colorbar(C2)
     cb.set_label('$\Theta$ in $^\circ$C',fontsize=16)
+    
     ax2.set_xticks(ax2.get_xticks()[::])
     ax2.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
+    ax2.set_xlim([unit_time[0],unit_time[-1000]])
     ax2.grid()
     #ax2.set_xlabel('Local Time')
     ax2.set_ylabel('Pressure in hPa')
@@ -126,6 +130,7 @@ def profile_plot_series(filename,ref,p_intv_no):
     cb.set_label('RH in %',fontsize=16)
     ax3.set_xticks(ax3.get_xticks()[::])
     ax3.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
+    ax3.set_xlim([unit_time[0],unit_time[-1000]])
     #ax3.set_xlabel('Local Time')
     ax3.set_ylabel('Pressure in hPa')
     ax3.grid()   
@@ -136,8 +141,10 @@ def profile_plot_series(filename,ref,p_intv_no):
     fig.savefig(fig_name, dpi=500,bbox_inches='tight')
     server_path="//192.168.206.173//lex2018/profil/Plots/"
     fig.savefig(server_path+fig_name,dpi=500,bbox_inches="tight")
+    
     print("Plotted and stored on server")
-    return Theta,p_levels,Temp_pint;
+    plt.close()
+    return Theta,p_levels,Temp_pint,unit_time;
     ###########################################################################
     ###########################################################################
 
@@ -190,17 +197,19 @@ def profilplot(path, filename, time_start, time_end):
 
 
 
+#==============================================================================
 #i=0
 #while True:
-#    time.sleep(1)
-#    i += 1
-#    print(i)
-#    if np.mod(i,60) == 0 :
-#        #run function profile_plot_series
-#        try:    
-#            Theta,p_levels,Temp_pint = profile_plot_series(filename,ref,p_intv_no)
-#        except:
-#            print('NOPE...')
+#     time.sleep(1)
+#     i += 1
+#     print(i)
+#     if np.mod(i,60) == 0 :
+         #run function profile_plot_series
+#         try:    
+Theta,p_levels,Temp_pint = profile_plot_series(filename,ref,p_intv_no)
+#         except:
+#             print('NOPE...')
+#==============================================================================
     
 
 def altitude(pressure, temperature):
