@@ -190,14 +190,37 @@ def profilplot(path, filename, time_start, time_end):
 
 
 
-i=0
-while True:
-    time.sleep(1)
-    i += 1
-    print(i)
-    if np.mod(i,60) == 0 :
-        #run function profile_plot_series
-        try:    
-            Theta,p_levels,Temp_pint = profile_plot_series(filename,ref,p_intv_no)
-        except:
-            print('NOPE...')
+#i=0
+#while True:
+#    time.sleep(1)
+#    i += 1
+#    print(i)
+#    if np.mod(i,60) == 0 :
+#        #run function profile_plot_series
+#        try:    
+#            Theta,p_levels,Temp_pint = profile_plot_series(filename,ref,p_intv_no)
+#        except:
+#            print('NOPE...')
+    
+
+def altitude(pressure, temperature):
+    """ Calculates altitude fromm pressure and temperature.
+    
+    Parameters:
+        pressure (array): vertical pressure profile 
+        temperature (array): vertical temperature profile
+    """
+    
+    # constants
+    R = 287.058
+    g = 9.81
+    z = np.zeros(len(pressure))
+    z_interv = np.zeros(len(pressure))
+    z0 = 7.0
+
+    for lev in range(0, len(pressure)-1):
+        z_interv[lev+1] = np.log(pressure[lev+1] / pressure[lev]) * -(R * (temperature[lev] + temperature[lev+1]) / 2 / g)
+        
+        z[lev+1] = np.sum(z_interv)
+        
+    return z + z0
