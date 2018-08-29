@@ -15,9 +15,9 @@ from matplotlib import dates
 
 #############################################
 ##Example code to run profile_plot_series
-#filename="20180823184145.npy"
-#ref=0                                                               
-#p_intv_no=20      
+filename="20180829062417_Grenzschichtentwicklung.npy"
+ref=0                                                               
+p_intv_no=20      
 #############################################
 
 def profile_plot_series(filename,ref,p_intv_no):
@@ -34,13 +34,14 @@ def profile_plot_series(filename,ref,p_intv_no):
     R_l=287  #J/(kg*K)
     
     #Figure name and Plot Title#
+    data_path="//192.168.206.173/lex2018/profil/Daten/"
     fig_name=filename[:-4]+"profile.png"
     fig_title="Date "+filename[6:8]+"."+filename[4:6]+"."+filename[0:4]+" ,Start Time: "+filename[8:10]+":"+filename[10:12]+":"+filename[12:14] 
     
     ###########################################################################
     ##Processing of data
     ###########################################################################
-    data=np.load(filename)
+    data=np.load(data_path+filename)
     keys=list(data)
     arduino={}
     unit_time=data[keys[ref]][1:,0]
@@ -65,15 +66,16 @@ def profile_plot_series(filename,ref,p_intv_no):
     RH_pint=pres_interp[:,2,:]
     
     #Pot. Temperatur
-    Theta = np.empty((p_intv_no,1000,))
+    Theta = np.empty((p_intv_no,len(unit_time),))
     Theta.fill(np.nan)
     for t in range(0,len(unit_time)):
         for p in range(0,len(p_levels)):
-            Theta[p,t]=Temp_pint[p,t]*(1000/p_levels[p])**(R_l/c_p)
+            Theta[p,t]=(Temp_pint[p,t]+273.15)*(1000/p_levels[p])**(R_l/c_p)
             
     ###########################################################################
     ##Plot data
     ###########################################################################
+    print("Plotting...")
     fig= plt.figure(figsize=(15,18))
     matplotlib.rcParams.update({'font.size': 14})
     
@@ -81,7 +83,7 @@ def profile_plot_series(filename,ref,p_intv_no):
     #Subplot1: Temperatur
     ax1=fig.add_subplot(311)
     X,Y = np.meshgrid(unit_time,p_levels)
-    C= ax1.contourf(X,Y,Temp_pint,cmap=plt.get_cmap("seismic"))
+    C= ax1.contourf(X,Y,Temp_pint,cmap=plt.get_cmap("hot_r"))
     cb=plt.colorbar(C)
     cb.set_label('Temperatur in $^\circ$C',fontsize=16)
     ax1.set_xticks(ax1.get_xticks()[::])
@@ -103,7 +105,7 @@ def profile_plot_series(filename,ref,p_intv_no):
     #Subplot2 pot. Temperatur
     ax2=fig.add_subplot(312)
     X,Y = np.meshgrid(unit_time,p_levels)
-    C2= ax2.contourf(X,Y,Theta,cmap=plt.get_cmap("seismic"))
+    C2= ax2.contourf(X,Y,Theta-273.15,cmap=plt.get_cmap("hot_r"))
     cb=plt.colorbar(C2)
     cb.set_label('$\Theta$ in $^\circ$C',fontsize=16)
     ax2.set_xticks(ax2.get_xticks()[::])
@@ -119,7 +121,7 @@ def profile_plot_series(filename,ref,p_intv_no):
     ######################################
     #Subplot3 Relative Humidity
     ax3=fig.add_subplot(313)
-    C3= ax3.contourf(X,Y,RH_pint,cmap=plt.get_cmap("gist_earth_r"))
+    C3= ax3.contourf(X,Y,RH_pint,cmap=plt.get_cmap("viridis_r"))
     cb=plt.colorbar(C3)
     cb.set_label('RH in %',fontsize=16)
     ax3.set_xticks(ax3.get_xticks()[::])
@@ -132,10 +134,14 @@ def profile_plot_series(filename,ref,p_intv_no):
     plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
                 wspace=None, hspace=0.3)
     fig.savefig(fig_name, dpi=500,bbox_inches='tight')
-    return;
+    server_path="//192.168.206.173//lex2018/profil/Plots/"
+    fig.savefig(server_path+fig_name,dpi=500,bbox_inches="tight")
+    print("Plotted and stored on server")
+    return Theta,p_levels,Temp_pint;
     ###########################################################################
     ###########################################################################
 
+            
 
 
 
@@ -182,5 +188,16 @@ def profilplot(path, filename, time_start, time_end):
     
     plt.tight_layout()
 
-#run function profile_plot_series
-profile_plot_series(filename,ref,p_intv_no)
+
+
+i=0
+while True:
+    time.sleep(1)
+    i += 1
+    print(i)
+    if np.mod(i,60) == 0 :
+        #run function profile_plot_series
+        try:    
+            Theta,p_levels,Temp_pint = profile_plot_series(filename,ref,p_intv_no)
+        except:
+            print('NOPE...')
