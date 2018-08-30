@@ -79,17 +79,19 @@ def profile_plot_series(filename,ref,p_intv_no):
     fig= plt.figure(figsize=(30,15))
     matplotlib.rcParams.update({'font.size': 14})
     
+    levels_t = np.arange(12, 23, 0.5)
+    levels_theta = np.arange(15, 24, 0.5)
     #######################################
     #Subplot1: Temperatur
     ax1=fig.add_subplot(311)
     X,Y = np.meshgrid(unit_time,p_levels)
-    C= ax1.contourf(X,Y,Temp_pint,cmap=plt.get_cmap("hot_r"))
+    C= ax1.contourf(X,Y,Temp_pint,levels_t, cmap=plt.get_cmap("hot_r", len(levels_t)-1))
     cb=plt.colorbar(C)
     cb.set_label('Temperatur in $^\circ$C',fontsize=16)
     #
     ax1.set_xticks(ax1.get_xticks()[::])
     ax1.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
-    ax1.set_xlim([unit_time[0],unit_time[-1000]])
+    ax1.set_xlim([unit_time[0],date2num(datetime.datetime(2018, 8, 29, 14, 56))])
     #ax1.set_xlabel('Local Time')
     ax1.set_ylabel('Pressure in hPa')
     ax1.grid()
@@ -107,13 +109,13 @@ def profile_plot_series(filename,ref,p_intv_no):
     #Subplot2 pot. Temperatur
     ax2=fig.add_subplot(312)
     X,Y = np.meshgrid(unit_time,p_levels)
-    C2= ax2.contourf(X,Y,Theta-273.15,cmap=plt.get_cmap("hot_r"))
+    C2= ax2.contourf(X,Y,Theta-273.15, levels_theta, cmap=plt.get_cmap("hot_r", len(levels_theta)-1))
     cb=plt.colorbar(C2)
     cb.set_label('$\Theta$ in $^\circ$C',fontsize=16)
     
     ax2.set_xticks(ax2.get_xticks()[::])
     ax2.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
-    ax2.set_xlim([unit_time[0],unit_time[-1000]])
+    ax2.set_xlim([unit_time[0],date2num(datetime.datetime(2018, 8, 29, 14, 56))])
     ax2.grid()
     #ax2.set_xlabel('Local Time')
     ax2.set_ylabel('Pressure in hPa')
@@ -130,7 +132,7 @@ def profile_plot_series(filename,ref,p_intv_no):
     cb.set_label('RH in %',fontsize=16)
     ax3.set_xticks(ax3.get_xticks()[::])
     ax3.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
-    ax3.set_xlim([unit_time[0],unit_time[-1000]])
+    ax3.set_xlim([unit_time[0], date2num(datetime.datetime(2018, 8, 29, 14, 56))])
     #ax3.set_xlabel('Local Time')
     ax3.set_ylabel('Pressure in hPa')
     ax3.grid()   
@@ -206,11 +208,91 @@ def profilplot(path, filename, time_start, time_end):
 #     if np.mod(i,60) == 0 :
          #run function profile_plot_series
 #         try:    
-Theta,p_levels,Temp_pint = profile_plot_series(filename,ref,p_intv_no)
+#Theta,p_levels,Temp_pint, unit_time = profile_plot_series(filename,ref,p_intv_no)
 #         except:
 #             print('NOPE...')
 #==============================================================================
     
+def plot_timeseries(path, filename, start_time=None, end_time=None, t_range=None,
+                    h_range=None, p_range=None):
+    """ Plots a timeseries of ALPACA data for the time period between start_time
+    and end_time. If no start end end times are given, the whole timeseries in
+    the file is plotted. Plot limits for temperature, humidity and pressure can
+    be specified optionally.
+    
+    Parameters:
+        path (str): path to data file
+        filename (str): name of data file
+        start_time (datetime.datetime object): start time of time series
+        end_time (datetime.datetime object): end time of time series
+        t_range (list with 2 elements): limits for temperature plot
+        h_range (list with 2 elements): limits for humidity plot
+        p_range (list with 2 elements): limits for pressure plot
+    """
+
+    #data = np.load(path + filename)
+    data = apply_correction(path, filename)
+    
+    temp = {}
+    hum = {}
+    pres = {}
+    t = {}
+    numarduinos = len(list(data))
+    
+    halfslave = int(11/2)+1
+    jet = plt.get_cmap('gist_rainbow',int(halfslave))
+    print(halfslave)
+    
+    for i in range(1, numarduinos + 1):
+        temp[i] = data[i][1:, 1]
+        hum[i] = data[i][1:, 2]
+        pres[i] = data[i][1:, 3]
+        t[i] = data[i][1:, 0]
+    
+    plt.rcParams.update({'font.size': 14})    
+    fig, ax = plt.subplots(3, 1, figsize=(15, 10))
+    for i in range(1, numarduinos + 1):
+        cindex = np.mod(i-1,halfslave)
+        print(cindex)
+        if i+1 > halfslave:
+            stylus = '--'
+        else:
+            stylus = '-'
+        
+        ax[0].plot(num2date(t[i]), temp[i], color=jet(cindex), linestyle=stylus, label=i)
+        ax[0].set_xlabel('Time')
+        ax[0].set_ylabel('Temperature [°C]')
+        ax[1].plot(num2date(t[i]), hum[i], color=jet(cindex), linestyle=stylus, label=i)
+        ax[1].set_xlabel('Time')
+        ax[1].set_ylabel('Humidity [%]')
+        ax[2].plot(num2date(t[i]), pres[i], color=jet(cindex), linestyle=stylus, label=i)
+        ax[2].set_xlabel('Time')
+        ax[2].set_ylabel('Pressure [hPa]')
+    
+    ax[2].legend(loc='upper center', bbox_to_anchor=(0.8, -0.2),
+          fancybox=True, shadow=True, ncol=5)
+
+    if start_time is not None:
+        start_lim = start_time
+    else:
+        start_lim = t[1][0]
+    if end_time is not None:
+        end_lim = end_time
+    else:
+        end_lim = t[1][-1]
+        
+    ax[0].set_xlim(start_lim, end_lim)
+    ax[1].set_xlim(start_lim, end_lim)
+    ax[2].set_xlim(start_lim, end_lim)
+    
+    if t_range is not None:
+        ax[0].set_ylim(t_range[0], t_range[1])
+    if h_range is not None:
+        ax[1].set_ylim(h_range[0], h_range[1])
+    if p_range is not None:
+        ax[2].set_ylim(p_range[0], p_range[1])
+
+    plt.tight_layout()
 
 def altitude(pressure, temperature):
     """ Calculates altitude fromm pressure and temperature.
@@ -233,3 +315,28 @@ def altitude(pressure, temperature):
         z[lev+1] = np.sum(z_interv)
         
     return z + z0
+
+def apply_correction(path, filename):
+    """ Applies temperature and himidity correction to ALPACA raw data and 
+    returns a dictionary with the same structure as in the raw data, but 
+    with the corrected values. 
+    """
+    
+    data = np.load(path + filename)
+    arduinos = data.keys()
+    
+    temp_correction = {1: 0.09, 2: 0.10, 3: -0.02, 4: -0.23, 5: -0.20,
+                       6: 0.05, 7: 0.14, 8: 0.11, 9: -0.10, 10: 0.11,
+                       11: -0.09}
+    
+    humidity_correction = {1: -0.10, 2: 0.34, 3: -0.03, 4: 0.17, 5: 0.48,
+                       6: -0.14, 7: -2.09, 8: 1.07, 9: -0.60, 10: -0.30,
+                       11: 2.00}
+    
+    for i in arduinos:
+        # temperature
+        data[i][1:, 1] = data[i][1:, 1] + temp_correction[i]
+        # humidity
+        data[i][1:, 2] = data[i][1:, 2] + humidity_correction[i]
+        
+    return data
