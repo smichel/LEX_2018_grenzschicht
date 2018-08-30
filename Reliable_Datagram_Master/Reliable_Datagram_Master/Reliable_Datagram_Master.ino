@@ -44,10 +44,11 @@ void setup()
   // the CAD timeout to non-zero:
 //  driver.setCADTimeout(10000);
 }
-int nnodes = 3;
+int nnodes = 1;
 unsigned long packetnum = 0;  // packet counter, we increment per xmission
 //uint8_t slaves[12] = {11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}; // Array of all client adresses of the arduinos
-uint8_t slaves[13] = {16,18,21};//{ 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}; // Array of all client adresses of the arduinos
+uint8_t slaves[13] = {22};//{ 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}; // Array of all client adresses of the arduinos
+//client adress of god is 22
 uint8_t broadcast[] = "Measurement Request";
 uint8_t datarequest[] = "Data Request";
 // Dont put this on the stack:
@@ -70,17 +71,8 @@ void loop()
         //{
       Serial.println((char*)datarequest);
         //}
-      if (from == 21) // IF GOTT IS SPEAKING
+      if (from == 22) // IF GOTT IS SPEAKING
       {
-        if (manager.recvfromAckTimeout(gottbuftemp, &gottlentemp, 1000, &from))
-        {
-          //Serial.print("got reply from : slave");^
-          //Serial.print(": ");
-          Serial.print((char*)gottbuftemp);
-          Serial.print(from, DEC);
-          Serial.println(packetnum);
-        }
-        manager.sendtoWait(datarequest, sizeof(datarequest), from);
         if (manager.recvfromAckTimeout(gottbufgps, &gottlengps, 1000, &from))
         {
           //Serial.print("got reply from : slave");^
