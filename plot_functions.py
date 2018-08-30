@@ -91,21 +91,18 @@ def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pin
 ###############################################################################
 ###############################################################################
 
-def profilplot(path, filename, time_start, time_end):
+def profilplot(data, time_start, time_end):
     """
     Plots vertica profiles of temperature and humidty for a given time period.
     
     Parameters:
-        path (str): path to data file
-        filename (str): name of data file
+        data (dictionary): dictionary with data for all alpacas
         time_start (datetime.datetime(yyyy, mm, dd, HH, MM, SS)): start time of
             time period
         time_end (datetime.datetime(yyyy, mm, dd, HH, MM, SS)): end time of 
             time period
     """
     plt.rcParams.update({'font.size': 14})
-    
-    data = np.load(join(path, filename))
     
     temp = {}
     hum = {}
@@ -137,7 +134,7 @@ def profilplot(path, filename, time_start, time_end):
 
 ###############################################################################
 ###############################################################################
-def plot_timeseries(path, filename, start_time=None, end_time=None, t_range=None,
+def plot_timeseries(data, start_time=None, end_time=None, t_range=None,
                     h_range=None, p_range=None):
     """ Plots a timeseries of ALPACA data for the time period between start_time
     and end_time. If no start end end times are given, the whole timeseries in
@@ -153,9 +150,6 @@ def plot_timeseries(path, filename, start_time=None, end_time=None, t_range=None
         h_range (list with 2 elements): limits for humidity plot
         p_range (list with 2 elements): limits for pressure plot
     """
-
-    #data = np.load(path + filename)
-    data = apply_correction(path, filename)
     
     temp = {}
     hum = {}
@@ -177,7 +171,6 @@ def plot_timeseries(path, filename, start_time=None, end_time=None, t_range=None
     fig, ax = plt.subplots(3, 1, figsize=(15, 10))
     for i in range(1, numarduinos + 1):
         cindex = np.mod(i-1,halfslave)
-        print(cindex)
         if i+1 > halfslave:
             stylus = '--'
         else:
