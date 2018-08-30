@@ -211,3 +211,21 @@ def plot_timeseries(data, start_time=None, end_time=None, t_range=None,
 
     plt.tight_layout()
 
+
+def readme(name=data_filename,instruments = slaves+1):
+    """
+    creates readme file for every measurement. note that infos like weather 
+    still have to be implemented manually
+    """
+    file = open('readme_'+name+'.txt', 'w')   
+    file.write('Filename                            : '+name+'.txt\n')
+    file.write('Format                              : date, time, instrument number, temperature, humidity, pressure, packetnumber\n')
+    file.write('Date                                : '+name[6:8]+'-'+name[4:6]+'-'+name[0:4]+'\n')
+    file.write('Launchtime                          : '+name[8:10]+':'+name[10:12]+':'+name[12:14]+'\n')
+    file.write('Units                               : pressure: hPa, humidity: %, temperature: degree Celsius, date: yyyy-mm-dd, time: HH:MM:SS.SSSSSS\n')
+    file.write('Weather:                            : \n')
+    file.write('Wind                                : \n')
+    file.write('Used instruments                    : '+str(instruments)+'\n')
+    file.write('Position of instruments on line (m) : // 0 is highest\n')
+    file.write('Notes                               : \n')      
+    file.close()
