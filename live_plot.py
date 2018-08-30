@@ -17,10 +17,10 @@ import pickle
 #22,73
 
 data_filename = datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
-data_filename = '280818_12345678_strahlungsfehler_helikite'
+data_filename = data_filename + '_Grenzschichtentwicklung'
 baud_rate = 115200
 usb_port = '/dev/cu.wchusbserial1420'
-slaves = np.array([1,2,3,4,5,6,7,8,11]) -1
+slaves = np.array([1,2,3,4,5,6,7,8,9,10,11]) -1
 first = slaves[0] + 1
 plothistory = 10000  # How much of the data should be plotted (in seconds)
 
@@ -144,7 +144,7 @@ while(True):
                 myFile.close()
             if any_gott:
                 with open(data_filename+'_gps.npy','wb') as myFile:
-                    pickle.dump(save_array,myFile)
+                    pickle.dump(gott,myFile)
                     myFile.close()
             # Set preliminary axes limits.
             timemin = max(xmin,save_array[first][-1,0]-plothistory/1e5) - 2e-5 # When plothistory is smaller than Inf, 
@@ -203,9 +203,10 @@ while(True):
 
             axhum.legend((slaves+1).astype(str),loc='center left', bbox_to_anchor=(1, 0.5))
             plt.pause(0.01)
+            # Save image and convert to JPG
             if (np.mod(i,400)==0):
-                fig.savefig('live.pdf')
-        
+                fig.savefig('live.png')
+
 
             
     t = t+1

@@ -24,8 +24,8 @@ def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pin
     fig= plt.figure(figsize=(30,15))
     matplotlib.rcParams.update({'font.size': 14})
     
-    levels_T=np.arange(12,23,0.5)
-    levels_Theta=np.arange(14,25,0.5)
+    levels_T=np.arange(round(np.nanmin(Temp_pint)),round(np.nanmax(Temp_pint)),(round(np.nanmax(Temp_pint))-round(np.nanmin(Temp_pint)))/20)
+    levels_Theta=np.arange(round(np.nanmin(Theta),2),round(np.nanmax(Theta),2),round((np.nanmax(Theta)-np.nanmin(Theta))/20,2)) -273.15
     ###########################################################################
     #Subplot1: Temperatur
     ax1=fig.add_subplot(311)
