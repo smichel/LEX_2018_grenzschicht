@@ -88,35 +88,8 @@ void loop()
   {
     if (manager.recvfromAckTimeout(buf, &len, 1000, &from))
     { 
-      if (newData)
-      {
-        
-        //Serial.println("LAT=");
-        //Serial.println(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
-        //Serial.println(" LON=");
-        //Serial.println(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
-        //Serial.print(" SAT=");
-        //Serial.print(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
-        //Serial.print(" PREC=");
-        //Serial.print(gps.hdop() == TinyGPS::GPS_INVALID_HDOP ? 0 : gps.hdop());
-      }
-  
-        //gps.stats(&chars, &sentences, &failed);
-        //Serial.print(" CHARS=");
-        //Serial.print(chars);
-        //Serial.print(" SENTENCES=");
-        //Serial.print(sentences);
-        //Serial.print(" CSUM ERR=");
-        //Serial.println(failed);
-      //if (chars == 0)
-        //Serial.println("** No characters received from GPS: check wiring **");
-      //delay(500);
-      //Serial.println((char*)buf);
-      //Serial.print("Got measurement request from ");
-      //Serial.println(from, DEC);
-      //Serial.println("Measuring now and preparing packet");
-
       if (l){
+        delay(10);
         itoa(int(bme.readTemperature()*100+27315), datapacket, 10);
         itoa(int(bme.readHumidity()*100+10000), datapacket+5, 10);
         ltoa(long(bme.readPressure()*100+10000000), datapacket+10, 10);
@@ -136,14 +109,7 @@ void loop()
         ltoa(long((flon)*100000), datapacket+8,10);
         ltoa(long((ele+1000)*100), datapacket+15,10);
         l=true;}
-        
-      //Serial.println(flat);
-      //Serial.println(flon);
-      //Serial.println(bme.readTemperature()*100);
-      //Serial.println(bme.readHumidity()*100);
-      //Serial.println(datapacket);      
-      //Serial.println(bme.readPressure()*100);
-      //delay(500);
+
       if (manager.sendtoWait((uint8_t *)datapacket, sizeof(datapacket), from))
       {
       digitalWrite(LED, HIGH);
