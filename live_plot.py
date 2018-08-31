@@ -17,7 +17,7 @@ import pickle
 #22,73
 
 data_filename = datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
-data_filename = data_filename + '_Grenzschichtentwicklung'
+data_filename = data_filename + '_Grenzschichtentwicklung2'
 baud_rate = 115200
 usb_port = '/dev/cu.wchusbserial1420'
 slaves = np.array([1,2,3,4,5,6,7,8,9,10,11]) -1
@@ -78,7 +78,8 @@ axpres.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
 timetxt = axtemp.text([], [],  [])
 
 
-Pcalib = [-0.478,1.112,-0.415,-0.861,-0.43,-0.367,-0.712,-0.257,0.346,-0.77,-0.8]
+#Pcalib = [-0.478,1.112,-0.415,-0.861,-0.43,-0.367,-0.712,-0.257,0.346,-0.77,-0.8]
+Pcalib = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 #Hcalib = [2.6967455282278791, 2.019810301232212, 0.7988041850625507, 0.33789509780086746, 1.4866460360382234, -1.4921282077773412, -2.214225778675157, 0.7299801435411979, -3.2266263048570636, -0.31907172948442053]
 #Tcalib = [-0.20298338235838642, -0.03457388306773623, -0.14143909679448186, -0.21896698336938059, -0.31915655917819663, 0.27426237148132415, 0.17265320130558948, 0.1972397629378655, 0.14218800363267192, 0.13077656541075555]
 # Calibration auf Lüftung:
@@ -146,66 +147,67 @@ while(True):
                 with open(data_filename+'_gps.npy','wb') as myFile:
                     pickle.dump(gott,myFile)
                     myFile.close()
-            # Set preliminary axes limits.
-            timemin = max(xmin,save_array[first][-1,0]-plothistory/1e5) - 2e-5 # When plothistory is smaller than Inf, 
-                                                                    # not everything is plotted, but only
-                                                                    # the last plothistory seconds.
-            timemax = save_array[first][-1,0] + 2e-5
-
-            tempmin = 999
-            tempmax = -999
             
-            hummin = 999
-            hummax = -999
-            
-            presmin = 9999
-            presmax = -9999
-            # PLOT
-            for j in slaves:
-                index = min(int(plothistory*4/nslave),len(save_array[j+1][:,0])-1)
-
-                linestemp[j+1].set_data(save_array[j+1][1::,0],save_array[j+1][1::,1])
-                lineshum[j+1].set_data(save_array[j+1][1::,0],save_array[j+1][1::,2])
-                linespres[j+1].set_data(save_array[j+1][1::,0],save_array[j+1][1::,3])
-                
-
-
-                if min(save_array[j+1][-index::,1]) < tempmin +1:
-                    tempmin = min(save_array[j+1][-index::,1]) - 1
-                if max(save_array[j+1][-index::,1]) > tempmax -1:
-                    tempmax = max(save_array[j+1][-index::,1]) + 1
-
-                if min(save_array[j+1][-index::,2]) < hummin +1:
-                    hummin = min(save_array[j+1][-index::,2]) - 1
-                if max(save_array[j+1][-index::,2]) > hummax -1:
-                    hummax = max(save_array[j+1][-index::,2]) + 1
-                
-                if min(save_array[j+1][-index::,3]) < presmin +1:
-                    presmin = min(save_array[j+1][-index::,3]) - 1
-                if max(save_array[j+1][-index::,3]) > presmax -1:
-                    presmax = max(save_array[j+1][-index::,3]) + 1
-                
-                if max(save_array[j+1][-index::,0]) > timemax -2e-5:
-                    timemax = max(save_array[j+1][-index::,0]) + 2e-5
-
-                fig.canvas.flush_events()
-            
-            axtemp.set_ylim(tempmin,tempmax)
-            axhum.set_ylim(hummin,hummax)
-            axpres.set_ylim(presmin,presmax)
-
-            axtemp.set_xlim(timemin,timemax)
-            axhum.set_xlim(timemin,timemax)
-            axpres.set_xlim(timemin,timemax)
-            
-            timetxt.set_position((timemin,tempmax+0.1))
-            timetxt.set_text('Elapsed time: '+str(round(time.time()-time1,3))+' seconds!')
-
-            axhum.legend((slaves+1).astype(str),loc='center left', bbox_to_anchor=(1, 0.5))
-            plt.pause(0.01)
-            # Save image and convert to JPG
-            if (np.mod(i,400)==0):
-                fig.savefig('live.png')
+#            # Set preliminary axes limits.
+#            timemin = max(xmin,save_array[first][-1,0]-plothistory/1e5) - 2e-5 # When plothistory is smaller than Inf, 
+#                                                                    # not everything is plotted, but only
+#                                                                    # the last plothistory seconds.
+#            timemax = save_array[first][-1,0] + 2e-5
+#
+#            tempmin = 999
+#            tempmax = -999
+#            
+#            hummin = 999
+#            hummax = -999
+#            
+#            presmin = 9999
+#            presmax = -9999
+#            # PLOT
+#            for j in slaves:
+#                index = min(int(plothistory*4/nslave),len(save_array[j+1][:,0])-1)
+#
+#                linestemp[j+1].set_data(save_array[j+1][1::,0],save_array[j+1][1::,1])
+#                lineshum[j+1].set_data(save_array[j+1][1::,0],save_array[j+1][1::,2])
+#                linespres[j+1].set_data(save_array[j+1][1::,0],save_array[j+1][1::,3])
+#                
+#
+#
+#                if min(save_array[j+1][-index::,1]) < tempmin +1:
+#                    tempmin = min(save_array[j+1][-index::,1]) - 1
+#                if max(save_array[j+1][-index::,1]) > tempmax -1:
+#                    tempmax = max(save_array[j+1][-index::,1]) + 1
+#
+#                if min(save_array[j+1][-index::,2]) < hummin +1:
+#                    hummin = min(save_array[j+1][-index::,2]) - 1
+#                if max(save_array[j+1][-index::,2]) > hummax -1:
+#                    hummax = max(save_array[j+1][-index::,2]) + 1
+#                
+#                if min(save_array[j+1][-index::,3]) < presmin +1:
+#                    presmin = min(save_array[j+1][-index::,3]) - 1
+#                if max(save_array[j+1][-index::,3]) > presmax -1:
+#                    presmax = max(save_array[j+1][-index::,3]) + 1
+#                
+#                if max(save_array[j+1][-index::,0]) > timemax -2e-5:
+#                    timemax = max(save_array[j+1][-index::,0]) + 2e-5
+#
+#                fig.canvas.flush_events()
+#            
+#            axtemp.set_ylim(tempmin,tempmax)
+#            axhum.set_ylim(hummin,hummax)
+#            axpres.set_ylim(presmin,presmax)
+#
+#            axtemp.set_xlim(timemin,timemax)
+#            axhum.set_xlim(timemin,timemax)
+#            axpres.set_xlim(timemin,timemax)
+#            
+#            timetxt.set_position((timemin,tempmax+0.1))
+#            timetxt.set_text('Elapsed time: '+str(round(time.time()-time1,3))+' seconds!')
+#
+#            axhum.legend((slaves+1).astype(str),loc='center left', bbox_to_anchor=(1, 0.5))
+#            plt.pause(0.01)
+#            # Save image and convert to JPG
+#            if (np.mod(i,400)==0):
+#                fig.savefig('live.png')
 
 
             
