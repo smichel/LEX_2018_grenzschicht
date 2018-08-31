@@ -7,6 +7,7 @@ Created on Wed Jul 11 16:47:20 2018
 """
 
 import serial
+import plot_functions as pf
 import time 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -21,6 +22,7 @@ data_filename = data_filename + '_Grenzschichtentwicklung'
 baud_rate = 115200
 usb_port = '/dev/cu.wchusbserial1420'
 slaves = np.array([1,2,3,4,5,6,7,8,9,10,11]) -1
+pf.readme(data_filename, slaves+1)
 first = slaves[0] + 1
 plothistory = 10000  # How much of the data should be plotted (in seconds)
 

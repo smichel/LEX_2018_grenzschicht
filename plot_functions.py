@@ -291,7 +291,7 @@ def plot_timeseries(data, start_time=None, end_time=None, t_range=None,
 
 ###############################################################################
 ###############################################################################
-def readme(name=data_filename,instruments = slaves+1):
+def readme(name,instruments):
     """
     creates readme file for every measurement. note that infos like weather 
     still have to be implemented manually
