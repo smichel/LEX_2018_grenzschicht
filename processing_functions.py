@@ -122,26 +122,48 @@ def data_interpolation_p_t(data,ref,p_intv_no,instrument_spef):
 
 ###############################################################################
 ###############################################################################
-def altitude(pressure, temperature):
+def altitude(pressure, temperature, z0):
     """ Calculates altitude fromm pressure and temperature.
     
     Parameters:
         pressure (array): vertical pressure profile 
         temperature (array): vertical temperature profile
+        z0 (numeric): altitude of ground pressure level
     """
     
+    if np.sum(np.logical_not(np.isnan(temperature))) <= 1:
+        return temperature
     # constants
     R = 287.058
     g = 9.81
-    z = np.zeros(len(pressure))
-    z_interv = np.zeros(len(pressure))
-    z0 = 7.0
+    
+    temperature = temperature + 273.15
+    temp_notnan = temperature[np.logical_not(np.isnan(temperature))]
+    #print(temp_notnan)
+    pres_notnan = pressure[np.logical_not(np.isnan(temperature))]
+    #print(pres_notnan)
+    z = np.zeros(len(pres_notnan))
+    z_interv = np.zeros(len(pres_notnan))
 
-    for lev in range(0, len(pressure)-1):
-        z_interv[lev+1] = np.log(pressure[lev+1] / pressure[lev]) * -(R * (temperature[lev] + temperature[lev+1]) / 2 / g)
+    for lev in range(0, len(pres_notnan)-1):
+        z_interv[lev+1] = np.log(pres_notnan[lev+1] / pres_notnan[lev]) * -(R * (temp_notnan[lev] + temp_notnan[lev+1]) / 2 / g)
         
         z[lev+1] = np.sum(z_interv)
-        
-    return z + z0
+       
+    z = z + z0
+    #print(z) 
+    
+    z_nan = np.zeros(temperature.shape)
+    i = 0
+    for lev in range(len(temperature)):
+        if np.isnan(temperature[lev]):
+            z_nan[lev] = np.nan
+        else: 
+            z_nan[lev] = z[i]
+            i += 1
+    
+    return z_nan
+    
+    
 
 
