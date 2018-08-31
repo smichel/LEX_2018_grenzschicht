@@ -21,10 +21,10 @@ from scipy.misc import imread
 
 month = 8
 heliheight = 600
-groundtemp = 19.2
-groundhum = 68
+groundtemp = 17.1
+groundhum = 77
 path = './Messdaten/Radiosonden/'
-launchname = '20180829_08'
+launchname = '20180831_1036'
 plt.xkcd()
 
 ##### READ RADIOSONDE DATA
@@ -64,7 +64,7 @@ launchtime = np.where(sondedata[:,6] > 10)[0][0]
 heliheighttime = np.where(sondedata[:,6] > heliheight)[0][0]
 timetolaunch = sondedata[launchtime,0]
 timetoheliheight = sondedata[heliheighttime,0]
-sondedata = sondedata[launchtime-2:heliheighttime,:]
+sondedata = sondedata[launchtime-1:heliheighttime,:]
 
 ##### Set the first value of the sonde temp and humidity to the ground values
 sondedata[0,2] = groundtemp
@@ -77,24 +77,25 @@ with open(infofile, 'rb') as f:
 
 sondestart = datetime(sondeinfo[4],month,sondeinfo[2],sondeinfo[5]+2,sondeinfo[6],0)
 
+secondofstart = (sondeinfo[5]+ 2) * 3600 + sondeinfo[6] * 60
 ##### Determine how many hours, minutes, seconds until the sonde was launched
-hourstolaunch = int(timetolaunch/3600)
-minutestolaunch = int(np.mod(timetolaunch,3600)/60)
-secondstolaunch = int(np.mod(np.mod(timetolaunch,3600),60))
+hourstolaunch = int((timetolaunch+ secondofstart)/3600)
+minutestolaunch = int(np.mod((timetolaunch+ secondofstart),3600)/60)
+secondstolaunch = int(np.mod(np.mod((timetolaunch+ secondofstart),3600),60))
 
 ##### Determine time of launch
 sondelaunch = datetime(sondeinfo[4],month,sondeinfo[2],
-                       sondeinfo[5]+hourstolaunch+2,sondeinfo[6]+minutestolaunch,
+                       hourstolaunch,minutestolaunch,
                        secondstolaunch)
 
 ##### Determine how many hours, minutes, seconds until the sonde reached helikite
-hourstoheliheight = int(timetoheliheight/3600)
-minutestoheliheight = int(np.mod(timetoheliheight,3600)/60)
-secondstoheliheight = int(np.mod(np.mod(timetoheliheight,3600),60))
+hourstoheliheight = int((timetoheliheight+secondofstart)/3600)
+minutestoheliheight = int(np.mod((timetoheliheight+secondofstart),3600)/60)
+secondstoheliheight = int(np.mod(np.mod((timetoheliheight+secondofstart),3600),60))
 
 ##### Determine time when sonde reached helikite
 sondeheli = datetime(sondeinfo[4],month,sondeinfo[2],
-                       sondeinfo[5]+hourstoheliheight+2,sondeinfo[6]+minutestoheliheight,
+                       hourstoheliheight,minutestoheliheight,
                        secondstoheliheight)
 
 ##### Create a nice string of the launch time for title, filename of plot
@@ -106,7 +107,7 @@ titletime = titletime.replace(':','')
 #########################################################################################
 ##### READ ALPACA FILE
 ##### Alpaca filename
-alpaca_filename = './Messdaten/20180829062417_Grenzschichtentwicklung.npy'
+alpaca_filename = './Messdaten/20180831105131_Grenzschichtentwicklung2.npy'
 
 data = np.load(alpaca_filename)
 #data = apply_correction(data)
@@ -133,16 +134,16 @@ alpacahum = np.asarray(list(hum.values()))
 ##### Create figure with the comparison
 
 
-img = imread("alpaka2.png")
-img = np.flip(img,0)
+#img = imread("alpaka2.png")
+#img = np.flip(img,0)
 fig,(axtemp,axhum) = plt.subplots(1,2,figsize=(10,8))
 axtemp.plot(sondedata[:,2],sondedata[:,7],linestyle='--',marker='x',color = 'red',markersize=10,zorder=1)
 axtemp.plot(alpacatemp,alpacapres,linestyle='--',marker='x',color = 'blue',markersize=10,zorder=1)
-axtemp.imshow(img,zorder=0,extent=[13, 20, 940, 1020],aspect=0.15,alpha=0.1)
+#axtemp.imshow(img,zorder=0,extent=[13, 20, 940, 1020],aspect=0.15,alpha=0.1)
 axtemp.invert_yaxis()
 axtemp.set_xlabel('Temperature [°C]')
 axtemp.set_ylabel('Pressure [hPa]')
-axtemp.legend(['Radiosonde','ALPACA'])
+axtemp.legend(['Radiosonde','ALPACAS'])
 #axtemp.grid(linestyle='--',alpha=0.1)
 axtemp.set_title('Temperature')
 fig.suptitle('Radiosonde-ALPACA comparison, Launchtime: '+titletime)
@@ -150,14 +151,14 @@ fig.suptitle('Radiosonde-ALPACA comparison, Launchtime: '+titletime)
 
 axhum.plot(sondedata[:,3],sondedata[:,7],linestyle='--',marker='x',color = 'red',markersize=10,zorder=1)
 axhum.plot(alpacahum,alpacapres,linestyle='--',marker='x',color = 'blue',markersize=10,zorder=1)
-axhum.imshow(img,zorder=0,extent=[56, 72, 940, 1020],aspect=0.34,alpha=0.1)
+#axhum.imshow(img,zorder=0,extent=[56, 72, 940, 1020],aspect=0.34,alpha=0.1)
 axhum.invert_yaxis()
 axhum.set_xlabel('Rel. Humidity [%]')
-axhum.legend(['Radiosonde','ALPACA'])
+axhum.legend(['Radiosonde','ALPACAS'])
 axhum.grid(linestyle='--',alpha=0.1)
 axhum.set_title('Relative Humidity')
 
-fig.savefig('./Radiosonde_ALPACA_'+titletime+'.pdf')
+fig.savefig('./Radiosonde_ALPACA_'+titletime+'.png')
 
 ###################################################################################
 ##### Compute additional statistics
@@ -204,4 +205,4 @@ axhum.set_title('BIAS: '+ str(round(biashum,2))+'  RMSE: '+str(round(rmsehum,2))
 
 fig.suptitle('Radiosonde-ALPACA comparison, Launchtime: '+titletime)
 
-fig.savefig('./Radiosonde_APLACA_scatter_'+titletime+'.pdf')
+fig.savefig('./Radiosonde_APLACA_scatter_'+titletime+'.png')

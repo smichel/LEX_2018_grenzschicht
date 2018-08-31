@@ -1,0 +1,100 @@
+
+
+File: D:\SoundingArchive\20180829_08_UTC_EDT_AuditTrail.tsv
+
+Started at      29 August 2018  8:15 UTC
+
+Station  :        0
+Location :      54.49 N  11.24 E         5 m/MSL
+
+Sounding type : PTU GPS
+RS-number     : N2653444
+Sounding processor serial number: 0
+
+
+Ground check  :    Ref     RS   Corr
+
+  Pressure    : 1016.6 1014.9    1.7
+  Temperature :   22.5   22.9   -0.4
+  Humidity    :      0      0      0
+
+Clouds    : //////
+Special 1 : //////
+Special 2 : //////
+
+Telemetry noise level  : 100 %
+
+                 P      T      U
+Accepted (%) : 100.0  100.0  100.0
+Replaced (%) :   0.0    0.0    0.0
+Rejected (%) :   0.0    0.0    0.0
+
+GPS data quality
+    Valid raw wind ratio        :   83.0 %
+    Valid raw wind on 5 ratio   :   83.0 %
+    Invalid raw wind on 4 ratio :    0.0 %
+    Poor PDOP ratio             :   16.0 %
+    Unidentified signals ratio  :    0.0 %
+    Mean satellite track count  :    9.0
+    Mean track count valid      :   10.8
+    Gaps over 1 min             :    0.0 min
+
+
+Reason for termination : Manual stop
+
+
+Significant levels: Temperature/Humidity
+
+   Time Pressure   Height  Temperature  RH   Dewp   Significance flags
+
+ min  s      hPa      gpm     deg C      %  deg C  Automatic  Operator
+
+
+
+Significant levels: Wind speed/Wind direction
+
+   Time Pressure      Height   Speed  Direction   Significance flags
+
+ min  s      hPa     gpm     m   m/s    deg  Automatic  Operator
+
+
+
+Standard pressure levels (PTU)
+
+   Time Pressure   Height  Temperature  RH   Dewp  AscRate 
+
+ min  s      hPa      gpm     deg C      %  deg C     m/s
+
+   0 28   1000.0        3    //////    ///  //////    ////
+  38 13    925.0      801      12.0     65    5.7     0.4
+  41  3    850.0     1503       6.3     83    3.6     4.1
+  47 28    700.0     3097       6.0     18  -16.5     4.1
+  59 39    500.0     5752     -12.6      4  -45.9     3.6
+  67  0    400.0     7410     -26.4     73  -29.8     3.8
+  75 38    300.0     9427     -41.1     31  -51.8     3.9
+  80 33    250.0    10638     -51.1     42  -58.4     4.1
+  86 17    200.0    12059     -57.1     15  -71.4     4.1
+  93 40    150.0    13897     -55.3      2  -84.2     4.1
+ 103 51    100.0    16489     -55.1      1  -86.4     4.2
+ 112 19     70.0    18768     -54.3      1  -86.6     4.5
+ 120 13     50.0    20946     -52.9      1  -85.5     4.6
+
+Standard pressure levels (Wind)
+
+   Time Pressure      Height   Speed  Direction  AscRate 
+
+ min  s      hPa     gpm     m   m/s    deg         m/s
+
+   0 28   1000.0       3 ///// /////    ///        ////
+  38 13    925.0     801 /////   8.9    157         0.4
+  41  3    850.0    1503 /////   5.1    169         4.1
+  47 28    700.0    3097 /////   6.8    195         4.1
+  59 39    500.0    5752 /////   9.4    228         3.6
+  67  0    400.0    7410 /////   8.6    232         3.8
+  75 38    300.0    9427 /////  15.0    258         3.9
+  80 33    250.0   10638 /////  18.3    281         4.1
+  86 17    200.0   12059 /////  13.5    232         4.1
+  93 40    150.0   13897 /////  12.7    242         4.1
+ 103 51    100.0   16489 /////  12.2    233         4.2
+ 112 19     70.0   18768 /////   8.3    204         4.5
+ 120 13     50.0   20946 /////   5.8    259         4.6

@@ -1,0 +1,76 @@
+
+
+File: D:\SoundingArchive\20180828_11_UTC_EDT_AuditTrail.tsv
+
+Started at      28 August 2018 11:07 UTC
+
+Station  :        0
+Location :      54.49 N  11.24 E         5 m/MSL
+
+Sounding type : PTU GPS
+RS-number     : K2143888
+Sounding processor serial number: 0
+
+
+Ground check  :    Ref     RS   Corr
+
+  Pressure    : 1016.9 1014.8    2.1
+  Temperature :   23.7   24.1   -0.4
+  Humidity    :      0      0      0
+
+Clouds    : //////
+Special 1 : //////
+Special 2 : //////
+
+Telemetry noise level  : 100 %
+
+                 P      T      U
+Accepted (%) : 100.0  100.0  100.0
+Replaced (%) :   0.0    0.0    0.0
+Rejected (%) :   0.0    0.0    0.0
+
+GPS data quality
+    Valid raw wind ratio        :   95.0 %
+    Valid raw wind on 5 ratio   :   95.0 %
+    Invalid raw wind on 4 ratio :    3.0 %
+    Poor PDOP ratio             :    2.0 %
+    Unidentified signals ratio  :    0.0 %
+    Mean satellite track count  :    9.7
+    Mean track count valid      :   10.1
+    Gaps over 1 min             :    1.0 min
+
+
+Reason for termination : Manual stop
+
+
+Significant levels: Temperature/Humidity
+
+   Time Pressure   Height  Temperature  RH   Dewp   Significance flags
+
+ min  s      hPa      gpm     deg C      %  deg C  Automatic  Operator
+
+
+
+Significant levels: Wind speed/Wind direction
+
+   Time Pressure      Height   Speed  Direction   Significance flags
+
+ min  s      hPa     gpm     m   m/s    deg  Automatic  Operator
+
+
+
+Standard pressure levels (PTU)
+
+   Time Pressure   Height  Temperature  RH   Dewp  AscRate 
+
+ min  s      hPa      gpm     deg C      %  deg C     m/s
+
+  37 52   1000.0      150      16.6     69   10.8    ////
+
+Standard pressure levels (Wind)
+
+   Time Pressure      Height   Speed  Direction  AscRate 
+
+ min  s      hPa     gpm     m   m/s    deg         m/s
+
+  37 52   1000.0     150 /////   2.0    251        ////

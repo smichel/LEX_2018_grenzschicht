@@ -13,7 +13,7 @@
 Adafruit_BME280 bme; // I2C
 #define RF95_FREQ 868.0
 #define LED 13
-#define CLIENT_ADDRESS 11
+#define CLIENT_ADDRESS 21
 #define SERVER_ADDRESS 0
 // Singleton instance of the radio driver
 RH_RF95 driver;

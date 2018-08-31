@@ -18,7 +18,7 @@ import pickle
 #22,73
 
 data_filename = datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
-data_filename = data_filename + '_Grenzschichtentwicklung2'
+data_filename = data_filename + '_Vergleich_Drachen'
 baud_rate = 115200
 usb_port = '/dev/cu.wchusbserial1420'
 slaves = np.array([1,2,3,4,5,6,7,8,9,10,11]) -1

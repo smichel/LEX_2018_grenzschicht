@@ -44,10 +44,10 @@ void setup()
   // the CAD timeout to non-zero:
 //  driver.setCADTimeout(10000);
 }
-int nnodes = 1;
+int nnodes = 11;
 unsigned long packetnum = 0;  // packet counter, we increment per xmission
 //uint8_t slaves[12] = {11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}; // Array of all client adresses of the arduinos
-uint8_t slaves[13] = {22};//{ 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}; // Array of all client adresses of the arduinos
+uint8_t slaves[13] = { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}; // Array of all client adresses of the arduinos
 //client adress of god is 22
 uint8_t broadcast[] = "Measurement Request";
 uint8_t datarequest[] = "Data Request";
@@ -62,7 +62,7 @@ void loop()
     uint8_t gottlengps = sizeof(gottbufgps);
 
     uint8_t from;
-    delay(100);
+    delay(10);
     for (int i = 0; i < nnodes; i++)
     {
       from = slaves[i];      
@@ -73,7 +73,7 @@ void loop()
         //}
       if (from == 22) // IF GOTT IS SPEAKING
       {
-        if (manager.recvfromAckTimeout(gottbufgps, &gottlengps, 1000, &from))
+        if (manager.recvfromAckTimeout(gottbufgps, &gottlengps, 500, &from))
         {
           //Serial.print("got reply from : slave");^
           //Serial.print(": ");
@@ -84,7 +84,7 @@ void loop()
       }
       else 
       {
-        if (manager.recvfromAckTimeout(buf, &len, 1000, &from))
+        if (manager.recvfromAckTimeout(buf, &len, 500, &from))
         {
           //Serial.print("got reply from : slave");^
           //Serial.print(": ");
@@ -93,7 +93,7 @@ void loop()
           Serial.println(packetnum);
         }
       }
-      delay(50);
+      delay(10);
     }
     packetnum++;
 }
