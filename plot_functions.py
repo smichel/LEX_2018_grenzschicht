@@ -17,7 +17,7 @@ from processing_functions import apply_correction
 def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pint,Theta):
     ###########################################################################
     ##Plot data
-    fig_name="test"+filename[:-4]+".png"
+    fig_name=filename[:-4]+".png"
     fig_title="Date "+filename[6:8]+"."+filename[4:6]+"."+filename[0:4]+" ,Start Time: "+filename[8:10]+":"+filename[10:12]+":"+filename[12:14] 
     ###########################################################################
     print("Plotting...")
@@ -291,20 +291,21 @@ def plot_timeseries(data, start_time=None, end_time=None, t_range=None,
 
 ###############################################################################
 ###############################################################################
-def readme(name,instruments):
-    """
-    creates readme file for every measurement. note that infos like weather 
-    still have to be implemented manually
-    """
-    file = open('readme_'+name+'.txt', 'w')   
-    file.write('Filename                            : '+name+'.txt\n')
-    file.write('Format                              : date, time, instrument number, temperature, humidity, pressure, packetnumber\n')
-    file.write('Date                                : '+name[6:8]+'-'+name[4:6]+'-'+name[0:4]+'\n')
-    file.write('Launchtime                          : '+name[8:10]+':'+name[10:12]+':'+name[12:14]+'\n')
-    file.write('Units                               : pressure: hPa, humidity: %, temperature: degree Celsius, date: yyyy-mm-dd, time: HH:MM:SS.SSSSSS\n')
-    file.write('Weather:                            : \n')
-    file.write('Wind                                : \n')
-    file.write('Used instruments                    : '+str(instruments)+'\n')
-    file.write('Position of instruments on line (m) : // 0 is highest\n')
-    file.write('Notes                               : \n')      
-    file.close()
+#def readme(name=data_filename,instruments = slaves+1):
+#    """
+#    creates readme file for every measurement. note that infos like weather 
+#    still have to be implemented manually
+#    """
+#    file = open('readme_'+name+'.txt', 'w')   
+#   file.write('Filename                            : '+name+'.txt\n')
+#   file.write('Format                              : date, time, instrument number, temperature, humidity, pressure, packetnumber\n')
+#    file.write('Date                                : '+name[6:8]+'-'+name[4:6]+'-'+name[0:4]+'\n')
+#    file.write('Launchtime                          : '+name[8:10]+':'+name[10:12]+':'+name[12:14]+'\n')
+#    file.write('Units                               : pressure: hPa, humidity: %, temperature: degree Celsius, date: yyyy-mm-dd, time: HH:MM:SS.SSSSSS\n')
+#    file.write('Weather:                            : \n')
+#    file.write('Wind                                : \n')
+#    file.write('Used instruments                    : '+str(instruments)+'\n')
+#    file.write('Position of instruments on line (m) : // 0 is highest\n')
+#    file.write('Notes                               : \n')      
+#    file.close()
+

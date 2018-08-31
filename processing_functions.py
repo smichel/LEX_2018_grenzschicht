@@ -16,6 +16,11 @@ def read_data(path,filename):
     print("read: ",file)
     return data;
 ###############################################################################
+#def time_cut_data(data):
+#       
+#
+#
+#
 ###############################################################################
 def apply_correction(data):
     """ Applies temperature and humidity correction to ALPACA raw data and 
@@ -28,11 +33,11 @@ def apply_correction(data):
     
     temp_correction = {1: 0.09, 2: 0.10, 3: -0.02, 4: -0.23, 5: -0.20,
                        6: 0.05, 7: 0.15, 8: 0.12, 9: -0.10, 10: 0.11,
-                       11: -0.08}
+                       11: 0.0}#-0.08}
     
     humidity_correction = {1: -0.15, 2: 0.28, 3: -0.09, 4: 0.08, 5: 0.41,
                        6: -0.19, 7: -2.16, 8: 1.01, 9: -0.64, 10: -0.35,
-                       11: 2.01}
+                       11: 0.0}#2.01}
     
     for i in arduinos:
         # temperature
@@ -41,6 +46,17 @@ def apply_correction(data):
         data[i][1:, 2] = data[i][1:, 2] + humidity_correction[i]
     print("Data calibrated")    
     return data
+###############################################################################
+###############################################################################
+def get_gradients(unit_time,p_levels,Temp_pint,Theta,RH_pint):
+    p_mid_levels=[]
+    for p in range(0,len(p_levels)-1):
+        p_mid_levels.append((p_levels[p+1]+p_levels[p])/2)
+    Temp_diff=np.diff(Temp_pint,axis=0)
+    Theta_diff=np.diff(Theta,axis=0)
+    RH_diff=np.diff(RH_pint,axis=0)
+    print("Gradients calculated")
+    return p_mid_levels,Temp_diff,Theta_diff,RH_diff;
 ###############################################################################
 ###############################################################################
 
