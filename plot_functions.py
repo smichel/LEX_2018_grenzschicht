@@ -309,14 +309,14 @@ def readme(name,instruments):
     file.write('Notes                               : \n')      
     file.close()
 
-def compare_sonde(month = 8,
-                  heliheight = 600,
-                  sondepath,
+def compare_sonde(sondepath,
                   launchname,
                   groundtemp,
                   groundhum,
                   alpaca_filename,    
-                  plotpath):
+                  plotpath,
+                  month = 8,
+                  heliheight = 600):
     """
     Reads in sonde data and alpaca data, autmatically finds the 
     radiosonde launch time and the time when the sonde reached 
@@ -326,8 +326,8 @@ def compare_sonde(month = 8,
     """
     ##### READ RADIOSONDE DATA
     ##### Radiosonde data file and info file
-    filename = path+launchname+'_UTC_EDT.tsv'
-    infofile = path+launchname+'_UTC_EDT_AuditTrail.tsv'
+    filename = sondepath+launchname+'_UTC_EDT.tsv'
+    infofile = sondepath+launchname+'_UTC_EDT_AuditTrail.tsv'
     
     ##### Read in sonde data
     sondedata = np.genfromtxt(filename,skip_header = 39)
@@ -371,9 +371,7 @@ def compare_sonde(month = 8,
     with open(infofile, 'rb') as f:
         clean_lines = (line.replace(b':',b' ') for line in f)
         sondeinfo = np.genfromtxt(clean_lines, dtype=int, skip_header=4,max_rows=1)
-    
-    sondestart = datetime(sondeinfo[4],month,sondeinfo[2],sondeinfo[5]+2,sondeinfo[6],0)
-    
+        
     secondofstart = (sondeinfo[5]+ 2) * 3600 + sondeinfo[6] * 60
     ##### Determine how many hours, minutes, seconds until the sonde was launched
     hourstolaunch = int((timetolaunch+ secondofstart)/3600)
