@@ -308,7 +308,7 @@ def readme(name,instruments):
     file.write('Position of instruments on line (m) : // 0 is highest\n')
     file.write('Notes                               : \n')      
     file.close()
-
+compare_sonde('./Messdaten/Radiosonden','20180831_1036',17.1,77,'./Messdaten/20180831100247_Grenzschichtentwicklung2.npy','./')
 def compare_sonde(sondepath,
                   launchname,
                   groundtemp,
@@ -379,7 +379,7 @@ def compare_sonde(sondepath,
     secondstolaunch = int(np.mod(np.mod((timetolaunch+ secondofstart),3600),60))
     
     ##### Determine time of launch
-    sondelaunch = datetime(sondeinfo[4],month,sondeinfo[2],
+    sondelaunch = datetime.datetime(sondeinfo[4],month,sondeinfo[2],
                            hourstolaunch,minutestolaunch,
                            secondstolaunch)
     
@@ -389,7 +389,7 @@ def compare_sonde(sondepath,
     secondstoheliheight = int(np.mod(np.mod((timetoheliheight+secondofstart),3600),60))
     
     ##### Determine time when sonde reached helikite
-    sondeheli = datetime(sondeinfo[4],month,sondeinfo[2],
+    sondeheli = datetime.datetime(sondeinfo[4],month,sondeinfo[2],
                            hourstoheliheight,minutestoheliheight,
                            secondstoheliheight)
     
