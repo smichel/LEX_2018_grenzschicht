@@ -308,7 +308,7 @@ def readme(name,instruments):
     file.write('Position of instruments on line (m) : // 0 is highest\n')
     file.write('Notes                               : \n')      
     file.close()
-compare_sonde('./Messdaten/Radiosonden','20180831_1036',17.1,77,'./Messdaten/20180831100247_Grenzschichtentwicklung2.npy','./')
+
 def compare_sonde(sondepath,
                   launchname,
                   groundtemp,
