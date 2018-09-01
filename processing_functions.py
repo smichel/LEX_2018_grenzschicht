@@ -2,6 +2,8 @@
 import sys
 import numpy as np
 from scipy.interpolate import interp1d
+from matplotlib.dates import date2num, num2date
+import datetime
 ###############################################################################
 ###############################################################################
 """ This is a list of functions used for processing the measurement data. 
@@ -39,12 +41,24 @@ def apply_correction(data):
                        6: -0.19, 7: -2.16, 8: 1.01, 9: -0.64, 10: -0.35,
                        11: 0.0}#2.01}
     
+    pressure_correction = {1: -0.478, 2: 1.112, 3: -0.415, 4: -0.861, 5: -0.43,
+                       6: -0.367, 7: -0.712, 8: -0.257, 9: 0.346, 10: -0.77,
+                       11: 0.0}
+    
     for i in arduinos:
         # temperature
         data[i][1:, 1] = data[i][1:, 1] + temp_correction[i]
         # humidity
         data[i][1:, 2] = data[i][1:, 2] + humidity_correction[i]
-    print("Data calibrated")    
+    print("Temperature and humidity calibrated")
+
+    if data[1][1, 0] > date2num(datetime.datetime(2018, 8, 31, 0, 0)):
+        for i in arduinos:
+            # pressure
+            data[i][1:, 3] = data[i][1:, 3] + pressure_correction[i]
+        print("Pressure calibrated")
+        
+        
     return data
 ###############################################################################
 ###############################################################################
