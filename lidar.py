@@ -18,9 +18,9 @@ from matplotlib.colors import ListedColormap
 from matplotlib.cm import get_cmap
 
 
-os.chdir('/Users/jf/Desktop/LEX/LEX_2018_grenzschicht')
+os.chdir('C:/Users/Dietrich/Documents/Studium/LEX_2018_grenzschicht')
 #range 9m + i*18m
-file='/Users/jf/Desktop/LEX/LEX_2018_grenzschicht/0831.LID'
+file='C:/Users/Dietrich/Documents/Studium/LEX_2018_grenzschicht/0831.LID'
     
 def read_lidar(path_to_file):
     """
@@ -87,7 +87,7 @@ def read_lidar(path_to_file):
     time=np.zeros(len(meta_data))
     for i in range(0,len(meta_data)):
         time[i] = np.int(meta_data[i][4:16])
-        time[i] = date2num(datetime.datetime(int(str(time[i])[0:2]),int(str(time[i])[2:4]),
+        time[i] = date2num(datetime.datetime(int('20'+str(time[i])[0:2]),int(str(time[i])[2:4]),
             int(str(time[i])[4:6]),int(str(time[i])[6:8]),int(str(time[i])[8:10]),
             int(str(time[i])[10:12])) + datetime.timedelta(hours=2))
         
@@ -97,7 +97,8 @@ def read_lidar(path_to_file):
 
 data ,lidar_data,meta= read_lidar(file)
 
-def profile_plot_lidar(data,v_levels=20,d_levels=37,vmax=40,hmax=700,wmax=10):
+#%%
+def profile_plot_lidar(data,starttime=0,endtime=0,v_levels=20,d_levels=37,vmax=15,hmax=700,wmax=2):
     print('prepare data...')
     time = data[0]
     time = num2date(time)
@@ -114,7 +115,13 @@ def profile_plot_lidar(data,v_levels=20,d_levels=37,vmax=40,hmax=700,wmax=10):
     inferno = get_cmap('viridis').colors
     other = get_cmap('plasma').colors
     new_cmap = ListedColormap(inferno+other[::-1])
-    X,Y = np.meshgrid(time,height)
+    if (starttime==0 and endtime==0):
+        st_index=0
+        end_index=-1
+    else:
+        st_index = np.where(date2num(time) >= date2num(starttime))[0][0]
+        end_index = np.where(date2num(time) <= date2num(endtime))[0][-1]
+    X,Y = np.meshgrid(time[st_index:end_index],height) #TODO
     hspace=0.1
     aspect=8
     
@@ -124,7 +131,7 @@ def profile_plot_lidar(data,v_levels=20,d_levels=37,vmax=40,hmax=700,wmax=10):
     ax1 = fig.add_subplot(311)
     ax1.set_title('Lidar winddata: '+str(time[0].day)+'.'+str(time[0].month)+'.'+str(time[0].year))
     levels=np.linspace(0,vmax,v_levels)
-    c1 = ax1.contourf(X,Y,windspeed,levels,extend='max')  
+    c1 = ax1.contourf(X,Y,windspeed[:,st_index:end_index],levels,extend='max')  
     ax1.set_ylabel('height [m]')
     ax1.set_xticks([])
     #ax1.xaxis.set_major_formatter(dates.DateFormatter('%H:%M'))
@@ -137,7 +144,7 @@ def profile_plot_lidar(data,v_levels=20,d_levels=37,vmax=40,hmax=700,wmax=10):
     ax2 = fig.add_subplot(312)
     #ax2.set_title(str(time[0].day)+'.'+str(time[0].month)+'.'+str(time[0].year))
     levels= np.linspace(0,360,d_levels)
-    c1 = ax2.contourf(X,Y,winddirection,levels,cmap=new_cmap)  
+    c1 = ax2.contourf(X,Y,winddirection[:,st_index:end_index],levels,cmap=new_cmap)  
     ax2.set_ylabel('height [m]')
     ax2.set_xticks([])
     #ax2.xaxis.set_major_formatter(dates.DateFormatter('%H:%M'))
@@ -151,7 +158,7 @@ def profile_plot_lidar(data,v_levels=20,d_levels=37,vmax=40,hmax=700,wmax=10):
     ax3 = fig.add_subplot(313)
     #ax3.set_title(str(time[0].day)+'.'+str(time[0].month)+'.'+str(time[0].year))
     levels=np.linspace(-wmax,wmax,v_levels)
-    c1 = ax3.contourf(X,Y,vertical_w,levels,extend='both')  
+    c1 = ax3.contourf(X,Y,vertical_w[:,st_index:end_index],levels,extend='both')  
     ax3.set_ylabel('height [m]')
     ax3.set_xticks(ax3.get_xticks()[::])
     ax3.xaxis.set_major_formatter(dates.DateFormatter('%H:%M'))
@@ -162,11 +169,9 @@ def profile_plot_lidar(data,v_levels=20,d_levels=37,vmax=40,hmax=700,wmax=10):
     plt.setp(plt.gca().xaxis.get_majorticklabels(),'rotation', -30)
 
     fig.savefig('lidar_test', dpi=500,bbox_inches='tight')
-    
-    
         
 
-profile_plot_lidar(data)
+profile_plot_lidar(data,starttime=datetime.datetime(2018,8,31,7,1,2),endtime=datetime.datetime(2018,8,31,8,1,2))
 
 
 #data=np.asarray(data)
