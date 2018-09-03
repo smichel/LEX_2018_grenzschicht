@@ -9,11 +9,18 @@ Created on Thu Aug 30 13:21:45 2018
 import os
 import numpy as np
 import datetime
-from matplotlib.dates import date2num
+import matplotlib.pyplot as plt
+from matplotlib.dates import date2num,num2date
+from matplotlib import dates
+import matplotlib
+#import plot_functions as pf
+from matplotlib.colors import ListedColormap
+from matplotlib.cm import get_cmap
+
 
 os.chdir('/Users/jf/Desktop/LEX/LEX_2018_grenzschicht')
 #range 9m + i*18m
-
+file='/Users/jf/Desktop/LEX/LEX_2018_grenzschicht/0831.LID'
     
 def read_lidar(path_to_file):
     """
@@ -25,7 +32,10 @@ def read_lidar(path_to_file):
         'H  ': height = H*18 m-9 m
         'D  ': winddirection [degrees]
         'V  ': windspeed [m/s]
-        'R  ': backscatter [?]       
+        'VVV': y wind [m/s]
+        'VVU': x wind [m/s]
+        'VVW': w wind [m/s]]
+        'R  ': backscatter [?]  
     """
     # open file
     data = open(path_to_file,'r').readlines()
@@ -39,6 +49,7 @@ def read_lidar(path_to_file):
     windspeed = np.zeros([length, 90])
     winddirection = np.zeros([length, 90])
     height = np.zeros([length, 90])
+    vertical_windspeed = np.zeros([length,90])
     
     # prepare data for extraction
     #the three first characters of every line contain the variable name and thus need to 
@@ -63,6 +74,10 @@ def read_lidar(path_to_file):
                 height[i,j] = float(str(lidar_data['H  '][i])[j*6:j*6+6])
             except:
                  height[i,j] = np.nan
+            try:
+                vertical_windspeed[i,j] = float(str(lidar_data['VVW'][i])[j*6:j*6+6])
+            except:
+                 vertical_windspeed[i,j] = np.nan
         
     # calculate hight
     height = height * 18 -9
@@ -76,10 +91,82 @@ def read_lidar(path_to_file):
             int(str(time[i])[4:6]),int(str(time[i])[6:8]),int(str(time[i])[8:10]),
             int(str(time[i])[10:12])) + datetime.timedelta(hours=2))
         
-    data = [time,height,winddirection,windspeed]
+    data = [time,height,winddirection,windspeed,vertical_windspeed]
     
-    return data
+    return data,lidar_data, meta_data
+
+data ,lidar_data,meta= read_lidar(file)
+
+def profile_plot_lidar(data,v_levels=20,d_levels=37,vmax=40,hmax=700,wmax=10):
+    print('prepare data...')
+    time = data[0]
+    time = num2date(time)
+    height = data[1][0]
+    max_height_index = np.where(height>hmax)[0][0]+1
+    height= height[:max_height_index]
+    windspeed = np.transpose(data[3])[:max_height_index,:]
+    windspeed = np.nan_to_num(windspeed,1000.0)
+    windspeed[windspeed>100] = np.nan
+    winddirection = np.transpose(data[2])[:max_height_index,:]
+    winddirection = np.nan_to_num(winddirection,1000.0)
+    winddirection[winddirection > 370] = np.nan
+    vertical_w = np.transpose(data[4])[:max_height_index,:]
+    inferno = get_cmap('viridis').colors
+    other = get_cmap('plasma').colors
+    new_cmap = ListedColormap(inferno+other[::-1])
+    X,Y = np.meshgrid(time,height)
+    hspace=0.1
+    aspect=8
+    
+    print("plotting...")
+    matplotlib.rcParams.update({'font.size': 12})
+    fig = plt.figure(figsize=(24,12))
+    ax1 = fig.add_subplot(311)
+    ax1.set_title('Lidar winddata: '+str(time[0].day)+'.'+str(time[0].month)+'.'+str(time[0].year))
+    levels=np.linspace(0,vmax,v_levels)
+    c1 = ax1.contourf(X,Y,windspeed,levels,extend='max')  
+    ax1.set_ylabel('height [m]')
+    ax1.set_xticks([])
+    #ax1.xaxis.set_major_formatter(dates.DateFormatter('%H:%M'))
+    cb=plt.colorbar(c1,aspect=aspect)
+    cb.set_label('Windspeed [$ms^{-1}$]',fontsize=12)
+    plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
+            wspace=None, hspace=hspace)# for space between the subplots 
+    plt.setp(plt.gca().xaxis.get_majorticklabels(),'rotation', -30)
+    
+    ax2 = fig.add_subplot(312)
+    #ax2.set_title(str(time[0].day)+'.'+str(time[0].month)+'.'+str(time[0].year))
+    levels= np.linspace(0,360,d_levels)
+    c1 = ax2.contourf(X,Y,winddirection,levels,cmap=new_cmap)  
+    ax2.set_ylabel('height [m]')
+    ax2.set_xticks([])
+    #ax2.xaxis.set_major_formatter(dates.DateFormatter('%H:%M'))
+    cb=plt.colorbar(c1,aspect=aspect)
+    cb.set_label('Winddirection [$^\circ$]',fontsize=12)
+    plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
+            wspace=None, hspace=hspace)# for space between the subplots 
+    plt.setp(plt.gca().xaxis.get_majorticklabels(),'rotation', -30)
+
+
+    ax3 = fig.add_subplot(313)
+    #ax3.set_title(str(time[0].day)+'.'+str(time[0].month)+'.'+str(time[0].year))
+    levels=np.linspace(-wmax,wmax,v_levels)
+    c1 = ax3.contourf(X,Y,vertical_w,levels,extend='both')  
+    ax3.set_ylabel('height [m]')
+    ax3.set_xticks(ax3.get_xticks()[::])
+    ax3.xaxis.set_major_formatter(dates.DateFormatter('%H:%M'))
+    cb=plt.colorbar(c1,aspect=aspect)
+    cb.set_label('vertical windspeed [$ms^{-1}$]',fontsize=12)
+    plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
+            wspace=None, hspace=hspace)# for space between the subplots 
+    plt.setp(plt.gca().xaxis.get_majorticklabels(),'rotation', -30)
+
+    fig.savefig('lidar_test', dpi=500,bbox_inches='tight')
+    
+    
         
+
+profile_plot_lidar(data)
 
 
 #data=np.asarray(data)
