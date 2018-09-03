@@ -19,7 +19,7 @@ from processing_functions import apply_correction
 from processing_functions import data_interpolation_p_t
 from processing_functions import get_gradients
 from processing_functions import altitude
-from processing_functions import calc_specific_humidity
+from processing_functions import calc_specific_humidity, calc_pseudopot_temp, boundary_layer_height
 #from plot_functions import profile_plot_series
 #from plot_functions import gradient_profile_plot_series
 """ This is the data_handler to analyse the measurements
@@ -28,6 +28,8 @@ from processing_functions import calc_specific_humidity
 
 instrument_spef=0                                       #Instrument specification 0 for Arduinos, 1 for LIDAR, 2 for Radiosonde)
 data_path="//192.168.206.173/lex2018/messdaten/alpaka/data/20180829062417_Grenzschichtentwicklung/"
+#data_path = "//192.168.206.173/lex2018/profil/Daten/"
+#file_name="20180903132225_Grenzschichtentwicklung4_2.npy"
 file_name="20180829062417_Grenzschichtentwicklung.npy"
 file=data_path+file_name
 ref=0                                                               
@@ -45,75 +47,88 @@ unit_time,p_levels,Temp_pint,RH_pint,Theta= data_interpolation_p_t(data_calib,re
 # calculate gradients
 p_mid_levels,Temp_diff,Theta_diff,RH_diff=get_gradients(unit_time,p_levels,Temp_pint,Theta,RH_pint)
 
-# calculate altitudes
-z_levels = np.zeros(Temp_pint.shape)
-z_mid_levels = np.zeros(RH_diff.shape)
-for t in range(len(unit_time)):
-    z_levels[:, t] = altitude(p_levels[::-1], Temp_pint[:, t][::-1], z0=7)
-
-# flip altitude array to have the same orientation as p_levels and Temp_pint
-z_levels = z_levels[::-1]
-
-for lev in range(len(z_levels)-1):
-    z_mid_levels[lev] = (z_levels[lev] + z_levels[lev+1]) / 2
-
-# 1. attempt:
-# find maximum in RH gradient
-RH_diff[np.isnan(RH_diff)] = -9999
-RH_diff_max_idx = np.nanargmax(RH_diff[:-2], axis=0) 
-p_BL_RH = np.array([p_mid_levels[i] for i in RH_diff_max_idx])
-
-
-
-# 2. attempt
-# calculate gradient of specific humidity
-
-# calculate specific humidity from relative  humidity
-specific_hum = calc_specific_humidity(RH_pint, Temp_pint,np.tile(p_levels,(len(unit_time),1)).transpose())
-
-specific_hum_diff=np.diff(specific_hum, axis=0)
-fig, ax = plt.subplots()
-ax.imshow(specific_hum_diff[:-2], aspect='auto')
-specific_hum_diff[np.isnan(specific_hum_diff)] = -9999
-specific_hum_diff_max_idx = np.nanargmax(specific_hum_diff[:-2], axis=0)
-p_BL_q = np.array([p_mid_levels[i] for i in specific_hum_diff_max_idx])
-
-# 3. attempt
-# calculate gradient of potential temperature
-Theta_diff[np.isnan(Theta_diff)] = 9999
-pot_temp_diff_min_idx = np.nanargmin(Theta_diff[5:-2], axis=0) + 5
-p_BL_pot_temp = np.array([p_mid_levels[i] for i in pot_temp_diff_min_idx])
-
-
-z_BL_RH = np.zeros(p_BL_RH.shape)
-z_BL_specific_hum = np.zeros(p_BL_RH.shape)
-z_BL_pot_temp = np.zeros(p_BL_RH.shape)
--2
-for t in range(len(unit_time)):
-    arg = RH_diff_max_idx[t]
-    arg2 = specific_hum_diff_max_idx[t]
-    arg3 = pot_temp_diff_min_idx[t]
-    z_BL_RH[t] = z_mid_levels[arg, t]
-    z_BL_specific_hum[t] = z_mid_levels[arg2, t]
-    z_BL_pot_temp[t] = z_mid_levels[arg3, t]
-
-# plot
-plt.rcParams.update({'font.size': 14})  
-fig, ax = plt.subplots()
-ax.plot(num2date(unit_time), z_BL_RH, label='Relative Humidity')
-ax.set_xlabel('Time')
-ax.set_ylabel('Boundary Layer Height [m]')
-ax.set_xticks(ax.get_xticks()[::])
-ax.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
-
-ax.plot(num2date(unit_time), z_BL_specific_hum, label='Specific Humidity')
-ax.plot(num2date(unit_time), z_BL_pot_temp, label='Potential Temperature')
-ax.set_xlim(datetime.datetime(2018, 8, 29, 7, 50), datetime.datetime(2018, 8, 29, 14, 50))
-#ax[1].set_xlabel('Time')
-#ax[1].set_ylabel('Boundary Layer Height [m]')
-#ax[1].set_xticks(ax[0].get_xticks()[::])
-#ax[1].xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
-ax.legend()
+z_BL, p_BL = boundary_layer_height(RH_pint, Temp_pint, p_levels, 'relative_humidity')
+## calculate altitudes
+#z_levels = np.zeros(Temp_pint.shape)
+#z_mid_levels = np.zeros(RH_diff.shape)
+#for t in range(len(unit_time)):
+#    z_levels[:, t] = altitude(p_levels[::-1], Temp_pint[:, t][::-1], z0=7)
+#
+## flip altitude array to have the same orientation as p_levels and Temp_pint
+#z_levels = z_levels[::-1]
+#
+#for lev in range(len(z_levels)-1):
+#    z_mid_levels[lev] = (z_levels[lev] + z_levels[lev+1]) / 2
+#
+## 1. attempt:
+## find maximum in RH gradient
+#RH_diff[np.isnan(RH_diff)] = -9999
+#RH_diff_max_idx = np.nanargmax(RH_diff[:-2], axis=0) 
+#p_BL_RH = np.array([p_mid_levels[i] for i in RH_diff_max_idx])
+#
+#
+#
+## 2. attempt
+## calculate gradient of specific humidity
+#
+## calculate specific humidity from relative  humidity
+#specific_hum = calc_specific_humidity(RH_pint, Temp_pint,np.tile(p_levels,(len(unit_time),1)).transpose())
+#
+#specific_hum_diff=np.diff(specific_hum, axis=0)
+#specific_hum_diff[np.isnan(specific_hum_diff)] = -9999
+#specific_hum_diff_max_idx = np.nanargmax(specific_hum_diff[:-2], axis=0)
+#p_BL_q = np.array([p_mid_levels[i] for i in specific_hum_diff_max_idx])
+#
+## 3. attempt
+## calculate gradient of potential temperature
+#Theta_diff[np.isnan(Theta_diff)] = 9999
+#pot_temp_diff_min_idx = np.nanargmin(Theta_diff[5:-2], axis=0) + 5
+#p_BL_pot_temp = np.array([p_mid_levels[i] for i in pot_temp_diff_min_idx])
+#
+## 4. attempt
+## calculate gradient of pseudopotential temperature
+#pseudopot_temp = calc_pseudopot_temp(RH_pint, Temp_pint, np.tile(p_levels,(len(unit_time),1)).transpose())
+#pseudopot_temp_diff=np.diff(pseudopot_temp, axis=0)
+#fig, ax = plt.subplots()
+#ax.imshow(pseudopot_temp, aspect='auto')
+#pseudopot_temp_diff[np.isnan(pseudopot_temp_diff)] = -9999
+#pseudopot_temp_diff_min_idx = np.nanargmax(pseudopot_temp_diff[5:-2], axis=0) + 5
+#p_BL_pseudopot_temp = np.array([p_mid_levels[i] for i in pseudopot_temp_diff_min_idx])
+#
+#z_BL_RH = np.zeros(p_BL_RH.shape)
+#z_BL_specific_hum = np.zeros(p_BL_RH.shape)
+#z_BL_pot_temp = np.zeros(p_BL_RH.shape)
+#z_BL_pseudopot_temp = np.zeros(p_BL_RH.shape)
+#
+#for t in range(len(unit_time)):
+#    arg = RH_diff_max_idx[t]
+#    arg2 = specific_hum_diff_max_idx[t]
+#    arg3 = pot_temp_diff_min_idx[t]
+#    arg4 = pseudopot_temp_diff_min_idx[t]
+#    z_BL_RH[t] = z_mid_levels[arg, t]
+#    z_BL_specific_hum[t] = z_mid_levels[arg2, t]
+#    z_BL_pot_temp[t] = z_mid_levels[arg3, t]
+#    z_BL_pseudopot_temp[t] = z_mid_levels[arg4, t]
+##
+## plot
+#plt.rcParams.update({'font.size': 14})  
+#fig, ax = plt.subplots()
+#ax.plot(num2date(unit_time), z_BL_RH, label='Relative Humidity')
+#ax.set_xlabel('Time')
+#ax.set_ylabel('Boundary Layer Height [m]')
+#ax.set_xticks(ax.get_xticks()[::])
+#ax.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
+#
+#ax.plot(num2date(unit_time), z_BL_specific_hum, label='Specific Humidity')
+#ax.plot(num2date(unit_time), z_BL_pot_temp, label='Potential Temperature')
+#ax.plot(num2date(unit_time), z_BL_pseudopot_temp, label='Pseudopotential Temperature')
+#ax.set_xlim(datetime.datetime(2018, 8, 29, 7, 50), datetime.datetime(2018, 8, 29, 14, 50))
+##ax.set_xlim(datetime.datetime(2018, 9, 3, 13, 40), datetime.datetime(2018, 9, 3, 16, 30))
+##ax[1].set_xlabel('Time')
+##ax[1].set_ylabel('Boundary Layer Height [m]')
+##ax[1].set_xticks(ax[0].get_xticks()[::])
+##ax[1].xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
+#ax.legend()
 
 
 

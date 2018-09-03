@@ -4,6 +4,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 from matplotlib.dates import date2num, num2date
 import datetime
+import typhon
 ###############################################################################
 ###############################################################################
 """ This is a list of functions used for processing the measurement data. 
@@ -57,8 +58,7 @@ def apply_correction(data):
             # pressure
             data[i][1:, 3] = data[i][1:, 3] + pressure_correction[i]
         print("Pressure calibrated")
-        
-        
+                
     return data
 ###############################################################################
 ###############################################################################
@@ -177,7 +177,186 @@ def altitude(pressure, temperature, z0):
             i += 1
     
     return z_nan
+
+def calc_specific_humidity(rh, temperature, pressure):
+    """ Calculates specific humidity.
+    """
+    temperature = temperature + 273.15
+    pressure = pressure * 100
+    rh = rh / 100
+    eq_vapour_pres = typhon.physics.e_eq_water_mk(temperature)
+    vapour_pres = eq_vapour_pres * rh
+    vmr = vapour_pres / pressure
+    specific_hum = typhon.physics.vmr2specific_humidity(vmr)
     
+    return specific_hum
+
+def calc_mass_mixing_ratio(rh, temperature, pressure):
+    """ Calculates mass mixing ratio. 
+    
+    Parameters:
+        rh (array): relative humidity in %
+        temperature (array): temperature in °C
+        pressure (array): pressure in hPa
+    """
+    temperature = temperature + 273.15
+    pressure = pressure * 100
+    rh = rh / 100
+    eq_vapour_pres = typhon.physics.e_eq_water_mk(temperature)
+    vapour_pres = eq_vapour_pres * rh
+    vmr = vapour_pres / pressure
+    
+    return typhon.physics.vmr2mixing_ratio(vmr)
+
+def calc_pot_temp(temperature, pressure):
+    """ Calculates potential temperature in KELVIN!!!
+    
+    Parameters:
+        temperature (array): temperature in °C
+        pressure (array): pressure in hPa
+    """
+    c_p = typhon.constants.isobaric_mass_heat_capacity
+    R_l = typhon.constants.gas_constant_dry_air
+    temperature = temperature + 273.15
+    pressure = pressure * 100
+    
+    return temperature*(100000/pressure)**(R_l/c_p)
+
+def calc_pseudopot_temp(rh, temperature, pressure):
+    """ Calculates pseudopotential temperatuer in Kelvin.
+    
+    Parameters:
+        rh (array): relative humidity in %
+        temperature (array): temperature in °C
+        pressure (array): pressure in hPa
+    """
+    cp = typhon.constants.isobaric_mass_heat_capacity
+    L = typhon.constants.heat_of_vaporization
+    mixing_ratio = calc_mass_mixing_ratio(rh, temperature, pressure)
+    print(mixing_ratio)
+    pot_temp = calc_pot_temp(temperature, pressure)
+    print(pot_temp)
+    
+    temperature = temperature + 273.15
+    pressure = pressure * 100
+    rh = rh / 100
+
+    pseudopot_temp = pot_temp * np.exp(L * mixing_ratio / cp / temperature)
+    
+    return pseudopot_temp
+
+def boundary_layer_height(RH_pint, Temp_pint, p_levels, crit_variable):
+    """
+    This is a function to find the boundary layer height, based on gradients of
+    the crit_variable( e.g. Theta, RH, specific humidity)    
+    """
+    # calculate altitudes
+    crit_variable = crit_variable.lower()
+    len_timeseries = Temp_pint.shape[1]
+    num_plevels = len(p_levels)
+    
+    z_levels = np.zeros(Temp_pint.shape)
+    if crit_variable == 'relative_humidity':
+        variable_diff = np.diff(RH_pint, axis=0)
+        variable_diff[np.isnan(variable_diff)] = -9999
+        diff_extreme_idx = np.nanargmax(variable_diff[:-int(num_plevels/10)], axis=0)
+    elif crit_variable == 'specific_humidity':
+        specific_humidity = calc_specific_humidity(RH_pint, Temp_pint, np.tile(p_levels,(len_timeseries,1)).transpose())
+        variable_diff = np.diff(specific_humidity, axis=0)
+        variable_diff[np.isnan(variable_diff)] = -9999
+        diff_extreme_idx = np.nanargmax(variable_diff[:-int(num_plevels/10)], axis=0)
+    elif crit_variable == 'potential_temperature':
+        potential_temperature = calc_pot_temp(Temp_pint, np.tile(p_levels,(len_timeseries,1)).transpose())
+        variable_diff = np.diff(potential_temperature, axis=0)
+        variable_diff[np.isnan(variable_diff)] = 9999
+        diff_extreme_idx = np.nanargmin(variable_diff[:-int(num_plevels/10)], axis=0)
+    elif crit_variable == 'pseudopotential_temperature':
+        pseudopotential_temperature = calc_pseudopot_temp(RH_pint, Temp_pint, np.tile(p_levels,(len_timeseries,1)).transpose())
+        variable_diff = np.diff(pseudopotential_temperature, axis=0)
+        variable_diff[np.isnan(variable_diff)] = -9999
+        diff_extreme_idx = np.nanargmax(variable_diff[:-int(num_plevels/10)], axis=0)
+    
+    p_mid_levels=[]
+    for p in range(0,len(p_levels)-1):
+        p_mid_levels.append((p_levels[p+1]+p_levels[p])/2)
+    p_mid_levels = np.array(p_mid_levels)
+    print(p_mid_levels)
+    
+    # boundary layer height in pressure coordinates
+    p_BL = np.array([p_mid_levels[i] for i in diff_extreme_idx])
+    # boundary layer height in altitude coordinates    
+    z_mid_levels = np.zeros(variable_diff.shape)
+    for t in range(len_timeseries):
+        z_levels[:, t] = altitude(p_levels[::-1], Temp_pint[:, t][::-1], z0=7)
+    # flip altitude array to have the same orientation as p_levels and Temp_pint
+    z_levels = z_levels[::-1]
+    
+    for lev in range(len(z_levels)-1):
+        z_mid_levels[lev] = (z_levels[lev] + z_levels[lev+1]) / 2
+    
+    z_BL = np.zeros(p_BL.shape)
+    for t in range(len_timeseries):
+        arg = diff_extreme_idx[t]
+        z_BL[t] = z_mid_levels[arg, t]
+    
+    return z_BL, p_BL
+    
+    
+#    # 2. attempt
+#    # calculate gradient of specific humidity
+#    
+#    # calculate specific humidity from relative  humidity
+#    specific_hum = calc_specific_humidity(RH_pint, Temp_pint,np.tile(p_levels,(len(unit_time),1)).transpose())
+#    
+#    specific_hum_diff=np.diff(specific_hum, axis=0)
+#    specific_hum_diff[np.isnan(specific_hum_diff)] = -9999
+#    specific_hum_diff_max_idx = np.nanargmax(specific_hum_diff[:-2], axis=0)
+#    p_BL_q = np.array([p_mid_levels[i] for i in specific_hum_diff_max_idx])
+#    
+#    # 3. attempt
+#    # calculate gradient of potential temperature
+#    Theta_diff[np.isnan(Theta_diff)] = 9999
+#    pot_temp_diff_min_idx = np.nanargmin(Theta_diff[2:-2], axis=0) + 2
+#    p_BL_pot_temp = np.array([p_mid_levels[i] for i in pot_temp_diff_min_idx])
+#    
+#    # 4. attempt
+#    # calculate gradient of pseudopotential temperature
+#    pseudopot_temp = calc_pseudopot_temp(RH_pint, Temp_pint, np.tile(p_levels,(len(unit_time),1)).transpose())
+#    pseudopot_temp_diff=np.diff(pseudopot_temp, axis=0)
+#    fig, ax = plt.subplots()
+#    ax.imshow(pseudopot_temp, aspect='auto')
+#    pseudopot_temp_diff[np.isnan(pseudopot_temp_diff)] = -9999
+#    pseudopot_temp_diff_min_idx = np.nanargmax(pseudopot_temp_diff[5:-2], axis=0) + 5
+#    p_BL_pseudopot_temp = np.array([p_mid_levels[i] for i in pseudopot_temp_diff_min_idx])
+#    
+#    z_BL_RH = np.zeros(p_BL_RH.shape)
+#    z_BL_specific_hum = np.zeros(p_BL_RH.shape)
+#    z_BL_pot_temp = np.zeros(p_BL_RH.shape)
+#    z_BL_pseudopot_temp = np.zeros(p_BL_RH.shape)
+#    
+#
+#    
+#    # plot
+#    plt.rcParams.update({'font.size': 14})  
+#    fig, ax = plt.subplots()
+#    ax.plot(num2date(unit_time), z_BL_RH, label='Relative Humidity')
+#    ax.set_xlabel('Time')
+#    ax.set_ylabel('Boundary Layer Height [m]')
+#    ax.set_xticks(ax.get_xticks()[::])
+#    ax.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
+#    
+#    ax.plot(num2date(unit_time), z_BL_specific_hum, label='Specific Humidity')
+#    ax.plot(num2date(unit_time), z_BL_pot_temp, label='Potential Temperature')
+#    ax.plot(num2date(unit_time), z_BL_pseudopot_temp, label='Pseudopotential Temperature')
+#    #ax.set_xlim(datetime.datetime(2018, 8, 29, 7, 50), datetime.datetime(2018, 8, 29, 14, 50))
+#    #ax[1].set_xlabel('Time')
+#    #ax[1].set_ylabel('Boundary Layer Height [m]')
+#    #ax[1].set_xticks(ax[0].get_xticks()[::])
+#    #ax[1].xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
+#    ax.legend()    
+        
+        
+        
     
 
 
