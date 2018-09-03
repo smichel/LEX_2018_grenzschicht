@@ -3,6 +3,7 @@
 Collection of functions to plot ALPACA data. 
 """
 import time 
+import sys
 import datetime
 import matplotlib.pyplot as plt
 from matplotlib.dates import date2num, num2date
@@ -407,19 +408,23 @@ def compare_sonde(sondepath,
     temp = {}
     hum = {}
     pres = {}
-    for alpaca in data:
-        temp[alpaca] = data[alpaca][np.logical_and(data[alpaca][:, 0] >= date2num(sondelaunch), data[alpaca][:, 0] <= date2num(sondeheli)), 1]
-        hum[alpaca] = data[alpaca][np.logical_and(data[alpaca][:, 0] >= date2num(sondelaunch), data[alpaca][:, 0] <= date2num(sondeheli)), 2]
-        pres[alpaca] = data[alpaca][np.logical_and(data[alpaca][:, 0] >= date2num(sondelaunch), data[alpaca][:, 0] <= date2num(sondeheli)), 3]
-        if len(temp[alpaca]) == 0:
-            temp[alpaca] = np.array([data[alpaca][data[alpaca][:, 0] >= date2num(sondelaunch), 1][0]])
-            hum[alpaca] = np.array([data[alpaca][data[alpaca][:, 0] >= date2num(sondelaunch), 2][0]])
-            pres[alpaca] = np.array([data[alpaca][data[alpaca][:, 0] >= date2num(sondelaunch), 3][0]])
-        print('Arduino {}: Number of averaged timesteps: {}'.format(alpaca, len(temp[alpaca])))
-        temp[alpaca] = np.mean(temp[alpaca])
-        hum[alpaca] = np.mean(hum[alpaca])
-        pres[alpaca] = np.mean(pres[alpaca])
-    
+    try:
+        for alpaca in data:
+            temp[alpaca] = data[alpaca][np.logical_and(data[alpaca][:, 0] >= date2num(sondelaunch), data[alpaca][:, 0] <= date2num(sondeheli)), 1]
+            hum[alpaca] = data[alpaca][np.logical_and(data[alpaca][:, 0] >= date2num(sondelaunch), data[alpaca][:, 0] <= date2num(sondeheli)), 2]
+            pres[alpaca] = data[alpaca][np.logical_and(data[alpaca][:, 0] >= date2num(sondelaunch), data[alpaca][:, 0] <= date2num(sondeheli)), 3]
+            if len(temp[alpaca]) == 0:
+                temp[alpaca] = np.array([data[alpaca][data[alpaca][:, 0] >= date2num(sondelaunch), 1][0]])
+                hum[alpaca] = np.array([data[alpaca][data[alpaca][:, 0] >= date2num(sondelaunch), 2][0]])
+                pres[alpaca] = np.array([data[alpaca][data[alpaca][:, 0] >= date2num(sondelaunch), 3][0]])
+            print('Arduino {}: Number of averaged timesteps: {}'.format(alpaca, len(temp[alpaca])))
+            temp[alpaca] = np.mean(temp[alpaca])
+            hum[alpaca] = np.mean(hum[alpaca])
+            pres[alpaca] = np.mean(pres[alpaca])
+    except:
+        sys.exit({"Something went wrong with the ALPACA data. The time of the \n \
+                 ALPACAS and the Sonde launch are not matching. Try choosing \n \
+                 a different ALPACA file"})
     alpacapres = np.asarray(list(pres.values()))
     alpacatemp = np.asarray(list(temp.values()))
     alpacahum = np.asarray(list(hum.values()))
