@@ -426,6 +426,24 @@ def data_interpolation_z_t(data,ref,z_intv_no,instrument_spef):
 
 
 ###############################################################################        
+def smooth_variable(variable, num_timesteps):
+    """ Smooths a data field 
+    """
+
+    N = num_timesteps
+    filt = np.ones((N,))/N
     
+    if variable.ndim == 1:
+        variable_smoothed = np.zeros(variable.shape[0] - N + 1)
+        numlevels = 1
+        variable_smoothed = np.convolve(variable, filt, mode='valid')
+    else:
+        variable_smoothed = np.zeros((variable.shape[0], variable.shape[1] - N + 1))
+        numlevels = variable.shape[
+                ä 0]
+        for lev in range(numlevels):
+            variable_smoothed[lev] = np.convolve(variable[lev], filt, mode='valid')
+
+    return variable_smoothed    
 
 
