@@ -39,10 +39,10 @@ def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pin
     X,Y = np.meshgrid(unit_time,p_levels)
     C= ax1.contourf(X,Y,Temp_pint,levels_T,cmap=plt.get_cmap("hot_r", len(levels_T)-1),extend="both")
     if boundary_layer:
-        ax1.plot(unit_time, p_BL_pot, color='C0', label='Potential Temperature')
-        ax1.plot(unit_time, p_BL_pseudopot, color='C1', label='Pseudopotential Temperature')
-        ax1.plot(unit_time, p_BL_relhum, color='C2', label='Relative Humidity')
-        ax1.plot(unit_time, p_BL_hum, color='C3', label='Specific Humidity')
+        ax1.plot(unit_time, p_BL_relhum, color='C0', label='Relative Humidity')
+        ax1.plot(unit_time, p_BL_hum, color='C1', label='Specific Humidity')
+        ax1.plot(unit_time, p_BL_pot, color='C2', label='Potential Temperature')
+        ax1.plot(unit_time, p_BL_pseudopot, color='C3', label='Pseudopotential Temperature')
         ax1.legend()
     cb=plt.colorbar(C)
     cb.set_label('Temperatur in $^\circ$C',fontsize=16)
@@ -68,10 +68,11 @@ def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pin
     X,Y = np.meshgrid(unit_time,p_levels)
     C2= ax2.contourf(X,Y,Theta-273.15,levels_Theta,cmap=plt.get_cmap("hot_r",len(levels_Theta)-1),extend="both")
     if boundary_layer:
-        ax2.plot(unit_time, p_BL_pot, color='C0', label='Potential Temperature')
-        ax2.plot(unit_time, p_BL_pseudopot, color='C1', label='Pseudopotential Temperature')
-        ax2.plot(unit_time, p_BL_relhum, color='C2', label='Relative Humidity')
-        ax2.plot(unit_time, p_BL_hum, color='C3', label='Specific Humidity')
+        ax2.plot(unit_time, p_BL_relhum, color='C0', label='Relative Humidity')
+        ax2.plot(unit_time, p_BL_hum, color='C1', label='Specific Humidity')
+        ax2.plot(unit_time, p_BL_pot, color='C2', label='Potential Temperature')
+        ax2.plot(unit_time, p_BL_pseudopot, color='C3', label='Pseudopotential Temperature')
+        
     cb=plt.colorbar(C2)
     cb.set_label('$\Theta$ in $^\circ$C',fontsize=16)
     
@@ -603,10 +604,15 @@ def get_profile(data, time_start, time_end, verbose = False):
     return pres, temp, hum
 
 
-def alt_time_plot(filename,server_path,unit_time,z_levels,Temp_zint,RH_zint,Theta):
+def alt_time_plot(filename,server_path,unit_time,z_levels,Temp_zint,RH_zint,Theta,z_BL_q,z_BL_rh,z_BL_theta,z_BL_theta_e,boundary_layer=False):
     ###########################################################################
     ##Plot data
-    fig_name=filename[:-4]+".png"
+    #if boundary_layer:
+    #    z_BL_pseudopot, p_BL_pseudopot = boundary_layer_height(RH_zint, Temp_zint, z_levels, 'pseudopotential_temperature')
+    #    z_BL_pot, p_BL_pot = boundary_layer_height(RH_zint, Temp_zint, z_levels, 'potential_temperature')
+    #    z_BL_hum, p_BL_hum = boundary_layer_height(RH_zint, Temp_zint, z_levels, 'specific_humidity')
+    #    z_BL_relhum, p_BL_relhum = boundary_layer_height(RH_zint, Temp_zint, z_levels, 'relative_humidity')
+    fig_name="Height_"+filename[:-4]+".png"
     fig_title="Date "+filename[6:8]+"."+filename[4:6]+"."+filename[0:4]+" ,Start Time: "+filename[8:10]+":"+filename[10:12]+":"+filename[12:14] 
     ###########################################################################
     print("Plotting...")
@@ -629,6 +635,12 @@ def alt_time_plot(filename,server_path,unit_time,z_levels,Temp_zint,RH_zint,Thet
     #ax1.set_xlabel('Local Time')
     ax1.set_ylabel('Altitude in m')
     ax1.grid()
+    if boundary_layer:
+        ax1.plot(unit_time, z_BL_rh, color='C0', label='Relative Humidity')
+        ax1.plot(unit_time, z_BL_q, color='C1', label='Specific Humidity')
+        ax1.plot(unit_time, z_BL_theta, color='C2', label='Potential Temperature')
+        ax1.plot(unit_time, z_BL_theta_e, color='C3', label='Pseudopotential Temperature')
+        ax1.legend()
     #Plot Title
     fig_title="Date "+filename[6:8]+"."+filename[4:6]+"."+filename[0:4]+" ,Start Time: "+filename[8:10]+":"+filename[10:12]+":"+filename[12:14] 
     plt.title(fig_title, fontsize=16)
@@ -648,6 +660,11 @@ def alt_time_plot(filename,server_path,unit_time,z_levels,Temp_zint,RH_zint,Thet
     ax2.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
     ax2.set_xlim([unit_time[0],unit_time[-1]])
     ax2.grid()
+    if boundary_layer:
+        ax2.plot(unit_time, z_BL_rh, color='C0', label='Relative Humidity')
+        ax2.plot(unit_time, z_BL_q, color='C1', label='Specific Humidity')
+        ax2.plot(unit_time, z_BL_theta, color='C2', label='Potential Temperature')
+        ax2.plot(unit_time, z_BL_theta_e, color='C3', label='Pseudopotential Temperature')
     #ax2.set_xlabel('Local Time')
     ax2.set_ylabel('Altitude in m')
     plt.setp(plt.gca().xaxis.get_majorticklabels(),'rotation', 30)
@@ -665,13 +682,18 @@ def alt_time_plot(filename,server_path,unit_time,z_levels,Temp_zint,RH_zint,Thet
     #ax3.set_xlabel('Local Time')
     ax3.set_ylabel('Altitude in m')
     ax3.grid()   
+    if boundary_layer:
+        ax3.plot(unit_time, z_BL_rh, color='C0', label='Relative Humidity')
+        ax3.plot(unit_time, z_BL_q, color='C1', label='Specific Humidity')
+        ax3.plot(unit_time, z_BL_theta, color='C2', label='Potential Temperature')
+        ax3.plot(unit_time, z_BL_theta_e, color='C3', label='Pseudopotential Temperature')
     plt.setp(plt.gca().xaxis.get_majorticklabels(),'rotation', 30)
     plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
                 wspace=None, hspace=0.3)
     fig.savefig(fig_name, dpi=500,bbox_inches='tight')
     fig.savefig(server_path+fig_name,dpi=500,bbox_inches="tight")
     plt.close()
-    print("Plotted and stored on server")
+    print("z-coordinate plotted and stored on server")
     return        
 
 ###############################################################################
