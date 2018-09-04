@@ -12,10 +12,10 @@ import numpy as np
 from os.path import join
 from scipy.interpolate import interp1d
 from matplotlib import dates
-from processing_functions import apply_correction
+from processing_functions import apply_correction, boundary_layer_height
 ###############################################################################
 ###############################################################################
-def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pint,Theta):
+def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pint,Theta, boundary_layer=True):
     ###########################################################################
     ##Plot data
     fig_name=filename[:-4]+".png"
@@ -28,10 +28,22 @@ def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pin
     levels_T=np.arange(round(np.nanmin(Temp_pint)),round(np.nanmax(Temp_pint)),(round(np.nanmax(Temp_pint))-round(np.nanmin(Temp_pint)))/20)
     levels_Theta=np.arange(round(np.nanmin(Theta),2),round(np.nanmax(Theta),2),round((np.nanmax(Theta)-np.nanmin(Theta))/20,2)) -273.15
     ###########################################################################
+    # calculate boundary layer height
+    if boundary_layer:
+        z_BL_pseudopot, p_BL_pseudopot = boundary_layer_height(RH_pint, Temp_pint, p_levels, 'pseudopotential_temperature')
+        z_BL_pot, p_BL_pot = boundary_layer_height(RH_pint, Temp_pint, p_levels, 'potential_temperature')
+        z_BL_hum, p_BL_hum = boundary_layer_height(RH_pint, Temp_pint, p_levels, 'specific_humidity')
+        z_BL_relhum, p_BL_relhum = boundary_layer_height(RH_pint, Temp_pint, p_levels, 'relative_humidity')
     #Subplot1: Temperatur
     ax1=fig.add_subplot(311)
     X,Y = np.meshgrid(unit_time,p_levels)
     C= ax1.contourf(X,Y,Temp_pint,levels_T,cmap=plt.get_cmap("hot_r", len(levels_T)-1),extend="both")
+    if boundary_layer:
+        ax1.plot(unit_time, p_BL_pot, color='C0', label='Potential Temperature')
+        ax1.plot(unit_time, p_BL_pseudopot, color='C1', label='Pseudopotential Temperature')
+        ax1.plot(unit_time, p_BL_relhum, color='C2', label='Relative Humidity')
+        ax1.plot(unit_time, p_BL_hum, color='C3', label='Specific Humidity')
+        ax1.legend()
     cb=plt.colorbar(C)
     cb.set_label('Temperatur in $^\circ$C',fontsize=16)
     #
@@ -41,6 +53,7 @@ def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pin
     #ax1.set_xlabel('Local Time')
     ax1.set_ylabel('Pressure in hPa')
     ax1.grid()
+    
     #Plot Title
     fig_title="Date "+filename[6:8]+"."+filename[4:6]+"."+filename[0:4]+" ,Start Time: "+filename[8:10]+":"+filename[10:12]+":"+filename[12:14] 
     plt.title(fig_title, fontsize=16)
@@ -54,6 +67,11 @@ def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pin
     ax2=fig.add_subplot(312)
     X,Y = np.meshgrid(unit_time,p_levels)
     C2= ax2.contourf(X,Y,Theta-273.15,levels_Theta,cmap=plt.get_cmap("hot_r",len(levels_Theta)-1),extend="both")
+    if boundary_layer:
+        ax2.plot(unit_time, p_BL_pot, color='C0', label='Potential Temperature')
+        ax2.plot(unit_time, p_BL_pseudopot, color='C1', label='Pseudopotential Temperature')
+        ax2.plot(unit_time, p_BL_relhum, color='C2', label='Relative Humidity')
+        ax2.plot(unit_time, p_BL_hum, color='C3', label='Specific Humidity')
     cb=plt.colorbar(C2)
     cb.set_label('$\Theta$ in $^\circ$C',fontsize=16)
     
@@ -63,6 +81,7 @@ def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pin
     ax2.grid()
     #ax2.set_xlabel('Local Time')
     ax2.set_ylabel('Pressure in hPa')
+
     plt.gca().invert_yaxis()
     plt.setp(plt.gca().xaxis.get_majorticklabels(),'rotation', 30)
     plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
@@ -71,6 +90,11 @@ def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pin
     #Subplot3 Relative Humidity
     ax3=fig.add_subplot(313)
     C3= ax3.contourf(X,Y,RH_pint,cmap=plt.get_cmap("viridis_r"))
+    if boundary_layer:
+        ax3.plot(unit_time, p_BL_pot, color='C0', label='Potential Temperature')
+        ax3.plot(unit_time, p_BL_pseudopot, color='C1', label='Pseudopotential Temperature')
+        ax3.plot(unit_time, p_BL_relhum, color='C2', label='Relative Humidity')
+        ax3.plot(unit_time, p_BL_hum, color='C3', label='Specific Humidity')
     cb=plt.colorbar(C3)
     cb.set_label('RH in %',fontsize=16)
     ax3.set_xticks(ax3.get_xticks()[::])
