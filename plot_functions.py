@@ -15,7 +15,7 @@ from matplotlib import dates
 from processing_functions import apply_correction, boundary_layer_height
 ###############################################################################
 ###############################################################################
-def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pint,Theta, boundary_layer=True):
+def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pint,Theta, boundary_layer=False):
     ###########################################################################
     ##Plot data
     fig_name=filename[:-4]+".png"
