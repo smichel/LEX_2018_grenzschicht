@@ -91,10 +91,10 @@ def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pin
     ax3=fig.add_subplot(313)
     C3= ax3.contourf(X,Y,RH_pint,cmap=plt.get_cmap("viridis_r"))
     if boundary_layer:
-        ax3.plot(unit_time, p_BL_pot, color='C0', label='Potential Temperature')
-        ax3.plot(unit_time, p_BL_pseudopot, color='C1', label='Pseudopotential Temperature')
-        ax3.plot(unit_time, p_BL_relhum, color='C2', label='Relative Humidity')
-        ax3.plot(unit_time, p_BL_hum, color='C3', label='Specific Humidity')
+        ax3.plot(unit_time, p_BL_relhum, color='C0', label='Relative Humidity')
+        ax3.plot(unit_time, p_BL_hum, color='C1', label='Specific Humidity')
+        ax3.plot(unit_time, p_BL_pot, color='C2', label='Potential Temperature')
+        ax3.plot(unit_time, p_BL_pseudopot, color='C3', label='Pseudopotential Temperature')
     cb=plt.colorbar(C3)
     cb.set_label('RH in %',fontsize=16)
     ax3.set_xticks(ax3.get_xticks()[::])
@@ -237,7 +237,7 @@ def gradient_profile_plot_series(filename,server_path,unit_time,Temp_diff,Theta_
 
 
 ###############################################################################
-def plot_timeseries(data, start_time=None, end_time=None, t_range=None,
+def plot_timeseries(data,filename,server_path, start_time=None, end_time=None, t_range=None,
                     h_range=None, p_range=None):
     """ Plots a timeseries of ALPACA data for the time period between start_time
     and end_time. If no start end end times are given, the whole timeseries in
@@ -253,7 +253,9 @@ def plot_timeseries(data, start_time=None, end_time=None, t_range=None,
         h_range (list with 2 elements): limits for humidity plot
         p_range (list with 2 elements): limits for pressure plot
     """
-    
+    fig_name="Liveplot"+filename[:-4]+".png"
+    print("Liveplotting")
+    fig_title="Date "+filename[6:8]+"."+filename[4:6]+"."+filename[0:4]+" ,Start Time: "+filename[8:10]+":"+filename[10:12]+":"+filename[12:14] 
     temp = {}
     hum = {}
     pres = {}
@@ -262,7 +264,7 @@ def plot_timeseries(data, start_time=None, end_time=None, t_range=None,
     
     halfslave = int(11/2)+1
     jet = plt.get_cmap('gist_rainbow',int(halfslave))
-    print(halfslave)
+    #print(halfslave)
     
     for i in range(1, numarduinos + 1):
         temp[i] = data[i][1:, 1]
@@ -313,8 +315,37 @@ def plot_timeseries(data, start_time=None, end_time=None, t_range=None,
         ax[2].set_ylim(p_range[0], p_range[1])
 
     plt.tight_layout()
-
+    fig.savefig(fig_name, dpi=500,bbox_inches='tight')
+    fig.savefig(server_path+fig_name,dpi=500,bbox_inches="tight")
+    plt.close()
 ###############################################################################
+def plot_boundary_layer_height(filename,server_path,unit_time,z_BL_RH,z_BL_q,z_BL_theta,z_BL_theta_e):
+    fig_name="BL_height"+filename[:-4]+".png"
+    fig_title="Date "+filename[6:8]+"."+filename[4:6]+"."+filename[0:4]+" ,Start Time: "+filename[8:10]+":"+filename[10:12]+":"+filename[12:14] 
+    print('Plotting Boundary layer height')
+    fig= plt.figure(figsize=(20,10))
+    ax= fig.add_subplot(212)
+    plt.rcParams.update({'font.size': 12})  
+    ax.plot(num2date(unit_time), z_BL_RH, label='Relative Humidity')
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Boundary Layer Height [m]')
+    ax.set_xticks(ax.get_xticks()[::])
+    ax.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
+
+    ax.plot(num2date(unit_time), z_BL_q, label='Specific Humidity')
+    ax.plot(num2date(unit_time), z_BL_theta, label='Potential Temperature')
+    ax.plot(num2date(unit_time), z_BL_theta_e, label='Pseudopotential Temperature')
+    #ax.set_xlim(datetime.datetime(2018, 8, 29, 7, 50), datetime.datetime(2018, 8, 29, 14, 50))
+    #ax.set_xlim(datetime.datetime(2018, 9, 3, 13, 40), datetime.datetime(2018, 9, 3, 16, 30))
+    #ax[1].set_xlabel('Time')
+    #ax[1].set_ylabel('Boundary Layer Height [m]')
+    #ax[1].set_xticks(ax[0].get_xticks()[::])
+    #ax[1].xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
+    ax.legend()
+    fig.savefig(fig_name, dpi=500,bbox_inches='tight')
+    fig.savefig(server_path+fig_name,dpi=500,bbox_inches="tight")
+    plt.close()
+    
 ###############################################################################
 def readme(name,instruments):
     """

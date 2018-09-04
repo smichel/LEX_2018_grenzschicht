@@ -233,10 +233,7 @@ def calc_pseudopot_temp(rh, temperature, pressure):
     cp = typhon.constants.isobaric_mass_heat_capacity
     L = typhon.constants.heat_of_vaporization
     mixing_ratio = calc_mass_mixing_ratio(rh, temperature, pressure)
-    print(mixing_ratio)
     pot_temp = calc_pot_temp(temperature, pressure)
-    print(pot_temp)
-    
     temperature = temperature + 273.15
     pressure = pressure * 100
     rh = rh / 100
@@ -259,28 +256,28 @@ def boundary_layer_height(RH_pint, Temp_pint, p_levels, crit_variable):
     if crit_variable == 'relative_humidity':
         variable_diff = np.diff(RH_pint, axis=0)
         variable_diff[np.isnan(variable_diff)] = -9999
-        diff_extreme_idx = np.nanargmax(variable_diff[:-int(num_plevels/10)], axis=0)
+        diff_extreme_idx = np.nanargmax(variable_diff[int(num_plevels/4):-int(num_plevels/10)], axis=0)+int(num_plevels/4)
     elif crit_variable == 'specific_humidity':
         specific_humidity = calc_specific_humidity(RH_pint, Temp_pint, np.tile(p_levels,(len_timeseries,1)).transpose())
         variable_diff = np.diff(specific_humidity, axis=0)
         variable_diff[np.isnan(variable_diff)] = -9999
-        diff_extreme_idx = np.nanargmax(variable_diff[:-int(num_plevels/10)], axis=0)
+        diff_extreme_idx = np.nanargmax(variable_diff[int(num_plevels/4):-int(num_plevels/10)], axis=0)+int(num_plevels/4)
     elif crit_variable == 'potential_temperature':
         potential_temperature = calc_pot_temp(Temp_pint, np.tile(p_levels,(len_timeseries,1)).transpose())
         variable_diff = np.diff(potential_temperature, axis=0)
         variable_diff[np.isnan(variable_diff)] = 9999
-        diff_extreme_idx = np.nanargmin(variable_diff[:-int(num_plevels/10)], axis=0)
+        diff_extreme_idx = np.nanargmin(variable_diff[int(num_plevels/4):-int(num_plevels/10)], axis=0)+int(num_plevels/4)
     elif crit_variable == 'pseudopotential_temperature':
         pseudopotential_temperature = calc_pseudopot_temp(RH_pint, Temp_pint, np.tile(p_levels,(len_timeseries,1)).transpose())
         variable_diff = np.diff(pseudopotential_temperature, axis=0)
         variable_diff[np.isnan(variable_diff)] = -9999
-        diff_extreme_idx = np.nanargmax(variable_diff[:-int(num_plevels/10)], axis=0)
+        diff_extreme_idx = np.nanargmax(variable_diff[int(num_plevels/4):-int(num_plevels/10)], axis=0)+int(num_plevels/4)
     
     p_mid_levels=[]
     for p in range(0,len(p_levels)-1):
         p_mid_levels.append((p_levels[p+1]+p_levels[p])/2)
     p_mid_levels = np.array(p_mid_levels)
-    print(p_mid_levels)
+    
     
     # boundary layer height in pressure coordinates
     p_BL = np.array([p_mid_levels[i] for i in diff_extreme_idx])
