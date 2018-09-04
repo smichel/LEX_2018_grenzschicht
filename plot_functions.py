@@ -506,3 +506,117 @@ def compare_sonde(sondepath,
     
     fig.savefig(plotpath+'Radiosonde_APLACA_scatter_'+titletime+'.png')
     print('Figure saved in '+plotpath+'Radiosonde_APLACA_scatter_'+titletime+'.png')
+    return sondedata[:,7], sondedata[:,2], sondedata[:,3], sondelaunch, sondeheli
+
+####################################################################################
+####################################################################################
+    
+def get_profile(data, time_start, time_end, verbose = False):
+    """
+    Plots vertica profiles of temperature and humidty for a given time period.
+    
+    Parameters:
+        data (dictionary): dictionary with data for all alpacas
+        time_start (datetime.datetime(yyyy, mm, dd, HH, MM, SS)): start time of
+            time period
+        time_end (datetime.datetime(yyyy, mm, dd, HH, MM, SS)): end time of 
+            time period
+    """
+    plt.rcParams.update({'font.size': 14})
+    
+    temp = {}
+    hum = {}
+    pres = {}
+    for alpaca in data:
+        temp[alpaca] = data[alpaca][np.logical_and(data[alpaca][:, 0] >= date2num(time_start), data[alpaca][:, 0] <= date2num(time_end)), 1]
+        hum[alpaca] = data[alpaca][np.logical_and(data[alpaca][:, 0] >= date2num(time_start), data[alpaca][:, 0] <= date2num(time_end)), 2]
+        pres[alpaca] = data[alpaca][np.logical_and(data[alpaca][:, 0] >= date2num(time_start), data[alpaca][:, 0] <= date2num(time_end)), 3]
+        if len(temp[alpaca]) == 0:
+            temp[alpaca] = np.array([data[alpaca][data[alpaca][:, 0] >= date2num(time_start), 1][0]])
+            hum[alpaca] = np.array([data[alpaca][data[alpaca][:, 0] >= date2num(time_start), 2][0]])
+            pres[alpaca] = np.array([data[alpaca][data[alpaca][:, 0] >= date2num(time_start), 3][0]])
+        if verbose:
+            print('Arduino {}: Number of averaged timesteps: {}'.format(alpaca, len(temp[alpaca])))
+        temp[alpaca] = np.mean(temp[alpaca])
+        hum[alpaca] = np.mean(hum[alpaca])
+        pres[alpaca] = np.mean(pres[alpaca])
+        
+    pres = np.asarray(list(pres.values()))
+    temp = np.asarray(list(temp.values()))
+    hum = np.asarray(list(hum.values()))
+    
+    return pres, temp, hum
+
+
+def alt_time_plot(filename,server_path,unit_time,z_levels,Temp_zint,RH_zint,Theta):
+    ###########################################################################
+    ##Plot data
+    fig_name=filename[:-4]+".png"
+    fig_title="Date "+filename[6:8]+"."+filename[4:6]+"."+filename[0:4]+" ,Start Time: "+filename[8:10]+":"+filename[10:12]+":"+filename[12:14] 
+    ###########################################################################
+    print("Plotting...")
+    fig= plt.figure(figsize=(30,15))
+    matplotlib.rcParams.update({'font.size': 14})
+    
+    levels_T=np.arange(round(np.nanmin(Temp_zint)),round(np.nanmax(Temp_zint)),(round(np.nanmax(Temp_zint))-round(np.nanmin(Temp_zint)))/20)
+    levels_Theta=np.arange(round(np.nanmin(Theta),2),round(np.nanmax(Theta),2),round((np.nanmax(Theta)-np.nanmin(Theta))/20,2)) -273.15
+    ###########################################################################
+    #Subplot1: Temperatur
+    ax1=fig.add_subplot(311)
+    X,Y = np.meshgrid(unit_time,z_levels)
+    C= ax1.contourf(X,Y,Temp_zint,levels_T,cmap=plt.get_cmap("hot_r", len(levels_T)-1),extend="both")
+    cb=plt.colorbar(C)
+    cb.set_label('Temperatur in $^\circ$C',fontsize=16)
+    #
+    ax1.set_xticks(ax1.get_xticks()[::])
+    ax1.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
+    ax1.set_xlim([unit_time[0],unit_time[-1]])
+    #ax1.set_xlabel('Local Time')
+    ax1.set_ylabel('Altitude in m')
+    ax1.grid()
+    #Plot Title
+    fig_title="Date "+filename[6:8]+"."+filename[4:6]+"."+filename[0:4]+" ,Start Time: "+filename[8:10]+":"+filename[10:12]+":"+filename[12:14] 
+    plt.title(fig_title, fontsize=16)
+    #extra settings for axes and ticks
+    plt.setp(plt.gca().xaxis.get_majorticklabels(),'rotation', 30)
+    plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
+                wspace=None, hspace=0.3)# for space between the subplots  
+    ###################################### 
+    #Subplot2 pot. Temperatur
+    ax2=fig.add_subplot(312)
+    X,Y = np.meshgrid(unit_time,z_levels)
+    C2= ax2.contourf(X,Y,Theta-273.15,levels_Theta,cmap=plt.get_cmap("hot_r",len(levels_Theta)-1),extend="both")
+    cb=plt.colorbar(C2)
+    cb.set_label('$\Theta$ in $^\circ$C',fontsize=16)
+    
+    ax2.set_xticks(ax2.get_xticks()[::])
+    ax2.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
+    ax2.set_xlim([unit_time[0],unit_time[-1]])
+    ax2.grid()
+    #ax2.set_xlabel('Local Time')
+    ax2.set_ylabel('Altitude in m')
+    plt.setp(plt.gca().xaxis.get_majorticklabels(),'rotation', 30)
+    plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
+                wspace=None, hspace=0.3)   
+    ######################################
+    #Subplot3 Relative Humidity
+    ax3=fig.add_subplot(313)
+    C3= ax3.contourf(X,Y,RH_zint,cmap=plt.get_cmap("viridis_r"))
+    cb=plt.colorbar(C3)
+    cb.set_label('RH in %',fontsize=16)
+    ax3.set_xticks(ax3.get_xticks()[::])
+    ax3.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
+    ax3.set_xlim([unit_time[0],unit_time[-1]])
+    #ax3.set_xlabel('Local Time')
+    ax3.set_ylabel('Altitude in m')
+    ax3.grid()   
+    plt.setp(plt.gca().xaxis.get_majorticklabels(),'rotation', 30)
+    plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
+                wspace=None, hspace=0.3)
+    fig.savefig(fig_name, dpi=500,bbox_inches='tight')
+    fig.savefig(server_path+fig_name,dpi=500,bbox_inches="tight")
+    plt.close()
+    print("Plotted and stored on server")
+    return        
+
+###############################################################################

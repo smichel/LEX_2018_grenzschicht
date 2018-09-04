@@ -1,4 +1,4 @@
-
+ 
 import sys
 import numpy as np
 from scipy.interpolate import interp1d
@@ -356,7 +356,79 @@ def boundary_layer_height(RH_pint, Temp_pint, p_levels, crit_variable):
 #    ax.legend()    
         
         
+###############################################################################
+
+def data_interpolation_z_t(data,ref,z_intv_no,instrument_spef):
+    """ file is the filename joined with path.
+        instrument_spef is 0 for Alpacas.
+        p_intv_no is the number of desired z_levels for Arduinos
+    """
+    c_p=1005 #J/(kg*K)
+    R_l=287  #J/(kg*K)
+    
+    if instrument_spef == 0:
+        #data=np.load(file)
+        keys=list(data)
+        arduino={}
+        unit_time=data[keys[ref]][1:,0]
+        key_idx= np.asarray(keys)        #ard_number=np.array([1,2,3,4,5,6,7,8,9,10,11])
+        interp_data=np.zeros([len(key_idx),5,len(unit_time)]) # 0 Time, 1 Temp, 2 RH, 3 Pressure, 4 Altitude
         
+        for i in range(0,len(keys)):
+            for j in range(0,4): # 0 Time, 1 Temp, 2 RH, 3 Pressure
+                arduino[keys[i]]=np.asarray(data[keys[i]])
+                interp_data[i,j,:]= interp1d(arduino[keys[i]][1::,0],arduino[keys[i]][1::,j],axis=0,fill_value='extrapolate')(unit_time)
+        print("Data time interpolated")
+        
+        for t in range(0,len(unit_time)):
+            interp_data[:,4,t] = altitude(interp_data[:,3,t],interp_data[:,1,t],7)
+            
+        p_min=interp_data[:,3,:].min()
+        p_max=interp_data[:,3,:].max()
+        p_levels=np.linspace(p_min,p_max,z_intv_no)
+        p_levels = np.flip(p_levels,0)
+        
+        z_min=interp_data[:,4,:].min()
+        z_max=interp_data[:,4,:].max()
+        z_levels=np.linspace(z_min,z_max,z_intv_no)
+        z_interp=np.zeros([len(z_levels),4,len(unit_time)])
+
+            
+        for t in range(0,len(unit_time)):
+            for j in range(0,3):
+                    z_interp[:,j,t]=interp1d(interp_data[::,4,t],interp_data[::,j,t],axis=0,fill_value=np.nan,bounds_error=False)(z_levels)
+        print("Data z-interpolated")
+    
+        Temp_zint=z_interp[:,1,:]
+        RH_zint=z_interp[:,2,:]
+        print(p_levels)
+        #Pot. Temperatur
+        Theta = np.empty((z_intv_no,len(unit_time),))
+        Theta.fill(np.nan)
+        for t in range(0,len(unit_time)):
+            for z in range(0,len(p_levels)):
+                Theta[z,t]=(Temp_zint[z,t]+273.15)*(1000/p_levels[z])**(R_l/c_p)
+        return unit_time,z_levels,Temp_zint,RH_zint,Theta;
+    elif instrument_spef ==1:
+        print("Processing of LIDAR data")
+        if np.size(z_intv_no) > 1: 
+            z_levels= z_intv_no
+        else:
+            print('Error: if you want interpolate LIDAR/Radiosonde data, you need to insert the p_levels (from Arduino) for the argument p_intv_no')
+            sys.exit()
+        return None
+        
+    elif instrument_spef ==2:
+        print('Processing of Radiosonde data')
+        if np.size(z_intv_no) > 1: 
+            z_levels= z_intv_no
+        else:
+            print('Error: if you want interpolate LIDAR/Radiosonde data, you need to insert the p_levels (from Arduino) for the argument p_intv_no')
+            sys.exit()
+        return None
+
+
+###############################################################################        
     
 
 
