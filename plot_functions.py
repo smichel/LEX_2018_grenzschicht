@@ -15,7 +15,7 @@ from matplotlib import dates
 from processing_functions import apply_correction, boundary_layer_height
 ###############################################################################
 ###############################################################################
-def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pint,Theta, boundary_layer=False):
+def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pint,Theta, boundary_layer=False, start_time=None, end_time=None):
     ###########################################################################
     ##Plot data
     fig_name=filename[:-4]+".png"
@@ -34,6 +34,16 @@ def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pin
         z_BL_pot, p_BL_pot = boundary_layer_height(RH_pint, Temp_pint, p_levels, 'potential_temperature')
         z_BL_hum, p_BL_hum = boundary_layer_height(RH_pint, Temp_pint, p_levels, 'specific_humidity')
         z_BL_relhum, p_BL_relhum = boundary_layer_height(RH_pint, Temp_pint, p_levels, 'relative_humidity')
+    
+    #time limits:
+    if start_time is not None:
+        start_lim = start_time
+    else:
+        start_lim = unit_time[0]
+    if end_time is not None:
+        end_lim = end_time
+    else:
+        end_lim = unit_time[-1]
     #Subplot1: Temperatur
     ax1=fig.add_subplot(311)
     X,Y = np.meshgrid(unit_time,p_levels)
@@ -49,7 +59,7 @@ def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pin
     #
     ax1.set_xticks(ax1.get_xticks()[::])
     ax1.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
-    ax1.set_xlim([unit_time[0],unit_time[-1]])
+    ax1.set_xlim([start_lim,end_lim])
     #ax1.set_xlabel('Local Time')
     ax1.set_ylabel('Pressure in hPa')
     ax1.grid()
@@ -78,7 +88,7 @@ def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pin
     
     ax2.set_xticks(ax2.get_xticks()[::])
     ax2.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
-    ax2.set_xlim([unit_time[0],unit_time[-1]])
+    ax2.set_xlim(start_lim,end_lim)
     ax2.grid()
     #ax2.set_xlabel('Local Time')
     ax2.set_ylabel('Pressure in hPa')
@@ -100,7 +110,7 @@ def profile_plot_series(filename,server_path,unit_time,p_levels,Temp_pint,RH_pin
     cb.set_label('RH in %',fontsize=16)
     ax3.set_xticks(ax3.get_xticks()[::])
     ax3.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
-    ax3.set_xlim([unit_time[0],unit_time[-1]])
+    ax3.set_xlim(start_lim,end_lim)
     #ax3.set_xlabel('Local Time')
     ax3.set_ylabel('Pressure in hPa')
     ax3.grid()   
