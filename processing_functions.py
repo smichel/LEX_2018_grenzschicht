@@ -314,18 +314,19 @@ def boundary_layer_height(RH_pint, Temp_pint, p_levels, crit_variable):
     
     return z_BL, p_BL
     
-def calc_bulk_richardson(virt_pot_temp, windspeed, altitudes):
-    """ Calculates bulk richardson number.
+
+def boundary_layer_height_from_ri(Ri, altitudes):
+    """ Calculates boundary layer height from Bulk Richardson number.
     
     Parameters:
-        virt_pot_temp (array): virtual potential temperature (interpolated on time and altitude)
-        windspeed (array): horizontal windspeed (interpolated on time and altitude)
+        Ri (array): Bulk Richardson Number
         altitudes (array): altitude levels
     """
-    g = 9.81
+    z_BL = np.zeros((Ri.shape[1]))
+    for i in range(Ri.shape[1]):
+        z_BL[i] = interp1d(Ri[:,i], altitudes, bounds_error=False, fill_value=np.nan)(0.2)
     
-    Ri = g * altitudes * (virt_pot_temp - virt_pot_temp[0]) / (virt_pot_temp * windspeed ** 2)
-    return Ri
+    return z_BL
 
 def boundary_layer_height_from_ri(Ri, altitudes):
     """ Calculates boundary layer height from Bulk Richardson number.
