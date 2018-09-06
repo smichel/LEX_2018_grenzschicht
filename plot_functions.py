@@ -8,6 +8,8 @@ import datetime
 import matplotlib.pyplot as plt
 from matplotlib.dates import date2num, num2date
 import matplotlib
+from matplotlib.colors import ListedColormap
+from matplotlib.cm import get_cmap
 import numpy as np
 from os.path import join
 from scipy.interpolate import interp1d
@@ -707,3 +709,78 @@ def alt_time_plot(filename,server_path,unit_time,z_levels,Temp_zint,RH_zint,Thet
     return        
 
 ###############################################################################
+######################## Plots some of the lidar data #########################
+###############################################################################
+    
+
+def profile_plot_lidar(data,figname='lidar_figures.png',starttime=0,endtime=0,v_levels=20,d_levels=37,vmax=15,hmax=700,wmax=2):
+    print('prepare data...')
+    time = data[0]
+    time = num2date(time)
+    height = data[1][0]
+    max_height_index = np.where(height>hmax)[0][0]+1
+    height= height[:max_height_index]
+    windspeed = np.transpose(data[3])[:max_height_index,:]
+    windspeed = np.nan_to_num(windspeed,1000.0)
+    windspeed[windspeed>100] = np.nan
+    winddirection = np.transpose(data[2])[:max_height_index,:]
+    winddirection = np.nan_to_num(winddirection,1000.0)
+    winddirection[winddirection > 370] = np.nan
+    vertical_w = np.transpose(data[4])[:max_height_index,:]
+    inferno = get_cmap('viridis').colors
+    other = get_cmap('plasma').colors
+    new_cmap = ListedColormap(inferno+other[::-1])
+    if (starttime==0 and endtime==0):
+        st_index=0
+        end_index=-1
+    else:
+        st_index = np.where(date2num(time) >= date2num(starttime))[0][0]
+        end_index = np.where(date2num(time) <= date2num(endtime))[0][-1]
+    X,Y = np.meshgrid(time[st_index:end_index],height) #TODO
+    hspace=0.1
+    aspect=8
+    
+    print("plotting...")
+    matplotlib.rcParams.update({'font.size': 12})
+    fig = plt.figure(figsize=(24,12))
+    ax1 = fig.add_subplot(311)
+    ax1.set_title('Lidar winddata: '+str(time[0].day)+'.'+str(time[0].month)+'.'+str(time[0].year))
+    levels=np.linspace(0,vmax,v_levels)
+    c1 = ax1.contourf(X,Y,windspeed[:,st_index:end_index],levels,extend='max')  
+    ax1.set_ylabel('height [m]')
+    ax1.set_xticks([])
+    #ax1.xaxis.set_major_formatter(dates.DateFormatter('%H:%M'))
+    cb=plt.colorbar(c1,aspect=aspect)
+    cb.set_label('Windspeed [$ms^{-1}$]',fontsize=12)
+    plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
+            wspace=None, hspace=hspace)# for space between the subplots 
+    plt.setp(plt.gca().xaxis.get_majorticklabels(),'rotation', -30)
+    
+    ax2 = fig.add_subplot(312)
+    #ax2.set_title(str(time[0].day)+'.'+str(time[0].month)+'.'+str(time[0].year))
+    levels= np.linspace(0,360,d_levels)
+    c1 = ax2.contourf(X,Y,winddirection[:,st_index:end_index],levels,cmap=new_cmap)  
+    ax2.set_ylabel('height [m]')
+    ax2.set_xticks([])
+    #ax2.xaxis.set_major_formatter(dates.DateFormatter('%H:%M'))
+    cb=plt.colorbar(c1,aspect=aspect)
+    cb.set_label('Winddirection [$^\circ$]',fontsize=12)
+    plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
+            wspace=None, hspace=hspace)# for space between the subplots 
+    plt.setp(plt.gca().xaxis.get_majorticklabels(),'rotation', -30)
+
+
+    ax3 = fig.add_subplot(313)
+    #ax3.set_title(str(time[0].day)+'.'+str(time[0].month)+'.'+str(time[0].year))
+    levels=np.linspace(-wmax,wmax,v_levels)
+    c1 = ax3.contourf(X,Y,vertical_w[:,st_index:end_index],levels,extend='both')  
+    ax3.set_ylabel('height [m]')
+    ax3.set_xticks(ax3.get_xticks()[::])
+    ax3.xaxis.set_major_formatter(dates.DateFormatter('%H:%M'))
+    cb=plt.colorbar(c1,aspect=aspect)
+    cb.set_label('vertical windspeed [$ms^{-1}$]',fontsize=12)
+    plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
+            wspace=None, hspace=hspace)# for space between the subplots 
+    plt.setp(plt.gca().xaxis.get_majorticklabels(),'rotation', -30)
+
+    fig.savefig(figname, dpi=500,bbox_inches='tight')
