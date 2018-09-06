@@ -433,8 +433,8 @@ def compare_sonde(sondepath,
     sondedata = sondedata[launchtime-1:heliheighttime,:]
     
     ##### Set the first value of the sonde temp and humidity to the ground values
-    sondedata[0,2] = groundtemp
-    sondedata[0,3] = groundhum
+    #sondedata[0,2] = groundtemp
+    #sondedata[0,3] = groundhum
     ##### Get Radiosonde start time from the data
     ##### Get start of record time from infofile
     with open(infofile, 'rb') as f:
@@ -472,7 +472,7 @@ def compare_sonde(sondepath,
     ##### READ ALPACA FILE
     
     data = np.load(alpaca_filename)
-    #data = apply_correction(data)
+    data = apply_correction(data)
     temp = {}
     hum = {}
     pres = {}
