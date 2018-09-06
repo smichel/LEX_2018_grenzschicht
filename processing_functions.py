@@ -331,6 +331,11 @@ def boundary_layer_height_from_ri(Ri, altitudes):
         Ri (array): Bulk Richardson Number
         altitudes (array): altitude levels
     """
+    z_BL = np.zeros((Ri.shape[1]))
+    for i in range(Ri.shape[1]):
+        z_BL[i] = interp1d(Ri[:,i], altitudes, bounds_error=False, fill_value=np.nan)(0.2)
+    
+    return z_BL
         
         
 ###############################################################################
