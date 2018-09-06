@@ -4,7 +4,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 from matplotlib.dates import date2num, num2date
 import datetime
-import typhon
+#import typhon
 ###############################################################################
 ###############################################################################
 """ This is a list of functions used for processing the measurement data. 
@@ -525,5 +525,16 @@ def read_lidar(path_to_file):
     
     return data
 
+def interpolate_lidar_data(lidar_data,interpolated_arddata_time,interpolated_arddata_z):
+    """
+    This function interpolates winddata from the lidar on the levels of the Alpacas.
+    The Alpacadata is interpolated on the timesteps of the lidar data
+    """
+    lid_time=lidar_data[0]
+    ard_time=interpolated_arddata_time    
+    lid_height=lidar_data[1][0,:]
+    ard_height=interpolated_arddata_z
+    interpolated_lid_winddir = interpd1(lid_time,np.transpose(lid_data[2]))(ard_time)
+    interpd1(lid_height,)(ard_height)
 
 
