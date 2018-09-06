@@ -315,12 +315,25 @@ def boundary_layer_height(RH_pint, Temp_pint, p_levels, crit_variable):
     return z_BL, p_BL
     
 def calc_bulk_richardson(virt_pot_temp, windspeed, altitudes):
-    """
+    """ Calculates bulk richardson number.
+    
+    Parameters:
+        virt_pot_temp (array): virtual potential temperature (interpolated on time and altitude)
+        windspeed (array): horizontal windspeed (interpolated on time and altitude)
+        altitudes (array): altitude levels
     """
     g = 9.81
     
     Ri = g * altitudes * (virt_pot_temp - virt_pot_temp[0]) / (virt_pot_temp * windspeed ** 2)
     return Ri
+
+def boundary_layer_height_from_ri(Ri, altitudes):
+    """ Calculates boundary layer height from Bulk Richardson number.
+    
+    Parameters:
+        Ri (array): Bulk Richardson Number
+        altitudes (array): altitude levels
+    """
         
         
 ###############################################################################
@@ -521,9 +534,9 @@ def interpolate_lidar_data(lidar_data,interpolated_arddata_time,interpolated_ard
     ard_time=interpolated_arddata_time    
     lid_height=lidar_data[1][0,:]
     ard_height=interpolated_arddata_z
-    time_interpolated_lid_winddir = interp1d(lid_time,np.transpose(lidar_data[2]))(ard_time)
-    time_interpolated_lid_windspeed = interp1d(lid_time,np.transpose(lidar_data[3]))(ard_time)
-    time_interpolated_lid_vert_windspeed = interp1d(lid_time,np.transpose(lidar_data[4]))(ard_time)    
+    time_interpolated_lid_winddir = interp1d(lid_time,np.transpose(lidar_data[2]), bounds_error=False, fill_value=np.nan)(ard_time)
+    time_interpolated_lid_windspeed = interp1d(lid_time,np.transpose(lidar_data[3]), bounds_error=False, fill_value=np.nan)(ard_time)
+    time_interpolated_lid_vert_windspeed = interp1d(lid_time,np.transpose(lidar_data[4]), bounds_error=False, fill_value=np.nan)(ard_time)    
     interpolated_lid_winddir = interp1d(lid_height, np.transpose(time_interpolated_lid_winddir), bounds_error=False, fill_value=np.nan)(ard_height)
     interpolated_lid_windspeed = interp1d(lid_height, np.transpose(time_interpolated_lid_windspeed), bounds_error=False, fill_value=np.nan)(ard_height)
     interpolated_lid_vert_windspeed = interp1d(lid_height, np.transpose(time_interpolated_lid_vert_windspeed), bounds_error=False, fill_value=np.nan)(ard_height)
