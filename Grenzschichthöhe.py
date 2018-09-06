@@ -28,11 +28,12 @@ from processing_functions import calc_specific_humidity, calc_pseudopot_temp, bo
 """
 
 instrument_spef=0                                       #Instrument specification 0 for Arduinos, 1 for LIDAR, 2 for Radiosonde)
-data_path="//192.168.206.173/lex2018/messdaten/alpaka/data/20180829062417_Grenzschichtentwicklung/"
+#data_path="//192.168.206.173/lex2018/messdaten/alpaka/data/20180829062417_Grenzschichtentwicklung/"
 #data_path = "//192.168.206.173/lex2018/profil/Daten/"
 #data_path='//192.168.206.173/lex2018/messdaten/alpaka/data/20180904_Grenzschichtentwicklung/'
-#file_name="20180903132225_Grenzschichtentwicklung4_2.npy"
-file_name="20180829062417_Grenzschichtentwicklung.npy"
+data_path = '//192.168.206.173/lex2018/messdaten/alpaka/data/20180903_Grenzschichtentwicklung/'
+file_name="20180903132225_Grenzschichtentwicklung4_2.npy"
+#file_name="20180829062417_Grenzschichtentwicklung.npy"
 #file_name='20180904124938_Grenzschichtentwicklung5.npy'
 file=data_path+file_name
 #lidar_path = 'C:/Users/there/Documents/Arduino/LEX_2018_grenzschicht/'
@@ -59,9 +60,11 @@ lidar_data = read_lidar_pkl(lidar_path+lidar_filename)
 unit_time,z_levels,Temp_zint,RH_zint,Theta_zint, p_zint= data_interpolation_z_t(data_calib,ref,p_intv_no,instrument_spef)
 virt_pot_temp = calc_virt_pot(RH_zint, Temp_zint, p_zint)
 
-winddir, windspeed_hor, windspeed_vert = interpolate_lidar_data(lidar_data, unit_time[-10:-1], z_levels)
+winddir, windspeed_hor, windspeed_vert = interpolate_lidar_data(lidar_data, unit_time, z_levels)
 
-Ri = calc_bulk_richardson(virt_pot_temp, windspeed_hor, np.tile(z_levels,(len(unit_time),1)).transpose())
+Ri = calc_bulk_richardson(virt_pot_temp, np.transpose(windspeed_hor), np.tile(z_levels,(len(unit_time),1)).transpose())
+
+
 # calculate gradients
 #p_mid_levels,Temp_diff,Theta_diff,RH_diff=get_gradients(unit_time,p_levels,Temp_pint,Theta,RH_pint)
 #
