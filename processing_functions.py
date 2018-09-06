@@ -439,8 +439,7 @@ def smooth_variable(variable, num_timesteps):
         variable_smoothed = np.convolve(variable, filt, mode='valid')
     else:
         variable_smoothed = np.zeros((variable.shape[0], variable.shape[1] - N + 1))
-        numlevels = variable.shape[
-                ä 0]
+        numlevels = variable.shape[0]
         for lev in range(numlevels):
             variable_smoothed[lev] = np.convolve(variable[lev], filt, mode='valid')
 
