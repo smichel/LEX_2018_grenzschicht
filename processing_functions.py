@@ -38,26 +38,29 @@ def apply_correction(data):
     temp_correction = {1: 0.09, 2: 0.10, 3: -0.02, 4: -0.23, 5: -0.20,
                        6: 0.05, 7: 0.15, 8: 0.12, 9: -0.10, 10: 0.11,
                        11: 0.0}#-0.08}
+    temp_bias = 0.4896611061095239
     
     humidity_correction = {1: -0.15, 2: 0.28, 3: -0.09, 4: 0.08, 5: 0.41,
                        6: -0.19, 7: -2.16, 8: 1.01, 9: -0.64, 10: -0.35,
                        11: 0.0}#2.01}
+    humidity_bias = 2.7331455153884265
     
     pressure_correction = {1: -0.478, 2: 1.112, 3: -0.415, 4: -0.861, 5: -0.43,
                        6: -0.367, 7: -0.712, 8: -0.257, 9: 0.346, 10: -0.77,
                        11: 0.0}
+    pressure_bias = 1.213813881674857
     
     for i in arduinos:
         # temperature
-        data[i][1:, 1] = data[i][1:, 1] + temp_correction[i]
+        data[i][1:, 1] = data[i][1:, 1] + temp_correction[i] - temp_bias
         # humidity
-        data[i][1:, 2] = data[i][1:, 2] + humidity_correction[i]
+        data[i][1:, 2] = data[i][1:, 2] + humidity_correction[i] - humidity_bias
     print("Temperature and humidity calibrated")
 
     if data[1][1, 0] > date2num(datetime.datetime(2018, 8, 31, 0, 0)):
         for i in arduinos:
             # pressure
-            data[i][1:, 3] = data[i][1:, 3] + pressure_correction[i]
+            data[i][1:, 3] = data[i][1:, 3] + pressure_correction[i] -pressure_bias
         print("Pressure calibrated")
                 
     return data
