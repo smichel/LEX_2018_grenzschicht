@@ -20,7 +20,7 @@ from processing_functions import apply_correction
 from processing_functions import data_interpolation_p_t, data_interpolation_z_t
 from processing_functions import get_gradients
 from processing_functions import altitude
-from processing_functions import calc_specific_humidity, calc_pseudopot_temp, boundary_layer_height, smooth_variable
+from processing_functions import calc_specific_humidity, calc_pseudopot_temp, boundary_layer_height, smooth_variable, read_lidar, interpolate_lidar_data, calc_virt_pot, calc_bulk_richardson, read_lidar_pkl
 #from plot_functions import profile_plot_series
 #from plot_functions import gradient_profile_plot_series
 """ This is the data_handler to analyse the measurements
@@ -30,9 +30,16 @@ from processing_functions import calc_specific_humidity, calc_pseudopot_temp, bo
 instrument_spef=0                                       #Instrument specification 0 for Arduinos, 1 for LIDAR, 2 for Radiosonde)
 data_path="//192.168.206.173/lex2018/messdaten/alpaka/data/20180829062417_Grenzschichtentwicklung/"
 #data_path = "//192.168.206.173/lex2018/profil/Daten/"
+#data_path='//192.168.206.173/lex2018/messdaten/alpaka/data/20180904_Grenzschichtentwicklung/'
 #file_name="20180903132225_Grenzschichtentwicklung4_2.npy"
 file_name="20180829062417_Grenzschichtentwicklung.npy"
+#file_name='20180904124938_Grenzschichtentwicklung5.npy'
 file=data_path+file_name
+#lidar_path = 'C:/Users/there/Documents/Arduino/LEX_2018_grenzschicht/'
+#lidar_path = '//192.168.206.173/lex2018/messdaten/lidar/LID/'
+#lidar_filename = '0829.LID'
+lidar_path = 'C:/Users/there/Desktop/Daten/lidar/'
+lidar_filename = 'lidar_data.npy'
 ref=0                                                               
 p_intv_no=20                                            # number of pressure levels to interpolate
 plot_path="//192.168.206.173//lex2018/profil/Plots/BL_height/"       
@@ -45,20 +52,26 @@ data=read_data(data_path, file_name)
 # apply calibration
 data_calib=apply_correction(data)
 
+lidar_data = read_lidar_pkl(lidar_path+lidar_filename)
+
 # interpolate on pressure levels and a unit time 
+#unit_time,p_levels,Temp_pint,RH_pint,Theta= data_interpolation_p_t(data_calib,ref,p_intv_no,instrument_spef)
+unit_time,z_levels,Temp_zint,RH_zint,Theta_zint, p_zint= data_interpolation_z_t(data_calib,ref,p_intv_no,instrument_spef)
+virt_pot_temp = calc_virt_pot(RH_zint, Temp_zint, p_zint)
 
-unit_time,p_levels,Temp_pint,RH_pint,Theta= data_interpolation_p_t(data_calib,ref,p_intv_no,instrument_spef)
-unit_time,z_levels,Temp_pint,RH_pint,Theta= data_interpolation_z_t(data_calib,ref,p_intv_no,instrument_spef)
+winddir, windspeed_hor, windspeed_vert = interpolate_lidar_data(lidar_data, unit_time[-10:-1], z_levels)
+
+Ri = calc_bulk_richardson(virt_pot_temp, windspeed_hor, np.tile(z_levels,(len(unit_time),1)).transpose())
 # calculate gradients
-p_mid_levels,Temp_diff,Theta_diff,RH_diff=get_gradients(unit_time,p_levels,Temp_pint,Theta,RH_pint)
+#p_mid_levels,Temp_diff,Theta_diff,RH_diff=get_gradients(unit_time,p_levels,Temp_pint,Theta,RH_pint)
+#
+#N = 70
+#unit_time_smooth = smooth_variable(unit_time, N)
+#Temp_pint_smooth = smooth_variable(Temp_pint, N)
+#RH_pint_smooth = smooth_variable(RH_pint, N)
+#Theta_smooth = smooth_variable(Theta, N)
 
-N = 70
-unit_time_smooth = smooth_variable(unit_time, N)
-Temp_pint_smooth = smooth_variable(Temp_pint, N)
-RH_pint_smooth = smooth_variable(RH_pint, N)
-Theta_smooth = smooth_variable(Theta, N)
-
-profile_plot_series(file_name,plot_path,unit_time_smooth,p_levels,Temp_pint_smooth,RH_pint_smooth,Theta_smooth, boundary_layer=True, start_time=start_time, end_time=end_time)
+#profile_plot_series(file_name,plot_path,unit_time_smooth,p_levels,Temp_pint_smooth,RH_pint_smooth,Theta_smooth, boundary_layer=True, start_time=start_time, end_time=end_time)
 #z_BL, p_BL = boundary_layer_height(RH_pint, Temp_pint, p_levels, 'relative_humidity')
 ## calculate altitudes
 #z_levels = np.zeros(Temp_pint.shape)

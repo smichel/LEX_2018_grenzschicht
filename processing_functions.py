@@ -4,7 +4,8 @@ import numpy as np
 from scipy.interpolate import interp1d
 from matplotlib.dates import date2num, num2date
 import datetime
-#import typhon
+import pickle
+import typhon
 ###############################################################################
 ###############################################################################
 """ This is a list of functions used for processing the measurement data. 
@@ -242,6 +243,18 @@ def calc_pseudopot_temp(rh, temperature, pressure):
     
     return pseudopot_temp
 
+def calc_virt_pot(rh, temperature, pressure):
+    """
+    """
+    cp = typhon.constants.isobaric_mass_heat_capacity
+    L = typhon.constants.heat_of_vaporization
+    mixing_ratio = calc_mass_mixing_ratio(rh, temperature, pressure)
+    specific_humidity = calc_specific_humidity(rh, temperature, pressure)
+    virt_temperature = ((temperature + 273.15) * (1 + 0.6078*specific_humidity)) - 273.15
+    virtpot_temp = calc_pot_temp(virt_temperature, pressure)
+    
+    return virtpot_temp
+
 def boundary_layer_height(RH_pint, Temp_pint, p_levels, crit_variable):
     """
     This is a function to find the boundary layer height, based on gradients of
@@ -298,59 +311,13 @@ def boundary_layer_height(RH_pint, Temp_pint, p_levels, crit_variable):
     
     return z_BL, p_BL
     
+def calc_bulk_richardson(virt_pot_temp, windspeed, altitudes):
+    """
+    """
+    g = 9.81
     
-#    # 2. attempt
-#    # calculate gradient of specific humidity
-#    
-#    # calculate specific humidity from relative  humidity
-#    specific_hum = calc_specific_humidity(RH_pint, Temp_pint,np.tile(p_levels,(len(unit_time),1)).transpose())
-#    
-#    specific_hum_diff=np.diff(specific_hum, axis=0)
-#    specific_hum_diff[np.isnan(specific_hum_diff)] = -9999
-#    specific_hum_diff_max_idx = np.nanargmax(specific_hum_diff[:-2], axis=0)
-#    p_BL_q = np.array([p_mid_levels[i] for i in specific_hum_diff_max_idx])
-#    
-#    # 3. attempt
-#    # calculate gradient of potential temperature
-#    Theta_diff[np.isnan(Theta_diff)] = 9999
-#    pot_temp_diff_min_idx = np.nanargmin(Theta_diff[2:-2], axis=0) + 2
-#    p_BL_pot_temp = np.array([p_mid_levels[i] for i in pot_temp_diff_min_idx])
-#    
-#    # 4. attempt
-#    # calculate gradient of pseudopotential temperature
-#    pseudopot_temp = calc_pseudopot_temp(RH_pint, Temp_pint, np.tile(p_levels,(len(unit_time),1)).transpose())
-#    pseudopot_temp_diff=np.diff(pseudopot_temp, axis=0)
-#    fig, ax = plt.subplots()
-#    ax.imshow(pseudopot_temp, aspect='auto')
-#    pseudopot_temp_diff[np.isnan(pseudopot_temp_diff)] = -9999
-#    pseudopot_temp_diff_min_idx = np.nanargmax(pseudopot_temp_diff[5:-2], axis=0) + 5
-#    p_BL_pseudopot_temp = np.array([p_mid_levels[i] for i in pseudopot_temp_diff_min_idx])
-#    
-#    z_BL_RH = np.zeros(p_BL_RH.shape)
-#    z_BL_specific_hum = np.zeros(p_BL_RH.shape)
-#    z_BL_pot_temp = np.zeros(p_BL_RH.shape)
-#    z_BL_pseudopot_temp = np.zeros(p_BL_RH.shape)
-#    
-#
-#    
-#    # plot
-#    plt.rcParams.update({'font.size': 14})  
-#    fig, ax = plt.subplots()
-#    ax.plot(num2date(unit_time), z_BL_RH, label='Relative Humidity')
-#    ax.set_xlabel('Time')
-#    ax.set_ylabel('Boundary Layer Height [m]')
-#    ax.set_xticks(ax.get_xticks()[::])
-#    ax.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
-#    
-#    ax.plot(num2date(unit_time), z_BL_specific_hum, label='Specific Humidity')
-#    ax.plot(num2date(unit_time), z_BL_pot_temp, label='Potential Temperature')
-#    ax.plot(num2date(unit_time), z_BL_pseudopot_temp, label='Pseudopotential Temperature')
-#    #ax.set_xlim(datetime.datetime(2018, 8, 29, 7, 50), datetime.datetime(2018, 8, 29, 14, 50))
-#    #ax[1].set_xlabel('Time')
-#    #ax[1].set_ylabel('Boundary Layer Height [m]')
-#    #ax[1].set_xticks(ax[0].get_xticks()[::])
-#    #ax[1].xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
-#    ax.legend()    
+    Ri = g * altitudes * (virt_pot_temp - virt_pot_temp[0]) / (virt_pot_temp * windspeed ** 2)
+    return Ri
         
         
 ###############################################################################
@@ -385,27 +352,31 @@ def data_interpolation_z_t(data,ref,z_intv_no,instrument_spef):
         p_levels=np.linspace(p_min,p_max,z_intv_no)
         p_levels = np.flip(p_levels,0)
         
-        z_min=interp_data[:,4,:].min()
+        #z_min=interp_data[:,4,:].min()
+        z_min = 7
+        print(z_min)
         z_max=interp_data[:,4,:].max()
+        print(z_max)
         z_levels=np.linspace(z_min,z_max,z_intv_no)
         z_interp=np.zeros([len(z_levels),4,len(unit_time)])
 
             
         for t in range(0,len(unit_time)):
-            for j in range(0,3):
+            for j in range(0,4):
                     z_interp[:,j,t]=interp1d(interp_data[::,4,t],interp_data[::,j,t],axis=0,fill_value=np.nan,bounds_error=False)(z_levels)
         print("Data z-interpolated")
     
         Temp_zint=z_interp[:,1,:]
         RH_zint=z_interp[:,2,:]
+        p_zint = z_interp[:, 3, :]
         print(p_levels)
         #Pot. Temperatur
         Theta = np.empty((z_intv_no,len(unit_time),))
         Theta.fill(np.nan)
         for t in range(0,len(unit_time)):
             for z in range(0,len(p_levels)):
-                Theta[z,t]=(Temp_zint[z,t]+273.15)*(1000/p_levels[z])**(R_l/c_p)
-        return unit_time,z_levels,Temp_zint,RH_zint,Theta;
+                Theta[z,t]=(Temp_zint[z,t]+273.15)*(1000/p_levels[z])**(R_l/c_p)        
+        return unit_time,z_levels,Temp_zint,RH_zint,Theta, p_zint;
     elif instrument_spef ==1:
         print("Processing of LIDAR data")
         if np.size(z_intv_no) > 1: 
@@ -525,6 +496,19 @@ def read_lidar(path_to_file):
     
     return data
 
+def read_lidar_pkl(path_to_file):
+    """ Reads lidar data from .pkl file. Returns list with arrays: 
+        lidar_data[0]: time
+        lidar_data[1]: altitude
+        lidar_data[2]: winddirection
+        lidar_data[3]: horizontal windspeed
+        lidar_data[4]: vertical windspeed
+    """
+    with open(path_to_file, 'rb') as f:
+        lidar_data = pickle.load(f)
+    
+    return lidar_data
+        
 def interpolate_lidar_data(lidar_data,interpolated_arddata_time,interpolated_arddata_z):
     """
     This function interpolates winddata from the lidar on the levels of the Alpacas.
@@ -534,7 +518,14 @@ def interpolate_lidar_data(lidar_data,interpolated_arddata_time,interpolated_ard
     ard_time=interpolated_arddata_time    
     lid_height=lidar_data[1][0,:]
     ard_height=interpolated_arddata_z
-    interpolated_lid_winddir = interpd1(lid_time,np.transpose(lid_data[2]))(ard_time)
-    interpd1(lid_height,)(ard_height)
+    time_interpolated_lid_winddir = interp1d(lid_time,np.transpose(lidar_data[2]))(ard_time)
+    time_interpolated_lid_windspeed = interp1d(lid_time,np.transpose(lidar_data[3]))(ard_time)
+    time_interpolated_lid_vert_windspeed = interp1d(lid_time,np.transpose(lidar_data[4]))(ard_time)    
+    interpolated_lid_winddir = interp1d(lid_height, np.transpose(time_interpolated_lid_winddir), bounds_error=False, fill_value=np.nan)(ard_height)
+    interpolated_lid_windspeed = interp1d(lid_height, np.transpose(time_interpolated_lid_windspeed), bounds_error=False, fill_value=np.nan)(ard_height)
+    interpolated_lid_vert_windspeed = interp1d(lid_height, np.transpose(time_interpolated_lid_vert_windspeed), bounds_error=False, fill_value=np.nan)(ard_height)
+    
+    #interpd1(lid_height,)(ard_height)
 
+    return interpolated_lid_winddir, interpolated_lid_windspeed, interpolated_lid_vert_windspeed
 
