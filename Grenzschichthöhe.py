@@ -14,12 +14,13 @@ import numpy as np
 from os.path import join
 from scipy.interpolate import interp1d
 from matplotlib import dates
+from plot_functions import profile_plot_series
 from processing_functions import read_data
 from processing_functions import apply_correction
-from processing_functions import data_interpolation_p_t
+from processing_functions import data_interpolation_p_t, data_interpolation_z_t
 from processing_functions import get_gradients
 from processing_functions import altitude
-from processing_functions import calc_specific_humidity, calc_pseudopot_temp, boundary_layer_height
+from processing_functions import calc_specific_humidity, calc_pseudopot_temp, boundary_layer_height, smooth_variable
 #from plot_functions import profile_plot_series
 #from plot_functions import gradient_profile_plot_series
 """ This is the data_handler to analyse the measurements
@@ -34,8 +35,10 @@ file_name="20180829062417_Grenzschichtentwicklung.npy"
 file=data_path+file_name
 ref=0                                                               
 p_intv_no=20                                            # number of pressure levels to interpolate
-plot_path="//192.168.206.173//lex2018/profil/Plots/Liveplots/"       
+plot_path="//192.168.206.173//lex2018/profil/Plots/BL_height/"       
 
+start_time = datetime.datetime(2018, 8, 29, 7, 50)
+end_time = datetime.datetime(2018, 8, 29, 14, 50)
 #==============================================================================
 
 data=read_data(data_path, file_name)
@@ -43,11 +46,20 @@ data=read_data(data_path, file_name)
 data_calib=apply_correction(data)
 
 # interpolate on pressure levels and a unit time 
+
 unit_time,p_levels,Temp_pint,RH_pint,Theta= data_interpolation_p_t(data_calib,ref,p_intv_no,instrument_spef)
+unit_time,z_levels,Temp_pint,RH_pint,Theta= data_interpolation_z_t(data_calib,ref,p_intv_no,instrument_spef)
 # calculate gradients
 p_mid_levels,Temp_diff,Theta_diff,RH_diff=get_gradients(unit_time,p_levels,Temp_pint,Theta,RH_pint)
 
-z_BL, p_BL = boundary_layer_height(RH_pint, Temp_pint, p_levels, 'relative_humidity')
+N = 70
+unit_time_smooth = smooth_variable(unit_time, N)
+Temp_pint_smooth = smooth_variable(Temp_pint, N)
+RH_pint_smooth = smooth_variable(RH_pint, N)
+Theta_smooth = smooth_variable(Theta, N)
+
+profile_plot_series(file_name,plot_path,unit_time_smooth,p_levels,Temp_pint_smooth,RH_pint_smooth,Theta_smooth, boundary_layer=True, start_time=start_time, end_time=end_time)
+#z_BL, p_BL = boundary_layer_height(RH_pint, Temp_pint, p_levels, 'relative_humidity')
 ## calculate altitudes
 #z_levels = np.zeros(Temp_pint.shape)
 #z_mid_levels = np.zeros(RH_diff.shape)
@@ -58,7 +70,7 @@ z_BL, p_BL = boundary_layer_height(RH_pint, Temp_pint, p_levels, 'relative_humid
 #z_levels = z_levels[::-1]
 #
 #for lev in range(len(z_levels)-1):
-#    z_mid_levels[lev] = (z_levels[lev] + z_levels[lev+1]) / 2
+#    z_mid_levels[lev] = (z_levels[lev] + z_levels[lev+1]) / 2_
 #
 ## 1. attempt:
 ## find maximum in RH gradient
