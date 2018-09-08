@@ -247,21 +247,41 @@ def calc_pseudopot_temp(rh, temperature, pressure):
     return pseudopot_temp
 
 def calc_virt_pot(rh, temperature, pressure):
+    """ Calculates virtual potential temperatuer in Kelvin.
+    
+    Parameters:
+        rh (array): relative humidity in %
+        temperature (array): temperature in °C !!!
+        pressure (array): pressure in hPa
     """
-    """
-    cp = typhon.constants.isobaric_mass_heat_capacity
-    L = typhon.constants.heat_of_vaporization
-    mixing_ratio = calc_mass_mixing_ratio(rh, temperature, pressure)
     specific_humidity = calc_specific_humidity(rh, temperature, pressure)
     virt_temperature = ((temperature + 273.15) * (1 + 0.6078*specific_humidity)) - 273.15
     virtpot_temp = calc_pot_temp(virt_temperature, pressure)
     
     return virtpot_temp
 
+def calc_bulk_richardson(virtpot_temp, windspeed_hor, altitudes):
+    """ Calculates Bulk Richardson number from fields of virtual potential temperature,
+    horizontal windspeed and the corresponding altitude levels.
+    """
+    g = 9.81
+    
+    Ri = g * altitudes * (virtpot_temp - virtpot_temp[0]) / (virtpot_temp * windspeed_hor)
+    
+    return Ri
+
 def boundary_layer_height(RH_pint, Temp_pint, p_levels, crit_variable):
     """
     This is a function to find the boundary layer height, based on gradients of
-    the crit_variable( e.g. Theta, RH, specific humidity)    
+    the crit_variable( e.g. Theta, RH, specific humidity)   
+    
+    Parameters:
+        RH_pint (array): relative humidity in % interpolated on fixed pressure levels
+        Temp_pint (array): temperature in K interpolated on fixed pressure levels
+        p_levels (array): pressure levels RH_pint and Temp_pint are interpolated on
+        crit_variable (str): Variable that should be used to determine the 
+            boundary layer height. Possibilities are 'relave_humidity', 
+            'specific_humidity', 'potential_temperature' and 'pseudopotential_temperature'
     """
     # calculate altitudes
     crit_variable = crit_variable.lower()
@@ -315,12 +335,14 @@ def boundary_layer_height(RH_pint, Temp_pint, p_levels, crit_variable):
     return z_BL, p_BL
     
 
-def boundary_layer_height_from_ri(Ri, altitudes):
+def boundary_layer_height_from_ri(Ri, altitudes, threshold=0.2):
     """ Calculates boundary layer height from Bulk Richardson number.
     
     Parameters:
         Ri (array): Bulk Richardson Number
         altitudes (array): altitude levels
+        threshold (numeric): Bulk Richardson number associated with the top of
+            the boundary layer. Default is 0.2.
     """
     z_BL = np.zeros((Ri.shape[1]))
     for i in range(Ri.shape[1]):
@@ -328,18 +350,6 @@ def boundary_layer_height_from_ri(Ri, altitudes):
     
     return z_BL
 
-def boundary_layer_height_from_ri(Ri, altitudes):
-    """ Calculates boundary layer height from Bulk Richardson number.
-    
-    Parameters:
-        Ri (array): Bulk Richardson Number
-        altitudes (array): altitude levels
-    """
-    z_BL = np.zeros((Ri.shape[1]))
-    for i in range(Ri.shape[1]):
-        z_BL[i] = interp1d(Ri[:,i], altitudes, bounds_error=False, fill_value=np.nan)(0.2)
-    
-    return z_BL
         
         
 ###############################################################################
@@ -550,4 +560,20 @@ def interpolate_lidar_data(lidar_data,interpolated_arddata_time,interpolated_ard
     #interpd1(lid_height,)(ard_height)
 
     return interpolated_lid_winddir, interpolated_lid_windspeed, interpolated_lid_vert_windspeed
+
+def time_averages(variable, variable_time, timestep_boundaries):
+    """ A time series of a variable is averaged between timestep_boundaries.
+    
+    Parameters:
+        variable (array): data array (dimensions: altitude/pressure, time)
+        variable_time (array): corresponding time array to variable as matplotlib date
+        timestep_boundaries (array): Boundaries for new timesteps as matplotlib_date
+    """
+    
+    averaged_variable = np.zeros((variable.shape[0], len(timestep_boundaries)-1))
+    for t in range(len(timestep_boundaries)-1):
+        averaged_variable[:, t] = np.nanmean(variable[:, np.logical_and(variable_time >= timestep_boundaries[t], 
+                                       variable_time < timestep_boundaries[t+1])], axis=1)
+    
+    return averaged_variable
 
