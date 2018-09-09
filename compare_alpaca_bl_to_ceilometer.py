@@ -29,6 +29,7 @@ from processing_functions import data_interpolation_z_t
 from processing_functions import altitude
 from processing_functions import get_gradients
 from processing_functions import calc_specific_humidity, calc_pseudopot_temp, boundary_layer_height
+from processing_functions import calc_virt_pot,calc_bulk_richardson
 from processing_functions import smooth_variable
 from plot_functions import profile_plot_series
 from plot_functions import alt_time_plot
@@ -119,7 +120,7 @@ def compare_alpaca_bl_to_ceilometer(day,month):
          z_bl_theta[i]    = np.mean(alpaca_bl_theta)
          z_bl_theta_e[i]  = np.mean(alpaca_bl_theta_e)
     
-    cosmo_ceilo_time,c_potT_bnd,c_pseudoPotT_bnd,c_relH_bnd,c_QV_bnd,ceil_values_for_cosmo=process_cosmo_data_for_ceilo_meter(day,month,ceilo_new)
+    cosmo_ceilo_time,cosmo_all_time,cosmo_data,c_potT_bnd,c_pseudoPotT_bnd,c_relH_bnd,c_QV_bnd,ceil_values_for_cosmo,=process_cosmo_data_for_ceilo_meter(day,month,ceilo_new)
     fig_name="BL_height_1m_avg"+file_name_alpaca[:-4]+".png"
     fig_title="Date "+file_name_alpaca[6:8]+"."+file_name_alpaca[4:6]+"."+file_name_alpaca[0:4]+" ,Start Time: "+file_name_alpaca[8:10]+":"+file_name_alpaca[10:12]+":"+file_name_alpaca[12:14] 
     print('Plotting Boundary layer height')
@@ -180,12 +181,29 @@ def process_cosmo_data_for_ceilo_meter(day,month,ceilo_new):
     ceil_values_for_cosmo=np.zeros([len(cosmo_ceilo_time)])
     for i in range(len(cosmo_ceilo_time)):
         ceil_values_for_cosmo[i]=ceilo_new[np.where(ceilo_new[:,0]==date2num(cosmo_ceilo_time[i])),1]
-    return cosmo_ceilo_time,c_potT_bnd,c_pseudoPotT_bnd,c_relH_bnd,c_QV_bnd,ceil_values_for_cosmo;
+    return cosmo_ceilo_time,cosmo_all_time,cosmo_data,c_potT_bnd,c_pseudoPotT_bnd,c_relH_bnd,c_QV_bnd,ceil_values_for_cosmo,;
+###############################################################################
+###############################################################################
+def process_cosmo_for_Ri_bulk(cosmo_data,ceilo_new,cosmo_all_time):
+    u_cosmo=cosmo_data.U[:,cosmo_data.maxlevel:-1,11,10]
+    v_cosmo=cosmo_data.V[:,cosmo_data.maxlevel:-1,11,10]
+    T_cosmo=cosmo_data.T[:,cosmo_data.maxlevel:-1,11,10]
+    RH_cosmo=cosmo_data.RH[:,cosmo_data.maxlevel:-1,11,10]
+    P_cosmo=cosmo_data.P[:,cosmo_data.maxlevel:-1,11,10]
+    heights_cosmo=cosmo_data.heights[:]
+    heights_cosmo=np.transpose(heights_cosmo)
+    u_cosmo=u_cosmo[np.where(np.logical_and(date2num(cosmo_all_time) >= ceilo_new[0,0], date2num(cosmo_all_time) <= ceilo_new[-1:,0])),:]
+    v_cosmo=v_cosmo[np.where(np.logical_and(date2num(cosmo_all_time) >= ceilo_new[0,0], date2num(cosmo_all_time) <= ceilo_new[-1:,0])),:]
+    T_cosmo=T_cosmo[np.where(np.logical_and(date2num(cosmo_all_time) >= ceilo_new[0,0], date2num(cosmo_all_time) <= ceilo_new[-1:,0])),:]
+    RH_cosmo=RH_cosmo[np.where(np.logical_and(date2num(cosmo_all_time) >= ceilo_new[0,0], date2num(cosmo_all_time) <= ceilo_new[-1:,0])),:]
+    P_cosmo=P_cosmo[np.where(np.logical_and(date2num(cosmo_all_time) >= ceilo_new[0,0], date2num(cosmo_all_time) <= ceilo_new[-1:,0])),:]
+    heights_cosmo=np.tile(heights_cosmo,(u_cosmo.shape[1],1))
+    return u_cosmo,v_cosmo,T_cosmo,RH_cosmo,P_cosmo,heights_cosmo
 ###############################################################################
 ###############################################################################
 ####### Scatter plot of ALPACA vs. sonde#######################################
 def scatterplot_bl_alpaca_ceilometer(day,month,z_bl_rh,z_bl_q,z_bl_theta,z_bl_theta_e,file_name_alpaca):
-    cosmo_ceilo_time,c_potT_bnd,c_pseudoPotT_bnd,c_relH_bnd,c_QV_bnd,ceil_values_for_cosmo=process_cosmo_data_for_ceilo_meter(day,month,ceilo_new)
+    cosmo_ceilo_time,cosmo_all_time,cosmo_data,c_potT_bnd,c_pseudoPotT_bnd,c_relH_bnd,c_QV_bnd,ceil_values_for_cosmo=process_cosmo_data_for_ceilo_meter(day,month,ceilo_new)
     plot_path="C:/Users/Henning/Desktop/LEX_Netzwerk/profil/Plots/Liveplots/"     
     fig_name=plot_path+"BL_height_Scatter"+file_name_alpaca[:-4]+".png"
     fig= plt.figure(figsize=(10,6))
@@ -213,14 +231,28 @@ def scatterplot_bl_alpaca_ceilometer(day,month,z_bl_rh,z_bl_q,z_bl_theta,z_bl_th
     return;
 ###############################################################################
 ###############################################################################
+#End of functions
+###############################################################################
 #define the desired date for analyse
 day="29"
 month="08"
+###############################################################################
 #Use the functions:
 ceilo_new, z_BL_q, z_BL_rh, z_BL_theta, z_BL_theta_e,file_name_alpaca=compare_alpaca_bl_to_ceilometer(day,month)
+cosmo_ceilo_time,cosmo_all_time,cosmo_data,c_potT_bnd,c_pseudoPotT_bnd,c_relH_bnd,c_QV_bnd,ceil_values_for_cosmo=process_cosmo_data_for_ceilo_meter(day,month,ceilo_new) 
+
+#calculate the RI-bulk number:
+u_cosmo,v_cosmo,T_cosmo,RH_cosmo,P_cosmo,heights_cosmo=process_cosmo_for_Ri_bulk(cosmo_data,ceilo_new,cosmo_all_time)
+virtpot_temp_cosmo=calc_virt_pot(RH_cosmo, T_cosmo-273.15, P_cosmo/100)
+ws_cosmo=np.sqrt(u_cosmo**2+v_cosmo**2)
+Ri=calc_bulk_richardson(virtpot_temp_cosmo[0,:,0:20],ws_cosmo[0,:,0:20], heights_cosmo)
+z_bl_Ri = np.zeros((Ri.shape[0]))
+for i in range(Ri.shape[0]):
+    z_bl_Ri[i] = interp1d(Ri[i,:], heights_cosmo[i,:], bounds_error=False, fill_value=np.nan)(0.2)
+
+#statistics
 bias_rh,rmse_rh,r_bl_rh,ceilo_bl_rh,z_bl_rh=calc_bias_rms_bl(z_BL_rh,ceilo_new)
 bias_q,rmse_q,r_bl_q,ceilo_bl_q,z_bl_q=calc_bias_rms_bl(z_BL_q,ceilo_new)
 bias_theta,rmse_theta,r_bl_theta,ceilo_bl_theta,z_bl_theta=calc_bias_rms_bl(z_BL_theta,ceilo_new)
-bias_theta_e,rmse_theta_e,r_bl_theta_e,ceilo_bl_theta_e,z_bl_theta_e=calc_bias_rms_bl(z_BL_theta_e,ceilo_new)  
+bias_theta_e,rmse_theta_e,r_bl_theta_e,ceilo_bl_theta_e,z_bl_theta_e=calc_bias_rms_bl(z_BL_theta_e,ceilo_new) 
 scatterplot_bl_alpaca_ceilometer(day,month,z_bl_rh,z_bl_q,z_bl_theta,z_bl_theta_e,file_name_alpaca)
-cosmo_ceilo_time,c_potT_bnd,c_pseudoPotT_bnd,c_relH_bnd,c_QV_bnd,ceil_values_for_cosmo=process_cosmo_data_for_ceilo_meter(day,month,ceilo_new)
