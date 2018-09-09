@@ -37,29 +37,30 @@ from plot_functions import gradient_profile_plot_series
 from plot_functions import plot_boundary_layer_height
 from matplotlib import dates
 
-#def compare_alpaca_bl_to_ceilometer()
+
 def compare_alpaca_bl_to_ceilometer(day,month):
-    #day="05"
-    #month="09"
-    instrument_spef=0                                       #Instrument specification 0 for Arduinos, 1 for LIDAR, 2 for Radiosonde)
-    data_path="//192.168.206.173/lex2018/profil/Daten/"
+
+    instrument_spef=0                                       #leave it 0!)
+    data_path="C:/Users/Henning/Desktop/LEX_Netzwerk/profil/Daten/"
+    date_alpaca=["20180829062417","20180831105131","20180901095651","20180903132225","20180904124938","20180905094034"]
     date=["29","31","01","03","04","05"]
-            #indices = [i for i, s in enumerate(date) if '31' in s]
     l = [date.index(i) for i in date if day in i]
     idx=int(l[0])+1
-        
-    date_alpaca=["20180829062417","20180831105131","20180901095651","20180903095623","20180904124938","20180905094034"]
-    file_name_alpaca=date_alpaca[l[0]]+"_Grenzschichtentwicklung"+str(idx)+".npy"
+    if day=="03":
+      file_name_alpaca=date_alpaca[l[0]]+"_Grenzschichtentwicklung"+str(idx)+"_2.npy"  
+    else:
+      file_name_alpaca=date_alpaca[l[0]]+"_Grenzschichtentwicklung"+str(idx)+".npy"  
     file=data_path+file_name_alpaca
     ref=0                                                               
     p_intv_no=20 
     z_intv_no=p_intv_no                                           # number of pressure levels to interpolate
-    plot_path="//192.168.206.173//lex2018/profil/Plots/Liveplots/"       
+    plot_path="C:/Users/Henning/Desktop/LEX_Netzwerk/profil/Plots/Liveplots/"       
         
-        #    #==========================================================================
-        #    #==========================================================================
-        #    #Arduino based analysis
-        #    #=========================================================================
+    #==========================================================================
+    #==========================================================================
+    #Arduino based analysis
+    #use of functions from processing_functions.py
+    #=========================================================================
     alpaca=read_data(data_path,file_name_alpaca)
     alpaca_calib=apply_correction(alpaca)
     unit_time,p_levels,Temp_pint,RH_pint,Theta= data_interpolation_p_t(alpaca_calib,ref,p_intv_no,instrument_spef)
@@ -68,11 +69,8 @@ def compare_alpaca_bl_to_ceilometer(day,month):
     z_BL_rh,p_BL_rh=boundary_layer_height(RH_pint, Temp_pint, p_levels, 'relative_humidity')
     z_BL_theta,p_BL_theta=boundary_layer_height(RH_pint,Temp_pint,p_levels,'potential_temperature')
     z_BL_theta_e,p_BL_theta_e=boundary_layer_height(RH_pint,Temp_pint,p_levels,'pseudopotential_temperature')
-    ceilo_path="//192.168.206.173/Wettermast/Daten/Export/"
-        
-        #month
-        #day
-        
+    ceilo_path="C:/Users/Henning/Desktop/LEX_Netzwerk/Export/"
+                
     a="CL_BLHGTA_2018"+month+day+"0000-2018"+month+day+"2359.csv"
     b="CL_BLHGTB_2018"+month+day+"0000-2018"+month+day+"2359.csv"
     c="CL_BLHGTC_2018"+month+day+"0000-2018"+month+day+"2359.csv"
@@ -82,11 +80,17 @@ def compare_alpaca_bl_to_ceilometer(day,month):
         c="CL_BLHGTC_2018"+month+day+"0000-2018"+month+day+"1800.csv"
         
     file_name=[ceilo_path+a,ceilo_path+b,ceilo_path+c]
-    ceilo_bl=np.zeros([1081,4])
-    j=0
-        #time_vector= np.arange(datetime(2018,9,4), datetime(2018,9,5), timedelta(minutes=1)).astype(datetime)
-    first_date=datetime.datetime(2018,int(month),int(day),0,0)
-    time = first_date + np.arange(1081) * datetime.timedelta(minutes=1)
+    if day == "05":
+        ceilo_bl=np.zeros([1081,4])
+        j=0
+        first_date=datetime.datetime(2018,int(month),int(day),0,0)
+        time = first_date + np.arange(1081) * datetime.timedelta(minutes=1)
+    else:
+        ceilo_bl=np.zeros([1440,4])
+        j=0
+        first_date=datetime.datetime(2018,int(month),int(day),0,0)
+        time = first_date + np.arange(1440) * datetime.timedelta(minutes=1)
+        
     ceilo_bl[:,0]=date2num(time)
     for i in file_name:
         data=np.genfromtxt(i)
@@ -115,29 +119,31 @@ def compare_alpaca_bl_to_ceilometer(day,month):
          z_bl_theta[i]    = np.mean(alpaca_bl_theta)
          z_bl_theta_e[i]  = np.mean(alpaca_bl_theta_e)
     
-    
+    cosmo_ceilo_time,c_potT_bnd,c_pseudoPotT_bnd,c_relH_bnd,c_QV_bnd,ceil_values_for_cosmo=process_cosmo_data_for_ceilo_meter(day,month,ceilo_new)
     fig_name="BL_height_1m_avg"+file_name_alpaca[:-4]+".png"
     fig_title="Date "+file_name_alpaca[6:8]+"."+file_name_alpaca[4:6]+"."+file_name_alpaca[0:4]+" ,Start Time: "+file_name_alpaca[8:10]+":"+file_name_alpaca[10:12]+":"+file_name_alpaca[12:14] 
     print('Plotting Boundary layer height')
     fig= plt.figure(figsize=(20,10))
     ax= fig.add_subplot(212)
     plt.rcParams.update({'font.size': 12})  
-    ax.plot(num2date(ceilo_new[:,0]), z_bl_rh, label='Relative Humidity')
-    ax.set_xlabel('Time')
-    ax.set_ylabel('Boundary Layer Height [m]')
+    ax.plot(num2date(ceilo_new[:,0]), z_bl_rh, label='Relative Feuchte')
+    ax.set_xlabel('Uhrzeit [MESZ]')
+    ax.set_ylabel('Grenzschicht Höhe [m]')
     ax.set_ylim([0,1500])
     ax.set_xticks(ax.get_xticks()[::])
     ax.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
-    ax.plot(num2date(ceilo_new[:,0]), z_bl_q, label='Specific Humidity')
-    ax.plot(num2date(ceilo_new[:,0]), z_bl_theta, label='Potential Temperature')
-    ax.plot(num2date(ceilo_new[:,0]), z_bl_theta_e, label='Pseudopotential Temperature')
-    ax.plot(num2date(ceilo_new[:,0]),ceilo_new[:,1], label="Ceilometer Result")
-    ax.legend()
+    ax.plot(num2date(ceilo_new[:,0]), z_bl_q, label='Spezifische Feuchte')
+    ax.plot(num2date(ceilo_new[:,0]), z_bl_theta, label='Pot. Temperatur')
+    ax.plot(num2date(ceilo_new[:,0]), z_bl_theta_e, label='Pseudopot. Temperatur')
+    ax.plot(num2date(ceilo_new[:,0]),ceilo_new[:,1], color="black",label="Ceilometer")
+    ax.plot(cosmo_ceilo_time,c_relH_bnd,'b+',label='RH (Cosmo)',alpha=0.8)
+    ax.plot(cosmo_ceilo_time,c_QV_bnd,'o',color='orange',label='Spez. Feuchte (Cosmo)',alpha=0.8)
+    ax.plot(cosmo_ceilo_time,c_potT_bnd,'g*',label='Pot. T. (Cosmo)',alpha=0.8)
+    ax.plot(cosmo_ceilo_time,c_pseudoPotT_bnd,'rv',label='Pseudopot. T. (Cosmo)',alpha=1.0)
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),fancybox=True, ncol=5)
     ax.grid()
-    fig.savefig(fig_name+".png", dpi=500,bbox_inches='tight')
     fig.savefig(plot_path+fig_name,dpi=500,bbox_inches="tight")
-    #fig.savefig(plot_path+fig_name+".svg",bbox_inches="tight")
-    
+       
     print('BL_ALPACA_CEILO plotted and stored on server')
     plt.close()
     return ceilo_new, z_bl_q, z_bl_rh, z_bl_theta, z_bl_theta_e,file_name_alpaca;
@@ -158,11 +164,29 @@ def calc_bias_rms_bl(z_bl,ceilo_bl_all):
     print('R: ',r_bl)
     return bias,rmse,r_bl,ceilo_bl,z_bl;
 
+####### Process Cosmo data for comparison######################################
+###############################################################################
+###############################################################################
+def process_cosmo_data_for_ceilo_meter(day,month,ceilo_new):
+    cosmo_data=cosmo.cosmoData("C:/Users/Henning/Desktop/LEX_Netzwerk/profil/Daten/Cosmo/cd2_feh_2018"+month+day+"00.nc")
+    cosmo_first_time=datetime.datetime(2018,int(month),int(day),2,0)
+    cosmo_all_time = cosmo_first_time + np.arange(28) * datetime.timedelta(minutes=60)
+    cosmo_ceilo_time=cosmo_all_time[np.where(np.logical_and(date2num(cosmo_all_time) >= ceilo_new[0,0], date2num(cosmo_all_time) <= ceilo_new[-1:,0]))]
+    c_potT_bnd,c_pseudoPotT_bnd,c_relH_bnd,c_QV_bnd=cosmo_data.get_bnd_layers()
+    c_potT_bnd=c_potT_bnd[np.where(np.logical_and(date2num(cosmo_all_time) >= ceilo_new[0,0], date2num(cosmo_all_time) <= ceilo_new[-1:,0]))]
+    c_pseudoPotT_bnd=c_pseudoPotT_bnd[np.where(np.logical_and(date2num(cosmo_all_time) >= ceilo_new[0,0], date2num(cosmo_all_time) <= ceilo_new[-1:,0]))]
+    c_relH_bnd=c_relH_bnd[np.where(np.logical_and(date2num(cosmo_all_time) >= ceilo_new[0,0], date2num(cosmo_all_time) <= ceilo_new[-1:,0]))]
+    c_QV_bnd=c_QV_bnd[np.where(np.logical_and(date2num(cosmo_all_time) >= ceilo_new[0,0], date2num(cosmo_all_time) <= ceilo_new[-1:,0]))]
+    ceil_values_for_cosmo=np.zeros([len(cosmo_ceilo_time)])
+    for i in range(len(cosmo_ceilo_time)):
+        ceil_values_for_cosmo[i]=ceilo_new[np.where(ceilo_new[:,0]==date2num(cosmo_ceilo_time[i])),1]
+    return cosmo_ceilo_time,c_potT_bnd,c_pseudoPotT_bnd,c_relH_bnd,c_QV_bnd,ceil_values_for_cosmo;
+###############################################################################
+###############################################################################
 ####### Scatter plot of ALPACA vs. sonde#######################################
 def scatterplot_bl_alpaca_ceilometer(day,month,z_bl_rh,z_bl_q,z_bl_theta,z_bl_theta_e,file_name_alpaca):
-    #date_alpaca=["20180829062417","20180831105131","20180901095651","20180903095623","20180904124938","20180905094034"]
-    #file_name_alpaca=date_alpaca[l[0]]+"_Grenzschichtentwicklung"+str(idx)+".npy"
-    plot_path="//192.168.206.173//lex2018/profil/Plots/Liveplots/"     
+    cosmo_ceilo_time,c_potT_bnd,c_pseudoPotT_bnd,c_relH_bnd,c_QV_bnd,ceil_values_for_cosmo=process_cosmo_data_for_ceilo_meter(day,month,ceilo_new)
+    plot_path="C:/Users/Henning/Desktop/LEX_Netzwerk/profil/Plots/Liveplots/"     
     fig_name=plot_path+"BL_height_Scatter"+file_name_alpaca[:-4]+".png"
     fig= plt.figure(figsize=(10,6))
     matplotlib.rcParams.update({'font.size': 14})
@@ -172,32 +196,31 @@ def scatterplot_bl_alpaca_ceilometer(day,month,z_bl_rh,z_bl_q,z_bl_theta,z_bl_th
     ax.scatter(z_bl_q,ceilo_bl_q,marker='o',color='orange',label='Spezifische Feuchte')
     ax.scatter(z_bl_theta,ceilo_bl_theta,marker='*',color='green',label='Pot. Temperatur')
     ax.scatter(z_bl_theta_e,ceilo_bl_theta_e,marker='v',color='red',label='Pseudopot. Temperatur')
+    ##cosmo part
+    ax.scatter(c_relH_bnd,ceil_values_for_cosmo,marker='+',color = 'k',label="RH (Cosmo)")
+    ax.scatter(c_QV_bnd,ceil_values_for_cosmo,marker='o',color='k',label="Spez. Feuchte (Cosmo)")
+    ax.scatter(c_potT_bnd,ceil_values_for_cosmo,marker='*',color='k',label="Pot. T (Cosmo)")
+    ax.scatter(c_pseudoPotT_bnd,ceil_values_for_cosmo,marker='v',color='k',label="Pseudopot. T. (Cosmo)")
     ax.set_xlim([min(ceilo_new[:,1])-50, max(ceilo_new[:,1])+50])
-    ax.set_xlabel('Geschätzte BL Höhe Arduinos in m')
-    ax.set_ylabel('Geschätzte BL Höhe Ceilometer in m ')
+    ax.set_xlabel('BL Höhe Arduinos/Cosmo [m]')
+    ax.set_ylabel('BL Höhe Ceilometer [m] ')
     ax.set_ylim([min(ceilo_new[:,1])-50, max(ceilo_new[:,1])+50])
     ax.grid(linestyle='--',alpha=0.5)
-    ax.legend(loc="best",fontsize=12)
+    ax.legend(loc='center right', bbox_to_anchor=(1.375, 0.5),fontsize=12)
     #fig.suptitle('Ceilometer-ALPACA Vergleich')
     fig.savefig(fig_name,dpi=500,bbox_inches='tight')
-    #fig.savefig(fig_name+".svg",bbox_inches='tight')
     print("Scatterplot saved and stored on server")
     return;
 ###############################################################################
 ###############################################################################
-#Use the functions
-day="05"
-month="09"
-#ceilo_new, z_BL_q, z_BL_rh, z_BL_theta, z_BL_theta_e,file_name_alpaca=compare_alpaca_bl_to_ceilometer(day,month)
-#bias_rh,rmse_rh,r_bl_rh,ceilo_bl_rh,z_bl_rh=calc_bias_rms_bl(z_BL_rh,ceilo_new)
-#bias_q,rmse_q,r_bl_q,ceilo_bl_q,z_bl_q=calc_bias_rms_bl(z_BL_q,ceilo_new)
-#bias_theta,rmse_theta,r_bl_theta,ceilo_bl_theta,z_bl_theta=calc_bias_rms_bl(z_BL_theta,ceilo_new)
-#bias_theta_e,rmse_theta_e,r_bl_theta_e,ceilo_bl_theta_e,z_bl_theta_e=calc_bias_rms_bl(z_BL_theta_e,ceilo_new)  
-#scatterplot_bl_alpaca_ceilometer("05","09",z_bl_rh,z_bl_q,z_bl_theta,z_bl_theta_e,file_name_alpaca)
-###############################################################################
-###############################################################################
-cosmo_data=cosmo.cosmoData("//192.168.206.173/lex2018/profil/Daten/Cosmo/cd2_feh_2018090500.nc")
-potT_bnd,pseudoPotT_bnd,relH_bnd,QV_bnd=cosmo_data.get_bnd_layers()
-cosmo_first_time=datetime.datetime(2018,int(month),int(day),2,0)
-cosmo_time = cosmo_first_time + np.arange(28) * datetime.timedelta(minutes=60)
-#    ceilo_bl[:,0]=date2num(time)
+#define the desired date for analyse
+day="29"
+month="08"
+#Use the functions:
+ceilo_new, z_BL_q, z_BL_rh, z_BL_theta, z_BL_theta_e,file_name_alpaca=compare_alpaca_bl_to_ceilometer(day,month)
+bias_rh,rmse_rh,r_bl_rh,ceilo_bl_rh,z_bl_rh=calc_bias_rms_bl(z_BL_rh,ceilo_new)
+bias_q,rmse_q,r_bl_q,ceilo_bl_q,z_bl_q=calc_bias_rms_bl(z_BL_q,ceilo_new)
+bias_theta,rmse_theta,r_bl_theta,ceilo_bl_theta,z_bl_theta=calc_bias_rms_bl(z_BL_theta,ceilo_new)
+bias_theta_e,rmse_theta_e,r_bl_theta_e,ceilo_bl_theta_e,z_bl_theta_e=calc_bias_rms_bl(z_BL_theta_e,ceilo_new)  
+scatterplot_bl_alpaca_ceilometer(day,month,z_bl_rh,z_bl_q,z_bl_theta,z_bl_theta_e,file_name_alpaca)
+cosmo_ceilo_time,c_potT_bnd,c_pseudoPotT_bnd,c_relH_bnd,c_QV_bnd,ceil_values_for_cosmo=process_cosmo_data_for_ceilo_meter(day,month,ceilo_new)
