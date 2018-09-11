@@ -273,13 +273,14 @@ def plot_timeseries(data,filename,server_path, start_time=None, end_time=None, t
     hum = {}
     pres = {}
     t = {}
+    arduinos = data.keys()
     numarduinos = len(list(data))
     
     halfslave = int(11/2)+1
     jet = plt.get_cmap('gist_rainbow',int(halfslave))
     #print(halfslave)
     
-    for i in range(1, numarduinos + 1):
+    for i in arduinos:
         temp[i] = data[i][1:, 1]
         hum[i] = data[i][1:, 2]
         pres[i] = data[i][1:, 3]
@@ -287,7 +288,7 @@ def plot_timeseries(data,filename,server_path, start_time=None, end_time=None, t
     
     plt.rcParams.update({'font.size': 14})    
     fig, ax = plt.subplots(3, 1, figsize=(15, 10))
-    for i in range(1, numarduinos + 1):
+    for i in arduinos:
         cindex = np.mod(i-1,halfslave)
         if i+1 > halfslave:
             stylus = '--'
@@ -330,7 +331,7 @@ def plot_timeseries(data,filename,server_path, start_time=None, end_time=None, t
     plt.tight_layout()
     fig.savefig(fig_name, dpi=500,bbox_inches='tight')
     fig.savefig(server_path+fig_name,dpi=500,bbox_inches="tight")
-    plt.close()
+    #plt.close()
 ###############################################################################
 def plot_boundary_layer_height(filename,server_path,unit_time,z_BL_RH,z_BL_q,z_BL_theta,z_BL_theta_e):
     fig_name="BL_height"+filename[:-4]+".png"

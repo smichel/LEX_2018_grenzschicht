@@ -577,3 +577,29 @@ def time_averages(variable, variable_time, timestep_boundaries):
     
     return averaged_variable
 
+def get_ceilo_peilo(ceilofeilo):
+    """ Takes a path to a CEILOFEILO, returns 
+        1. Ceilo time
+        2. Ceilo BL height A
+    """
+    ceilo = np.genfromtxt(ceilofeilo,skip_header = 7,delimiter=';')
+    BLA = ceilo[:,-20]
+    
+    def perdelta(start, end, delta):
+        curr = start
+        while curr < end:
+            yield curr
+            curr += delta
+            
+    f = open(ceilofeilo,'rb')
+    for i in range(8):
+        KAKA = f.readline()
+    ceilo_start = datetime.datetime(int(KAKA[6:10]),int(KAKA[4:5]),int(KAKA[1:2]),1)
+    ceilo_end = datetime.datetime(int(KAKA[6:10]),int(KAKA[4:5]),int(KAKA[1:2])+1,0,59)
+    
+    ceiloteimo = np.zeros(len(BLA))
+    for i,result in enumerate(perdelta(ceilo_start, ceilo_end, datetime.timedelta(minutes=1))):
+        ceiloteimo[i] = date2num(result)
+    ceiloteimo[-1] = date2num(ceilo_end)
+
+    return ceiloteimo, BLA
