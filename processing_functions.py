@@ -285,7 +285,7 @@ def boundary_layer_height(RH_pint, Temp_pint, p_levels, crit_variable):
     Parameters:
         RH_pint (array): relative humidity in % interpolated on fixed pressure levels
         Temp_pint (array): temperature in K interpolated on fixed pressure levels
-        p_levels (array): pressure levels RH_pint and Temp_pint are interpolated on
+        p_levels (2darray): pressure levels RH_pint and Temp_pint are interpolated on
         crit_variable (str): Variable that should be used to determine the 
             boundary layer height. Possibilities are 'relave_humidity', 
             'specific_humidity', 'potential_temperature' and 'pseudopotential_temperature'
@@ -293,47 +293,49 @@ def boundary_layer_height(RH_pint, Temp_pint, p_levels, crit_variable):
     # calculate altitudes
     crit_variable = crit_variable.lower()
     len_timeseries = Temp_pint.shape[1]
-    num_plevels = len(p_levels)
+    num_plevels = p_levels.shape[0]
     
     z_levels = np.zeros(Temp_pint.shape)
     if crit_variable == 'relative_humidity':
-        variable_diff = np.diff(RH_pint, axis=0)
+        variable_diff = np.diff(RH_pint, axis=0) / np.diff(p_levels, axis=0)
         variable_diff[np.isnan(variable_diff)] = -9999
-        diff_extreme_idx = np.nanargmax(variable_diff[int(num_plevels/4):-int(num_plevels/8)], axis=0)+int(num_plevels/4)
+        diff_extreme_idx = np.nanargmax(variable_diff[int(num_plevels/10):-int(num_plevels/4)], axis=0)+int(num_plevels/10)
     elif crit_variable == 'specific_humidity':
-        specific_humidity = calc_specific_humidity(RH_pint, Temp_pint, np.tile(p_levels,(len_timeseries,1)).transpose())
-        variable_diff = np.diff(specific_humidity, axis=0)
+        specific_humidity = calc_specific_humidity(RH_pint, Temp_pint, p_levels)
+        variable_diff = np.diff(specific_humidity, axis=0) / np.diff(p_levels, axis=0)
         variable_diff[np.isnan(variable_diff)] = -9999
-        diff_extreme_idx = np.nanargmax(variable_diff[int(num_plevels/4):-int(num_plevels/8)], axis=0)+int(num_plevels/4)
+        diff_extreme_idx = np.nanargmax(variable_diff[int(num_plevels/10):-int(num_plevels/8)], axis=0)+int(num_plevels/10)
     elif crit_variable == 'potential_temperature':
-        potential_temperature = calc_pot_temp(Temp_pint, np.tile(p_levels,(len_timeseries,1)).transpose())
-        variable_diff = np.diff(potential_temperature, axis=0)
+        potential_temperature = calc_pot_temp(Temp_pint, p_levels)
+        variable_diff = np.diff(potential_temperature, axis=0) / np.diff(p_levels, axis=0)
         variable_diff[np.isnan(variable_diff)] = 9999
-        diff_extreme_idx = np.nanargmin(variable_diff[int(num_plevels/4):-int(num_plevels/4)], axis=0)+int(num_plevels/4)
+        diff_extreme_idx = np.nanargmin(variable_diff[int(num_plevels/10):-int(num_plevels/4)], axis=0)+int(num_plevels/10)
     elif crit_variable == 'pseudopotential_temperature':
-        pseudopotential_temperature = calc_pseudopot_temp(RH_pint, Temp_pint, np.tile(p_levels,(len_timeseries,1)).transpose())
-        variable_diff = np.diff(pseudopotential_temperature, axis=0)
+        pseudopotential_temperature = calc_pseudopot_temp(RH_pint, Temp_pint, p_levels)
+        variable_diff = np.diff(pseudopotential_temperature, axis=0) / np.diff(p_levels, axis=0)
         variable_diff[np.isnan(variable_diff)] = -9999
-        diff_extreme_idx = np.nanargmax(variable_diff[int(num_plevels/4):-int(num_plevels/8)], axis=0)+int(num_plevels/4)
+        diff_extreme_idx = np.nanargmax(variable_diff[int(num_plevels/10):-int(num_plevels/4)], axis=0)+int(num_plevels/10)
     else:
         print('{} is not a valid option as boundary layer indicator.'.format(crit_variable))
-    
-    p_mid_levels=[]
-    for p in range(0,len(p_levels)-1):
-        p_mid_levels.append((p_levels[p+1]+p_levels[p])/2)
-    p_mid_levels = np.array(p_mid_levels)
-    
-    
+
+    p_mid_levels=np.zeros((p_levels.shape[0]-1, p_levels.shape[1]))
+    for p in range(0, p_levels.shape[0]-1):
+        p_mid_levels[p] = (p_levels[p+1]+p_levels[p]) / 2
+      
     # boundary layer height in pressure coordinates
-    p_BL = np.array([p_mid_levels[i] for i in diff_extreme_idx])
-    # boundary layer height in altitude coordinates    
+    p_BL = np.zeros(diff_extreme_idx.shape)
+    z_BL = np.zeros(diff_extreme_idx.shape)
+    for t in range(len_timeseries):
+        arg = diff_extreme_idx[t]
+        p_BL[t] = p_mid_levels[arg, t]
+    # boundary layer height in altitude coordinates 
     z_mid_levels = np.zeros(variable_diff.shape)
     for t in range(len_timeseries):
-        z_levels[:, t] = altitude(p_levels[::-1], Temp_pint[:, t][::-1], z0=7)
+        z_levels[:, t] = altitude(p_levels[:, t], Temp_pint[:, t], z0=7)
     # flip altitude array to have the same orientation as p_levels and Temp_pint
-    z_levels = z_levels[::-1]
+    #z_levels = z_levels[::-1]
     
-    for lev in range(len(z_levels)-1):
+    for lev in range(z_levels.shape[0]-1):
         z_mid_levels[lev] = (z_levels[lev] + z_levels[lev+1]) / 2
     
     z_BL = np.zeros(p_BL.shape)
@@ -395,9 +397,7 @@ def data_interpolation_z_t(data,ref,z_intv_no,instrument_spef):
         
         #z_min=interp_data[:,4,:].min()
         z_min = 7
-        print(z_min)
         z_max=interp_data[:,4,:].max()
-        print(z_max)
         z_levels=np.linspace(z_min,z_max,z_intv_no)
         z_interp=np.zeros([len(z_levels),4,len(unit_time)])
 
@@ -410,7 +410,6 @@ def data_interpolation_z_t(data,ref,z_intv_no,instrument_spef):
         Temp_zint=z_interp[:,1,:]
         RH_zint=z_interp[:,2,:]
         p_zint = z_interp[:, 3, :]
-        print(p_levels)
         #Pot. Temperatur
         Theta = np.empty((z_intv_no,len(unit_time),))
         Theta.fill(np.nan)
@@ -559,9 +558,6 @@ def interpolate_lidar_data(lidar_data,interpolated_arddata_time,interpolated_ard
     ard_time=interpolated_arddata_time    
     lid_height=lidar_data[1][0,:]
     ard_height=interpolated_arddata_z
-    print(lid_time)
-    print(np.transpose(lidar_data[2]))
-    print(ard_time)
     time_interpolated_lid_winddir = interp1d(lid_time,np.transpose(lidar_data[2]), bounds_error=False, fill_value=np.nan)(ard_time)
     time_interpolated_lid_windspeed = interp1d(lid_time,np.transpose(lidar_data[3]), bounds_error=False, fill_value=np.nan)(ard_time)
     time_interpolated_lid_vert_windspeed = interp1d(lid_time,np.transpose(lidar_data[4]), bounds_error=False, fill_value=np.nan)(ard_time)
