@@ -7,6 +7,10 @@ from matplotlib.dates import date2num, num2date
 from matplotlib import dates
 import subprocess
 from datetime import datetime, timedelta
+from processing_functions import *
+from matplotlib.patches import Circle,Polygon
+from matplotlib.animation import FFMpegWriter
+import matplotlib
 def profilplot(data, time_start, time_end):
     """
     Plots vertica profiles of temperature and humidty for a given time period.
@@ -88,49 +92,56 @@ def daterange(start_date, end_date):
         yield start_date + timedelta(n*60)
 
 
-data = np.load('//192.168.206.173/lex2018/profil/Daten/20180829062417_Grenzschichtentwicklung.npy')
-einzelschitt = np.load('C:/Users/Uni/LEX_2018_grenzschicht/Messdaten/einzelanschnitt.npy')
+data = np.load('./Messdaten/20180901095651_Grenzschichtentwicklung3.npy')
+data = apply_correction(data)
+#einzelschitt = np.load('C:/Users/Uni/LEX_2018_grenzschicht/Messdaten/einzelanschnitt.npy')
 length_1 = np.array((2,52,152,252,352,452,552,652,752,852,952))
 length_2 = np.array((3,53,153,253,353,453,553,653,753,853,950))
 length_3 = np.array((2,100,200,300,400,500,600,700,800,900,1000))
 
-f = plt.figure(frameon = True, figsize=(5, 5))
+length = length_3
+f = plt.figure(frameon = True, figsize=(7, 7))
 canvas_width, canvas_height = f.canvas.get_width_height()
 ax = f.add_subplot(111)
-
+ax.set_aspect('equal')
 #ax = f.add_axes([0, 0, 1, 1])
 line, = ax.plot([],[])
-ax.set_xlim([0,900])
-ax.set_ylim([0,900])
+helikite = Circle((800,0),40)
+ax.add_artist(helikite)
+
+ax.set_xlim([0,1000])
+ax.set_ylim([0,700])
 ax.set_xlabel('Auslenkung am Boden in m')
 ax.set_ylabel('Höhe in m')
 def update(zeit,data):
     T, H, P = profilplot(data, num2date(zeit), num2date(zeit))
     Z = altitude(np.asarray(list(P.values())), np.asarray(list(T.values())), 7)
     deltaZ = np.diff(Z)
-    deltaL = np.diff(length_1)
+    deltaL = np.diff(length)
     deltaX = np.sqrt(deltaL ** 2 - deltaZ ** 2)
     X = np.cumsum(deltaX)
     X = np.append(0,X)
     Z = np.append(0,Z)
+    helikite.center = X[-1],Z[-1]
+    line.set_data(X[:], Z[1:])
 
-    line.set_data(X[1:], Z[2:])
-    plt.title(num2date(zeit))
+    zeitdate = num2date(zeit)
+    plt.title(str(zeitdate.day)+'.'+str(zeitdate.month)+'.'+str(zeitdate.year)+ '  '+'{:02}'.format(zeitdate.hour)+':'+'{:02}'.format(zeitdate.minute)+':'+'{:02}'.format(zeitdate.second)+' Uhr')
     plt.pause(0.00001)
     #plt.show(block=False)
 
 # Open an ffmpeg process
-outf = 'Aufstieg1.mp4'
+outf = 'AufstiegTest.mp4'
 cmdstring = ('ffmpeg',
     '-y', '-r', '30', # overwrite, 30fps
-    '-s', '%dx%d' % (canvas_width, canvas_height), # size of image string
+    '-s', '%dx%d' % (canvas_width*2, canvas_height*2), # size of image string
     '-pix_fmt', 'argb', # format
     '-f', 'rawvideo',  '-i', '-', # tell ffmpeg to expect raw video from the pipe
     '-vcodec', 'mpeg4', outf) # output encoding
 p = subprocess.Popen(cmdstring, stdin=subprocess.PIPE)
 
 # Draw 1000 frames and write to the pipe
-for zeit in data[1][1::2,0]:
+for zeit in data[1][1::3,0]:
     # draw the frame
     update(zeit,data)
     plt.draw()
